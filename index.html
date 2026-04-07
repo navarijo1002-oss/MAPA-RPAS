@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="https://cesium.com/downloads/cesiumjs/releases/1.111/Build/Cesium/Cesium.js"></script>
+  <link href="https://cesium.com/downloads/cesiumjs/releases/1.111/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
+
+  <style>
+    body { margin: 0; display: flex; font-family: Arial; }
+
+    #panel {
+      width: 280px;
+      background: #1e1e2f;
+      color: white;
+      padding: 15px;
+      font-size: 14px;
+    }
+
+    h1 { font-size: 16px; }
+    h2 { font-size: 14px; margin-top: 20px; }
+
+    .btn {
+      display: block;
+      width: 100%;
+      margin: 8px 0;
+      padding: 8px;
+      background: #2d2d44;
+      border: none;
+      color: white;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+
+    .btn:hover { background: #3e3e5e; }
+
+    #cesiumContainer {
+      flex: 1;
+      height: 100vh;
+    }
+  </style>
+</head>
+
+<body>
+
+<div id="panel">
+  <h1>MAPA INTERACTIVO DE ÁREAS RESTRINGIDAS</h1>
+
+  <p style="font-size:12px;">
+  Herramienta informativa para identificar zonas con restricciones de vuelo para RPAS.<br>
+  La información es de carácter referencial y no sustituye la Normativa Vigente DO-004-2025.
+  </p>
+
+  <h2>Capas</h2>
+  <button class="btn" onclick="toggleLayer('aerodromos')">Aeródromos</button>
+  <button class="btn" onclick="toggleLayer('puertos')">Puertos</button>
+  <button class="btn" onclick="toggleLayer('prisiones')">Prisiones</button>
+
+  <h2>Vista</h2>
+  <button class="btn" onclick="viewer.zoomTo(viewer.entities)">Zoom general</button>
+  <button class="btn" onclick="ubicarUsuario()">Mi ubicación</button>
+
+  <h2>Leyenda</h2>
+  <p style="font-size:12px;">
+  🔴 Prohibido: Prisiones<br>
+  🔵 Restringido: Puertos<br><br>
+
+  🟡 Aeródromos:<br>
+  0–2 km → 40 m<br>
+  2–4 km → 60 m<br>
+  4–6 km → 80 m<br>
+  6–8 km → 100 m
+  </p>
+</div>
+
+<div id="cesiumContainer"></div>
+
+<script>
+
+Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJmNmRiN2M4Mi05NDkzLTQzZjctOTU2ZS1iNjJkMmNkOTM4OGYiLCJpZCI6NDE0NjA3LCJpYXQiOjE3NzU1MTUzMTB9.ZjCd0PlYQOc6EbzpBV9jLuSxyZSAbQz1D8qnJjEuhoo';
+
+const viewer = new Cesium.Viewer('cesiumContainer');
+
+// CAPAS
+const capas = {
+  aerodromos: [],
+  puertos: [],
+  prisiones: []
+};
+
+// TOGGLE
+function toggleLayer(nombre) {
+  capas[nombre].forEach(e => e.show = !e.show);
+}
+
+// ======================
+// AERÓDROMOS (ANILLOS)
+// ======================
+function crearZonasAerodromo(nombre, lat, lon) {
+
+  const zonas = [
+    {radio: 2000, altura: 40, color: Cesium.Color.RED},
+    {radio: 4000, altura: 60, color: Cesium.Color.ORANGE},
+    {radio: 6000, altura: 80, color: Cesium.Color.YELLOW},
+    {radio: 8000, altura: 100, color: Cesium.Color.GREEN}
+  ];
+
+  zonas.forEach(z => {
+    let entidad = viewer.entities.add({
+      position: Cesium.Cartesian3.fromDegrees(lon, lat),
+      ellipse: {
+        semiMajorAxis: z.radio,
+        semiMinorAxis: z.radio,
+        height: z.altura,
+        material: Cesium.Color.TRANSPARENT,
+        outline: true,
+        outlineColor: z.color,
+        outlineWidth: 2
+      },
+      description: `<b>${nombre}</b><br>Restricción: ${z.altura} m`
+    });
+
+    capas.aerodromos.push(entidad);
+  });
+}
+
+// DATOS AERÓDROMOS (ejemplo, puedes ampliar)
+const aerodromos = [
+["La Aurora",14.5667,-90.5333],
+["Flores",16.9167,-89.8833],
+["Puerto Barrios",15.8,-88.5]
+];
+
+aerodromos.forEach(a => crearZonasAerodromo(a[0], a[1], a[2]));
+
+// ======================
+// PUERTOS
+// ======================
+const puertos = [
+["Champerico",14.3,-91.9167],
+["Puerto Quetzal",13.9342,-90.7853],
+["Santo Tomás",15.6961,-88.6153]
+];
+
+puertos.forEach(p => {
+  let entidad = viewer.entities.add({
+    position: Cesium.Cartesian3.fromDegrees(p[2], p[1]),
+    cylinder: {
+      length: 100,
+      topRadius: 800,
+      bottomRadius: 800,
+      material: Cesium.Color.BLUE.withAlpha(0.5)
+    },
+    description: `<b>Zona restringida:</b> ${p[0]}`
+  });
+
+  capas.puertos.push(entidad);
+});
+
+// ======================
+// PRISIONES
+// ======================
+const prisiones = [
+["Zona 1",14.6403,-90.5005],
+["Zona 18",14.6658,-90.4765],
+["Escuintla",14.2223,-90.7311]
+];
+
+prisiones.forEach(p => {
+  let entidad = viewer.entities.add({
+    position: Cesium.Cartesian3.fromDegrees(p[2], p[1]),
+    cylinder: {
+      length: 150,
+      topRadius: 500,
+      bottomRadius: 500,
+      material: Cesium.Color.RED.withAlpha(0.6)
+    },
+    description: `<b>PROHIBIDO VOLAR:</b> ${p[0]}`
+  });
+
+  capas.prisiones.push(entidad);
+});
+
+// ======================
+// UBICACIÓN USUARIO
+// ======================
+function ubicarUsuario() {
+  navigator.geolocation.getCurrentPosition(function(pos) {
+    const lat = pos.coords.latitude;
+    const lon = pos.coords.longitude;
+
+    viewer.entities.add({
+      position: Cesium.Cartesian3.fromDegrees(lon, lat),
+      point: { pixelSize: 10, color: Cesium.Color.LIME },
+      description: "Tu ubicación"
+    });
+
+    viewer.flyTo(viewer.entities);
+  });
+}
+
+viewer.zoomTo(viewer.entities);
+</script>
+
+</body>
+</html>
