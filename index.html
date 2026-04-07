@@ -62,12 +62,11 @@
   <p style="font-size:14px;">
   🔴 Prohibido: Centros Carcelarios<br>
   🔵 Restringido: Puertos Maritimos<br><br>
-
   🟡 Aeródromos:<br>
-  0–2 km → 40 m<br>
-  2–4 km → 60 m<br>
-  4–6 km → 80 m<br>
-  6–8 km → 100 m
+      0–2 km → 40 m<br>
+      2–4 km → 60 m<br>
+      4–6 km → 80 m<br>
+      6–8 km → 100 m
   </p>
 </div>
 
@@ -168,9 +167,9 @@ prisiones.forEach(p => {
   let entidad = viewer.entities.add({
     position: Cesium.Cartesian3.fromDegrees(p[2], p[1]),
     cylinder: {
-      length: 200,
-      topRadius: 1500,
-      bottomRadius: 50,
+      length: 100,
+      topRadius: 100,
+      bottomRadius: 100,
       material: Cesium.Color.RED.withAlpha(0.6)
     },
     description: `<b>PROHIBIDO VOLAR:</b> ${p[0]}`
