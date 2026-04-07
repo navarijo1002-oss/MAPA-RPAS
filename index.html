@@ -198,7 +198,11 @@ function ubicarUsuario() {
 }
 
 viewer.zoomTo(viewer.entities);
+  
 </script>
-
+viewer.camera.flyTo({
+  destination: Cesium.Cartesian3.fromDegrees(-90.5, 14.5, 500000)
+});
+  
 </body>
 </html>
