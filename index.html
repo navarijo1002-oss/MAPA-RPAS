@@ -15,7 +15,7 @@
       font-size: 14px;
     }
 
-    h1 { font-size: 16px; }
+    h1 { font-size: 18px; }
     h2 { font-size: 14px; margin-top: 20px; }
 
     .btn {
@@ -52,7 +52,7 @@
   <h2>Capas</h2>
   <button class="btn" onclick="toggleLayer('aerodromos')">Aeródromos</button>
   <button class="btn" onclick="toggleLayer('puertos')">Puertos</button>
-  <button class="btn" onclick="toggleLayer('prisiones')">Prisiones</button>
+  <button class="btn" onclick="toggleLayer('Carceles')">Prisiones</button>
 
   <h2>Vista</h2>
   <button class="btn" onclick="viewer.zoomTo(viewer.entities)">Zoom general</button>
@@ -152,14 +152,14 @@ puertos.forEach(p => {
     cylinder: {
       length: 100,
       topRadius: 800,
-      bottomRadius: 800,
+      bottomRadius: 100,
       material: Cesium.Color.BLUE.withAlpha(0.5)
     },
     description: `<b>Zona restringida:</b> ${p[0]}`
   });
 
   capas.puertos.push(entidad);
-});
+};
 
 // DATOS PUERTOS MARITIMOS
 const puertos = [
@@ -168,7 +168,7 @@ const puertos = [
 ["Puerto Quetzal",13.9342,-90.7853],
 ["Santo Tomás de Castilla",15.6961,-88.6153],
 ["Puerto Barrios",15.7375,-88.6019]
-];
+]);
   
 // ======================
 // PRISIONES
