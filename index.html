@@ -167,7 +167,7 @@ prisiones.forEach(p => {
   let entidad = viewer.entities.add({
     position: Cesium.Cartesian3.fromDegrees(p[2], p[1]),
     cylinder: {
-      length: 100,
+      length: 5000,
       topRadius: 100,
       bottomRadius: 100,
       material: Cesium.Color.RED.withAlpha(0.6)
