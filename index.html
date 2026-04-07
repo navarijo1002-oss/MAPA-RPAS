@@ -44,7 +44,7 @@
 <div id="panel">
   <h1>MAPA INTERACTIVO DE ÁREAS RESTRINGIDAS</h1>
 
-  <p style="font-size:12px;">
+  <p style="font-size:24px;">
   Herramienta informativa para identificar zonas con restricciones de vuelo para RPAS.<br>
   La información es de carácter referencial y no sustituye la Normativa Vigente DO-004-2025.
   </p>
@@ -59,7 +59,7 @@
   <button class="btn" onclick="ubicarUsuario()">Mi ubicación</button>
 
   <h2>Leyenda</h2>
-  <p style="font-size:12px;">
+  <p style="font-size:24px;">
   🔴 Prohibido: Prisiones<br>
   🔵 Restringido: Puertos<br><br>
 
@@ -113,7 +113,7 @@ function crearZonasAerodromo(nombre, lat, lon) {
         material: Cesium.Color.TRANSPARENT,
         outline: true,
         outlineColor: z.color,
-        outlineWidth: 2
+        outlineWidth: 6
       },
       description: `<b>${nombre}</b><br>Restricción: ${z.altura} m`
     });
@@ -124,7 +124,7 @@ function crearZonasAerodromo(nombre, lat, lon) {
 
 // DATOS AERÓDROMOS (ejemplo, puedes ampliar)
 const aerodromos = [
-["La Aurora",14.5667,-90.5333],
+["La Aurora",14.583161, -90.527500],
 ["Flores",16.9167,-89.8833],
 ["Puerto Barrios",15.8,-88.5]
 ];
@@ -168,9 +168,9 @@ prisiones.forEach(p => {
   let entidad = viewer.entities.add({
     position: Cesium.Cartesian3.fromDegrees(p[2], p[1]),
     cylinder: {
-      length: 150,
-      topRadius: 500,
-      bottomRadius: 500,
+      length: 200,
+      topRadius: 1500,
+      bottomRadius: 50,
       material: Cesium.Color.RED.withAlpha(0.6)
     },
     description: `<b>PROHIBIDO VOLAR:</b> ${p[0]}`
