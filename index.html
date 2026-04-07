@@ -96,7 +96,7 @@ function toggleLayer(nombre) {
 function crearZonasAerodromo(nombre, lat, lon) {
 
   const zonas = [
-    {radio: 2000, altura: 40, color: Cesium.Color.RED.withAlpha(0.8)},
+    {radio: 2000, altura: 40, color: Cesium.Color.RED.withAlpha(0.6)},
     {radio: 4000, altura: 60, color: Cesium.Color.ORANGE},
     {radio: 6000, altura: 80, color: Cesium.Color.YELLOW},
     {radio: 8000, altura: 100, color: Cesium.Color.GREEN}
@@ -112,7 +112,7 @@ function crearZonasAerodromo(nombre, lat, lon) {
         material: Cesium.Color.TRANSPARENT,
         outline: true,
         outlineColor: z.color,
-        outlineWidth: 4
+        outlineWidth: 10
       },
       description: `<b>${nombre}</b><br>Restricción: ${z.altura} m`
     });
@@ -123,9 +123,20 @@ function crearZonasAerodromo(nombre, lat, lon) {
 
 // DATOS AERÓDROMOS (ejemplo, puedes ampliar)
 const aerodromos = [
-["La Aurora",14.5667,-90.5333],
+["Carmelita",17.5,-90.1667],
+["Chiquimula",14.8,-89.55],
+["Coban",15.5833,-90.25],
+["Dos Lagunas",17.6333,-89.6667],
+["El Naranjo",14.1,-90.8333],
 ["Flores",16.9167,-89.8833],
-["Puerto Barrios",15.8,-88.5]
+["La Aurora",14.5667,-90.5333],
+["Huehuetenango",15.3333,-91.4667],
+["Melchor de Mencos",17.0917,-89.1583],
+["Paso Caballos",17.2667,-90.2583],
+["Poptun",16.35,-89.4333],
+["Puerto Barrios",15.8,-88.5],
+["Rubelsanto",15.8333,-90.3333],
+["Uaxactun",17.3833,-89.6667]
 ];
 
 aerodromos.forEach(a => crearZonasAerodromo(a[0], a[1], a[2]));
@@ -135,8 +146,10 @@ aerodromos.forEach(a => crearZonasAerodromo(a[0], a[1], a[2]));
 // ======================
 const puertos = [
 ["Champerico",14.3,-91.9167],
+["San José",13.9167,-90.8333],
 ["Puerto Quetzal",13.9342,-90.7853],
-["Santo Tomás",15.6961,-88.6153]
+["Santo Tomás de Castilla",15.6961,-88.6153],
+["Puerto Barrios",15.7375,-88.6019]
 ];
 
 puertos.forEach(p => {
@@ -159,17 +172,33 @@ puertos.forEach(p => {
 // ======================
 const prisiones = [
 ["Zona 1",14.6403,-90.5005],
+["Zona 17",14.6254,-90.4736],
 ["Zona 18",14.6658,-90.4765],
-["Escuintla",14.2223,-90.7311]
+["Anexo Zona 18",14.6675,-90.4781],
+["Santa Teresa",14.6673,-90.4775],
+["Pavoncito",14.5066,-90.4387],
+["Mazatenango",14.5591,-91.5009],
+["Canadá Escuintla",14.2179,-90.7363],
+["Renovación I",14.2222,-90.7311],
+["Cantel",14.8458,-91.4722],
+["Mujeres Cantel",14.8369,-91.5170],
+["Santa Cruz del Quiché",15.0317,-91.1486],
+["Chimaltenango",14.6439,-90.8214],
+["Malacatán",14.8841,-92.0859],
+["El Boquerón",14.2614,-90.2850],
+["Los Jocotes Zacapa",14.9654,-89.5047],
+["Cobán",15.4708,-90.3654],
+["Santa Elena Petén",16.9006,-89.9066],
+["Puerto Barrios",15.7161,-88.5906]
 ];
 
 prisiones.forEach(p => {
   let entidad = viewer.entities.add({
     position: Cesium.Cartesian3.fromDegrees(p[2], p[1]),
     cylinder: {
-      length: 150,
-      topRadius: 500,
-      bottomRadius: 500,
+      length: 900,
+      topRadius: 100,
+      bottomRadius: 100,
       material: Cesium.Color.RED.withAlpha(0.6)
     },
     description: `<b>PROHIBIDO VOLAR:</b> ${p[0]}`
