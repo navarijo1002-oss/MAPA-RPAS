@@ -12,7 +12,7 @@
       background: #1e1e2f;
       color: white;
       padding: 15px;
-      font-size: 16px;
+      font-size: 14px;
     }
 
     h1 { font-size: 16px; }
@@ -44,7 +44,7 @@
 <div id="panel">
   <h1>MAPA INTERACTIVO DE ÁREAS RESTRINGIDAS</h1>
 
-  <p style="font-size:16px;">
+  <p style="font-size:14px;">
   Herramienta informativa para identificar zonas con restricciones de vuelo para RPAS.<br>
   La información es de carácter referencial y no sustituye la Normativa Vigente DO-004-2025.
   </p>
@@ -60,8 +60,8 @@
 
   <h2>Leyenda</h2>
   <p style="font-size:14px;">
-  🔴 Prohibido: Centros Carcelarios<br>
-  🔵 Restringido: Puertos Maritimos<br><br>
+  🔴 Prohibido: Prisiones<br>
+  🔵 Restringido: Puertos<br><br>
   🟡 Aeródromos:<br>
       0–2 km → 40 m<br>
       2–4 km → 60 m<br>
@@ -96,10 +96,10 @@ function toggleLayer(nombre) {
 function crearZonasAerodromo(nombre, lat, lon) {
 
   const zonas = [
-    {radio: 2000, altura: 40, color: Cesium.Color.RED.withAlpha(0.8)},
-    {radio: 4000, altura: 60, color: Cesium.Color.ORANGE.withAlpha(0.8)},
-    {radio: 6000, altura: 80, color: Cesium.Color.YELLOW.withAlpha(0.8)},
-    {radio: 8000, altura: 100, color: Cesium.Color.GREEN.withAlpha(0.8)}
+    {radio: 2000, altura: 40, color: Cesium.Color.RED},
+    {radio: 4000, altura: 60, color: Cesium.Color.ORANGE},
+    {radio: 6000, altura: 80, color: Cesium.Color.YELLOW},
+    {radio: 8000, altura: 100, color: Cesium.Color.GREEN}
   ];
 
   zonas.forEach(z => {
@@ -112,7 +112,7 @@ function crearZonasAerodromo(nombre, lat, lon) {
         material: Cesium.Color.TRANSPARENT,
         outline: true,
         outlineColor: z.color,
-        outlineWidth: 10
+        outlineWidth: 2
       },
       description: `<b>${nombre}</b><br>Restricción: ${z.altura} m`
     });
@@ -122,7 +122,6 @@ function crearZonasAerodromo(nombre, lat, lon) {
 }
 
 // DATOS AERÓDROMOS (ejemplo, puedes ampliar)
-
 const aerodromos = [
 ["Carmelita",17.5,-90.1667],
 ["Chiquimula",14.8,-89.55],
@@ -145,11 +144,6 @@ aerodromos.forEach(a => crearZonasAerodromo(a[0], a[1], a[2]));
 // ======================
 // PUERTOS
 // ======================
-const puertos = [
-["Champerico",14.3,-91.9167],
-["Puerto Quetzal",13.9342,-90.7853],
-["Santo Tomás",15.6961,-88.6153]
-];
 
 puertos.forEach(p => {
   let entidad = viewer.entities.add({
@@ -166,13 +160,38 @@ puertos.forEach(p => {
   capas.puertos.push(entidad);
 });
 
+// DATOS PUERTOS MARITIMOS
+const puertos = [
+["Champerico",14.3,-91.9167],
+["San José",13.9167,-90.8333],
+["Puerto Quetzal",13.9342,-90.7853],
+["Santo Tomás de Castilla",15.6961,-88.6153],
+["Puerto Barrios",15.7375,-88.6019]
+];
+  
 // ======================
-// CENTROS CARCELARIOS
+// PRISIONES
 // ======================
 const prisiones = [
 ["Zona 1",14.6403,-90.5005],
+["Zona 17",14.6254,-90.4736],
 ["Zona 18",14.6658,-90.4765],
-["Escuintla",14.2223,-90.7311]
+["Anexo Zona 18",14.6675,-90.4781],
+["Santa Teresa",14.6673,-90.4775],
+["Pavoncito",14.5066,-90.4387],
+["Mazatenango",14.5591,-91.5009],
+["Canadá Escuintla",14.2179,-90.7363],
+["Renovación I",14.2222,-90.7311],
+["Cantel",14.8458,-91.4722],
+["Mujeres Cantel",14.8369,-91.5170],
+["Santa Cruz del Quiché",15.0317,-91.1486],
+["Chimaltenango",14.6439,-90.8214],
+["Malacatán",14.8841,-92.0859],
+["El Boquerón",14.2614,-90.2850],
+["Los Jocotes Zacapa",14.9654,-89.5047],
+["Cobán",15.4708,-90.3654],
+["Santa Elena Petén",16.9006,-89.9066],
+["Puerto Barrios",15.7161,-88.5906]
 ];
 
 prisiones.forEach(p => {
@@ -209,6 +228,7 @@ function ubicarUsuario() {
 }
 
 viewer.zoomTo(viewer.entities);
-   
+</script>
+
 </body>
 </html>
