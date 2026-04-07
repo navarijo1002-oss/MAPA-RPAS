@@ -109,8 +109,9 @@ function crearZonasAerodromo(nombre, lat, lon) {
         semiMajorAxis: z.radio,
         semiMinorAxis: z.radio,
         height: z.altura,
-        material: Cesium.Color.TRANSPARENT,
+        material: z.color.withAlpha(0.2), // relleno translúcido
         outline: true,
+        outlineColor: z.color,
         outlineColor: z.color,
         outlineWidth: 2
       },
