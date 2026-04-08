@@ -95,17 +95,14 @@ function toggleLayer(nombre) {
 // ======================
 function crearZonasAerodromo(nombre, lat, lon) {
 
-  function generarCirculo(radio) {
-    let posiciones = [];
+  function crearCirculo(radio) {
+    const posiciones = [];
 
-    for (let i = 0; i <= 360; i += 10) {
-      let rad = Cesium.Math.toRadians(i);
+    for (let i = 0; i < 360; i += 15) {
+      const angulo = Cesium.Math.toRadians(i);
 
-      let dx = radio * Math.cos(rad);
-      let dy = radio * Math.sin(rad);
-
-      let latOffset = dy / 111320;
-      let lonOffset = dx / (111320 * Math.cos(Cesium.Math.toRadians(lat)));
+      const latOffset = (radio / 111320) * Math.sin(angulo);
+      const lonOffset = (radio / (111320 * Math.cos(Cesium.Math.toRadians(lat)))) * Math.cos(angulo);
 
       posiciones.push(
         Cesium.Cartesian3.fromDegrees(lon + lonOffset, lat + latOffset)
@@ -115,32 +112,32 @@ function crearZonasAerodromo(nombre, lat, lon) {
     return posiciones;
   }
 
-  function crearAnillo(rExt, rInt, altura, color) {
-    let entidad = viewer.entities.add({
-      polygon: {
-        hierarchy: new Cesium.PolygonHierarchy(
-          generarCirculo(rExt),
-          [new Cesium.PolygonHierarchy(generarCirculo(rInt))]
-        ),
-        extrudedHeight: altura,
-        height: 0,
-        material: color.withAlpha(0.25),
-        outline: true,
-        outlineColor: color
-      }
-    });
+  function anillo(rExt, rInt, altura, color) {
+    try {
+      const entidad = viewer.entities.add({
+        polygon: {
+          hierarchy: new Cesium.PolygonHierarchy(
+            crearCirculo(rExt),
+            [new Cesium.PolygonHierarchy(crearCirculo(rInt))]
+          ),
+          extrudedHeight: altura,
+          height: 0,
+          material: color.withAlpha(0.2)
+        }
+      });
 
-    capas.aerodromos.push(entidad);
+      capas.aerodromos.push(entidad);
+    } catch (e) {
+      console.error("Error creando anillo:", e);
+    }
   }
 
-  // ANILLOS
-  crearAnillo(2000, 0, 40, Cesium.Color.RED);
-  crearAnillo(4000, 2000, 60, Cesium.Color.ORANGE);
-  crearAnillo(6000, 4000, 80, Cesium.Color.YELLOW);
-  crearAnillo(8000, 6000, 100, Cesium.Color.GREEN);
+  anillo(2000, 0, 40, Cesium.Color.RED);
+  anillo(4000, 2000, 60, Cesium.Color.ORANGE);
+  anillo(6000, 4000, 80, Cesium.Color.YELLOW);
+  anillo(8000, 6000, 100, Cesium.Color.GREEN);
 }
-  
-}
+
 
 // DATOS AERÓDROMOS (ejemplo, puedes ampliar)
 const aerodromos = [
