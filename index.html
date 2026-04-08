@@ -93,54 +93,53 @@ function toggleLayer(nombre) {
 // ======================
 // AERÓDROMOS (FUNCION PARA CREAR ANILLOS 3D)
 // ======================
-function crearAnillo(lat, lon, radioExterior, radioInterior, altura, color) {
+function crearZonasAerodromo(nombre, lat, lon) {
 
   function generarCirculo(radio) {
     let posiciones = [];
 
-    for (let i = 0; i < 360; i += 5) {
+    for (let i = 0; i <= 360; i += 10) {
       let rad = Cesium.Math.toRadians(i);
+
       let dx = radio * Math.cos(rad);
       let dy = radio * Math.sin(rad);
 
-      let punto = Cesium.Cartesian3.fromDegrees(
-        lon + (dx / 111320),
-        lat + (dy / 110540)
-      );
+      let latOffset = dy / 111320;
+      let lonOffset = dx / (111320 * Math.cos(Cesium.Math.toRadians(lat)));
 
-      posiciones.push(punto);
+      posiciones.push(
+        Cesium.Cartesian3.fromDegrees(lon + lonOffset, lat + latOffset)
+      );
     }
 
     return posiciones;
   }
 
-  let entidad = viewer.entities.add({
-    polygon: {
-      hierarchy: new Cesium.PolygonHierarchy(
-        generarCirculo(radioExterior),
-        [new Cesium.PolygonHierarchy(generarCirculo(radioInterior))]
-      ),
-      extrudedHeight: altura,
-      height: 0,
-      material: color.withAlpha(0.15)
-    }
-  });
+  function crearAnillo(rExt, rInt, altura, color) {
+    let entidad = viewer.entities.add({
+      polygon: {
+        hierarchy: new Cesium.PolygonHierarchy(
+          generarCirculo(rExt),
+          [new Cesium.PolygonHierarchy(generarCirculo(rInt))]
+        ),
+        extrudedHeight: altura,
+        height: 0,
+        material: color.withAlpha(0.25),
+        outline: true,
+        outlineColor: color
+      }
+    });
 
-  capas.aerodromos.push(entidad);
-}
+    capas.aerodromos.push(entidad);
+  }
 
-// ======================
-// FUNCIÓN PRINCIPAL AERÓDROMO
-// ======================
-function crearZonasAerodromo(nombre, lat, lon) {
-
-  crearAnillo(lat, lon, 2000, 0, 40, Cesium.Color.RED);
-  crearAnillo(lat, lon, 4000, 2000, 60, Cesium.Color.ORANGE);
-  crearAnillo(lat, lon, 6000, 4000, 80, Cesium.Color.YELLOW);
-  crearAnillo(lat, lon, 8000, 6000, 100, Cesium.Color.GREEN);
-
-}
-
+  // ANILLOS
+  crearAnillo(2000, 0, 40, Cesium.Color.RED);
+  crearAnillo(4000, 2000, 60, Cesium.Color.ORANGE);
+  crearAnillo(6000, 4000, 80, Cesium.Color.YELLOW);
+  crearAnillo(8000, 6000, 100, Cesium.Color.GREEN);
+  }
+  
   zonas.forEach(z => {
     let entidad = viewer.entities.add({
       position: Cesium.Cartesian3.fromDegrees(lon, lat),
