@@ -108,7 +108,7 @@ function crearZonasAerodromo(nombre, lat, lon) {
       ellipse: {
         semiMajorAxis: z.radio,
         semiMinorAxis: z.radio,
-        height: z.altura,
+        heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
         material: z.color.withAlpha(0.2), // relleno translúcido
         outline: true,
         outlineColor: z.color,
