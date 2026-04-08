@@ -141,8 +141,7 @@ function crearZonasAerodromo(nombre, lat, lon) {
 // ======================
 // AERÓDROMOS (FUNCION PARA CREAR RECTANGULOS SOBRE LAS PISTAS)
 // ======================
-  
-  
+    
   function crearPista(nombre, lat, lon, largo, ancho, rumbo) {
 
   function calcularPunto(distancia, angulo) {
@@ -182,7 +181,7 @@ function crearZonasAerodromo(nombre, lat, lon) {
     },
     description: `<b>PROHIBIDO VOLAR</b><br>${nombre}`
   });
-
+crearPista("La Aurora", 14.5667, -90.5333, 3000, 60, 20);
   capas.aerodromos.push(entidad);
 }
 // DATOS AERÓDROMOS (ejemplo, puedes ampliar)
