@@ -179,15 +179,7 @@ function crearZonasAerodromo(nombre, lat, lon) {
       height: 120,
       extrudedHeight: 120 // zona totalmente prohibida
     },
-    description: `
-    <b>${nombre}</b><br>
-    Zona: Aeródromo<br>
-    Restricción según distancia:<br>
-    0–2 km → 40 m<br>
-    2–4 km → 60 m<br>
-    4–6 km → 80 m<br>
-    6–8 km → 100 m
-    `
+   
   });
   crearPista("La Aurora", 14.582085, -90.527770, 4000, 60, 20);
   capas.aerodromos.push(entidad);
@@ -216,6 +208,15 @@ const aerodromos = [
 ["Uaxactun",17.3833,-89.6667]
 ];
 
+description: `
+<b>${nombre}</b><br>
+Zona: Aeródromo<br>
+Restricción según distancia:<br>
+0–2 km → 40 m<br>
+2–4 km → 60 m<br>
+4–6 km → 80 m<br>
+6–8 km → 100 m
+`  
 aerodromos.forEach(a => crearZonasAerodromo(a[0], a[1], a[2]));
 
 // ======================
