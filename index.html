@@ -137,7 +137,47 @@ function crearZonasAerodromo(nombre, lat, lon) {
   anillo(6000, 4000, 80, Cesium.Color.YELLOW);
   anillo(8000, 6000, 100, Cesium.Color.GREEN);
 }
+function crearPista(nombre, lat, lon, largo, ancho, rumbo) {
 
+  function calcularPunto(distancia, angulo) {
+    const rad = Cesium.Math.toRadians(angulo);
+
+    const dLat = (distancia * Math.cos(rad)) / 111320;
+    const dLon = (distancia * Math.sin(rad)) / (111320 * Math.cos(Cesium.Math.toRadians(lat)));
+
+    return [lat + dLat, lon + dLon];
+  }
+
+  const mitadLargo = largo / 2;
+  const mitadAncho = ancho / 2;
+
+  const p1 = calcularPunto(mitadLargo, rumbo);
+  const p2 = calcularPunto(mitadLargo, rumbo + 180);
+
+  const izquierda = rumbo - 90;
+  const derecha = rumbo + 90;
+
+  const esquina1 = calcularPunto(mitadAncho, izquierda);
+  const esquina2 = calcularPunto(mitadAncho, derecha);
+
+  const posiciones = [
+    Cesium.Cartesian3.fromDegrees(p1[1], p1[0]),
+    Cesium.Cartesian3.fromDegrees(esquina2[1], esquina2[0]),
+    Cesium.Cartesian3.fromDegrees(p2[1], p2[0]),
+    Cesium.Cartesian3.fromDegrees(esquina1[1], esquina1[0])
+  ];
+
+  const entidad = viewer.entities.add({
+    polygon: {
+      hierarchy: posiciones,
+      material: Cesium.Color.RED.withAlpha(0.6),
+      height: 0,
+      extrudedHeight: 120 // zona totalmente prohibida
+    },
+    description: `<b>PROHIBIDO VOLAR</b><br>${nombre}`
+  });
+
+  capas.aerodromos.push(entidad);
 
 // DATOS AERÓDROMOS (ejemplo, puedes ampliar)
 const aerodromos = [
