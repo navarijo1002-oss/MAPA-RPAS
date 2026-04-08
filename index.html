@@ -137,7 +137,13 @@ function crearZonasAerodromo(nombre, lat, lon) {
   anillo(6000, 4000, 80, Cesium.Color.YELLOW);
   anillo(8000, 6000, 100, Cesium.Color.GREEN);
 }
-function crearPista(nombre, lat, lon, largo, ancho, rumbo) {
+
+// ======================
+// AERÓDROMOS (FUNCION PARA CREAR RECTANGULOS SOBRE LAS PISTAS)
+// ======================
+  
+  
+  function crearPista("La Aurora",14.582085,-90.527770, 3000, 60, 017) {
 
   function calcularPunto(distancia, angulo) {
     const rad = Cesium.Math.toRadians(angulo);
