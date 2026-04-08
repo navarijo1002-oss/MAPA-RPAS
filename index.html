@@ -138,25 +138,8 @@ function crearZonasAerodromo(nombre, lat, lon) {
   crearAnillo(4000, 2000, 60, Cesium.Color.ORANGE);
   crearAnillo(6000, 4000, 80, Cesium.Color.YELLOW);
   crearAnillo(8000, 6000, 100, Cesium.Color.GREEN);
-  }
+}
   
-  zonas.forEach(z => {
-    let entidad = viewer.entities.add({
-      position: Cesium.Cartesian3.fromDegrees(lon, lat),
-      ellipse: {
-        semiMajorAxis: z.radio,
-        semiMinorAxis: z.radio,
-        heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
-        material: z.color.withAlpha(0.15), // relleno translúcido
-        outline: true,
-        outlineColor: z.color,
-        outlineWidth: 10
-      },
-      description: `<b>${nombre}</b><br>Restricción: ${z.altura} m`
-    });
-
-    capas.aerodromos.push(entidad);
-  });
 }
 
 // DATOS AERÓDROMOS (ejemplo, puedes ampliar)
