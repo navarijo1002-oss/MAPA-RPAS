@@ -167,8 +167,10 @@ function crearZonasAerodromo(nombre, lat, lon) {
 // AERÓDROMOS (FUNCION PARA CREAR RECTANGULOS SOBRE LAS PISTAS)
 // ======================
     
- function crearPista(nombre, lat, lon, largo, ancho, rumbo) {
+function crearPista(nombre, lat, lon, largo, ancho, rumbo) {
+
   const posicion = Cesium.Cartesian3.fromDegrees(lon, lat);
+
   const entidad = viewer.entities.add({
     name: nombre,
     position: posicion,
@@ -180,26 +182,22 @@ function crearZonasAerodromo(nombre, lat, lon) {
 
     orientation: Cesium.Transforms.headingPitchRollQuaternion(
       posicion,
-      new Cesium.HeadingPitchRoll(Cesium.Math.toRadians(rumbo),
+      new Cesium.HeadingPitchRoll(
+        Cesium.Math.toRadians(rumbo),
         0,
         0
       )
     ),
 
-    
+    description: `
+    <b>PROHIBIDO VOLAR</b><br>
+    ${nombre}<br><br>
+    Zona de pista activa
+    `
   });
- description:`
-<b>${nombre}</b><br>
-Zona: Aeródromo<br>
-Restricción según distancia:<br>
-0–2 km → 40 m<br>
-2–4 km → 60 m<br>
-4–6 km → 80 m<br>
-6–8 km → 100 m
-`
+
   capas.aerodromos.push(entidad);
-}
- 
+} 
 aerodromos.forEach(a => crearZonasAerodromo(a[0], a[1], a[2]));
 
   
