@@ -175,16 +175,19 @@ function crearZonasAerodromo(nombre, lat, lon) {
   const entidad = viewer.entities.add({
     polygon: {
       hierarchy: posiciones,
-      material: Cesium.Color.RED.withAlpha(0.6),
-      height: 0,
+      material: Cesium.Color.RED.withAlpha(0.8),
+      height: 120,
       extrudedHeight: 120 // zona totalmente prohibida
     },
     description: `<b>PROHIBIDO VOLAR</b><br>${nombre}`
   });
-crearPista("La Aurora", 14.582085, -90.527770, 3000, 60, 20);
+  crearPista("La Aurora", 14.582085, -90.527770, 3000, 60, 20);
   capas.aerodromos.push(entidad);
 }
+
+  
 // DATOS AERÓDROMOS (ejemplo, puedes ampliar)
+  
 const aerodromos = [
 ["Carmelita",17.5,-90.1667],
 ["Chiquimula",14.830984, -89.520862],
