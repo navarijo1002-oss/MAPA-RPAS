@@ -157,7 +157,7 @@ const aerodromos = [
 ["Uaxactun",17.3833,-89.6667]
 ];
 
-crearZonasAerodromo("Prueba", 14.5667, -90.5333);
+aerodromos.forEach(a => crearZonasAerodromo(a[0], a[1], a[2]));
 
 // ======================
 // PUERTOS
