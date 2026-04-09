@@ -121,11 +121,12 @@ const pistas = [
 ["Retalhuleu",14.521844, -91.696591,  1600, 150, 45.0],
 ["Chiquimula",14.830984, -89.520862,1000,100,20],
 ["Dos Lagunas",17.6333,-89.6667,1500,100,90],
-["Huehuetenango",15.316565,-91.505101,1000,100,60],
+["Huehuetenango",15.316565,-91.505101,1000,100,62],
 ["Poptun",16.326136, -89.415509,1800,100,80],
 ["Puerto Barrios",15.730402, -88.583274,2800,100,12],
 ["Rubelsanto",15.992035, -90.445486,1600,100,80],
 ["San Jose",13.935957, -90.835802,2400,150,15],
+["Quetzaltenango",14.866634,-91.501265,2400,150,54],
 ["Iztapa",13.930708, -90.728809,1000,100,90]
 ];
 pistas.forEach(p => crearPista(p[0], p[1], p[2], p[3], p[4], p[5]));
@@ -192,7 +193,7 @@ function crearZonasAerodromo(nombre, lat, lon) {
 
     box: {
       dimensions: new Cesium.Cartesian3(ancho, largo, 120),
-      material: Cesium.Color.RED.withAlpha(0.3)
+      material: Cesium.Color.RED.withAlpha(0.15)
     },
 
     orientation: Cesium.Transforms.headingPitchRollQuaternion(
