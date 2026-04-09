@@ -202,10 +202,10 @@ function crearPista(nombre, lat, lon, largo, ancho, rumbo) {
     capas.aerodromos.push(entidad);
 } 
 
-//
-//
-//
-
+//================================================
+//ZONAS DE ACTIVA
+//================================================
+  
 function crearestr(nombre, lat, lon, largo, ancho, rumbo) {
 
   const posicion = Cesium.Cartesian3.fromDegrees(lon, lat);
@@ -233,21 +233,12 @@ function crearestr(nombre, lat, lon, largo, ancho, rumbo) {
     ${nombre}<br><br>
     ZONA DE TRAYECTORIA DE PISTA  
     ALTURA MAXIMA 20 METROS SOBRE EL TERRENO
-    `
-
-    crearestr("La Aurora", 14.598766, -90.522767, 1020, 280, 17.5);
+    `  
+  });
+crearestr("La Aurora", 14.598766, -90.522767, 1020, 280, 17.5);
 crearestr("La Aurora", 114.608257, -90.520220, 1019, 600, 17.5);
 crearestr("La Aurora", 14.616397, -90.517951,  960, 900, 17.5);
-
-
-
-
-  
 aerodromos.forEach(a => crearZonasAerodromo(a[0], a[1], a[2]));
-    
-  });
-
- 
   
 // ======================
 // PUERTOS
