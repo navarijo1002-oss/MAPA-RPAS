@@ -166,39 +166,6 @@ function crearZonasAerodromo(nombre, lat, lon) {
   anillo(8000, 6000, 100, Cesium.Color.GREEN);
 }
 
-// ======================
-// AERÓDROMOS (FUNCION PARA CREAR RECTANGULOS SOBRE LAS PISTAS)
-// ======================
-    
-function crearPista(nombre, lat, lon, largo, ancho, rumbo) {
-
-  const posicion = Cesium.Cartesian3.fromDegrees(lon, lat);
-
-  const entidad = viewer.entities.add({
-    name: nombre,
-    position: posicion,
-
-    box: {
-      dimensions: new Cesium.Cartesian3(ancho, largo, 120),
-      material: Cesium.Color.RED.withAlpha(0.2)
-    },
-
-    orientation: Cesium.Transforms.headingPitchRollQuaternion(
-      posicion,
-      new Cesium.HeadingPitchRoll(
-        Cesium.Math.toRadians(rumbo),
-        0,
-        0
-      )
-    ),
-
-    description: `
-    <b>PROHIBIDO VOLAR</b><br>
-    ${nombre}<br><br>
-    ZONA DE PISTA ACTIVA
-    `
-  });
-
     capas.aerodromos.push(entidad);
 } 
 
