@@ -121,7 +121,7 @@ const pistas = [
 ["Puerto Barrios", 15.730402, -88.583274, 1500, 30, 90],
 ["Cobán", 15.469216, -90.406632, 1400, 30, 120],
 ["Retalhuleu",14.521844, -91.696591,  1600, 150, 45.0],
-["Quetzaltenango",14.866634,-91.501265, 2400, 150, 50.9]
+["Quetzaltenango",14.866634,-91.501265, 2400, 150, 51.9]
 ];
 pistas.forEach(p => crearPista(p[0], p[1], p[2], p[3], p[4], p[5]));
 
@@ -187,7 +187,7 @@ function crearZonasAerodromo(nombre, lat, lon) {
 
     box: {
       dimensions: new Cesium.Cartesian3(ancho, largo, 120),
-      material: Cesium.Color.RED.withAlpha(0.7)
+      material: Cesium.Color.RED.withAlpha(0.3)
     },
 
     orientation: Cesium.Transforms.headingPitchRollQuaternion(
