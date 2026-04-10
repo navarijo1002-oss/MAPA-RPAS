@@ -288,7 +288,16 @@ function moverPunto(lat, lon, distancia, rumbo) {
     Cesium.Math.toDegrees(carto.longitude)
   ];
 }
+// puntos de prueba
+viewer.entities.add({
+  position: Cesium.Cartesian3.fromDegrees(e1[1], e1[0]),
+  point: { pixelSize: 10, color: Cesium.Color.RED }
+});
 
+viewer.entities.add({
+  position: Cesium.Cartesian3.fromDegrees(e2[1], e2[0]),
+  point: { pixelSize: 10, color: Cesium.Color.BLUE }
+});
 
   
   
