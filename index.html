@@ -327,16 +327,21 @@ function crearZonaVuelo(lat, lon, distanciaInicio, distanciaFin, ancho, altura, 
 
   capas.aerodromos.push(entidad);
 }
-const mitad = 2987 / 2;
 
+const mitad = 2987 / 2;
 const e1 = moverPunto(14.582085, -90.527770, mitad, 17.5);
 
-
+//EXTREMO 1 DE PISTA
 crearZonaVuelo(e1[0], e1[1], 60, 1080, 280, 40, 17.5, Cesium.Color.RED);
 crearZonaVuelo(e1[0], e1[1], 1080, 2040, 586, 60, 17.5, Cesium.Color.ORANGE);
 crearZonaVuelo(e1[0], e1[1], 2040, 3000, 892, 80, 17.5, Cesium.Color.YELLOW);
 crearZonaVuelo(e1[0], e1[1], 3000, 3800, 1180, 100, 17.5, Cesium.Color.GREEN);
 
+//EXTREMO 2 DE PISTA
+crearZonaVuelo(e2[0], e2[1], 60, 1080, 280, 40, 197.5, Cesium.Color.RED);
+crearZonaVuelo(e2[0], e2[1], 1080, 2040, 586, 60, 197.5, Cesium.Color.ORANGE);
+crearZonaVuelo(e2[0], e2[1], 2040, 3000, 892, 80, 197.5, Cesium.Color.YELLOW);
+crearZonaVuelo(e2[0], e2[1], 3000, 3800, 1180, 100, 197.5, Cesium.Color.GREEN);
   
   
 // ======================
