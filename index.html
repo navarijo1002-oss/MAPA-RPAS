@@ -214,7 +214,7 @@ function crearZonasAerodromo(nombre, lat, lon) {
 }
   
 // ======================
-// AERÓDROMOS (FUNCION PARA CREAR  PISTAS)
+// FUNCION PARA CREAR  PISTAS
 // ======================
     
  function crearPista(nombre, lat, lon, largo, ancho, rumbo) {
@@ -309,22 +309,27 @@ function crearZonaVuelo(lat, lon, distanciaInicio, distanciaFin, ancho, altura, 
 
   capas.aerodromos.push(entidad);
 }
+
+const extremos = calcularExtremosPista(14.582085, -90.527770, 3000, 20);
+
+const e1 = extremos[0];
+const e2 = extremos[1];
+  
 // EXTREMO 1
-crearZonaVuelo(14.582085, -90.527770, 60, 1080, 280, 0, 20, Cesium.Color.RED);
-crearZonaVuelo(14.582085, -90.527770, 1081, 2100, 586, 20, 20, Cesium.Color.ORANGE);
-crearZonaVuelo(14.582085, -90.527770, 2101, 3060, 892, 40, 20, Cesium.Color.YELLOW);
-crearZonaVuelo(14.582085, -90.527770, 3061, 3860, 1180, 60, 20, Cesium.Color.BURLYWOOD);
-crearZonaVuelo(14.582085, -90.527770, 3861, 4660, 1420, 80, 20, Cesium.Color.KHAKI);
-crearZonaVuelo(14.582085, -90.527770, 4661, 5460, 1660, 100, 20, Cesium.Color.GREEN);
+crearZonaVuelo(e1[0], e1[1], 60, 1080, 280, 0, 20, Cesium.Color.RED);
+crearZonaVuelo(e1[0], e1[1], 1081, 2100, 586, 20, 20, Cesium.Color.ORANGE);
+crearZonaVuelo(e1[0], e1[1], 2101, 3060, 892, 40, 20, Cesium.Color.YELLOW);
+crearZonaVuelo(e1[0], e1[1], 3061, 3860, 1180, 60, 20, Cesium.Color.BURLYWOOD);
+crearZonaVuelo(e1[0], e1[1], 3861, 4660, 1420, 80, 20, Cesium.Color.KHAKI);
+crearZonaVuelo(e1[0], e1[1], 4661, 5460, 1660, 100, 20, Cesium.Color.GREEN);
 
 // EXTREMO OPUESTO (IMPORTANTE)
-crearZonaVuelo(14.582085, -90.527770, 60, 1080, 280, 0, 200, Cesium.Color.RED);
-crearZonaVuelo(14.582085, -90.527770, 1081, 2100, 586, 20, 200, Cesium.Color.ORANGE);
-crearZonaVuelo(14.582085, -90.527770, 2101, 3060, 892, 40, 200, Cesium.Color.YELLOW);
-crearZonaVuelo(14.582085, -90.527770, 3061, 3860, 1180, 60, 200, Cesium.Color.BURLYWOOD);
-crearZonaVuelo(14.582085, -90.527770, 3861, 4660, 1420, 80, 200, Cesium.Color.KHAKI);
-crearZonaVuelo(14.582085, -90.527770, 4661, 5460, 1660, 100, 200, Cesium.Color.GREEN);
-
+crearZonaVuelo(e2[0], e2[1], 60, 1080, 280, 0, 200, Cesium.Color.RED);
+crearZonaVuelo(e2[0], e2[1], 1081, 2100, 586, 20, 200, Cesium.Color.ORANGE);
+crearZonaVuelo(e2[0], e2[1], 2101, 3060, 892, 40, 200, Cesium.Color.YELLOW);
+crearZonaVuelo(e2[0], e2[1], 3061, 3860, 1180, 60, 200, Cesium.Color.BURLYWOOD);
+crearZonaVuelo(e2[0], e2[1], 3861, 4660, 1420, 80, 200, Cesium.Color.KHAKI);
+crearZonaVuelo(e2[0], e2[1], 4661, 5460, 1660, 100, 200, Cesium.Color.GREEN);
   
 // ======================
 // PUERTOS
