@@ -306,7 +306,7 @@ function crearZonaVuelo(lat, lon, distanciaInicio, distanciaFin, ancho, altura, 
         Cesium.Cartesian3.fromDegrees(p3[1], p3[0]),
         Cesium.Cartesian3.fromDegrees(p4[1], p4[0])
       ]),
-      extrudedHeight: altura,
+      extrudedHeight: altura === 0 ? 1 : altura,
       height: 0,
       material: color.withAlpha(0.4),
       outline: true,
@@ -322,22 +322,26 @@ function crearZonaVuelo(lat, lon, distanciaInicio, distanciaFin, ancho, altura, 
   capas.aerodromos.push(entidad);
 }
 
-const mitad = 2987 / 2;
 
+const mitad = 2987 / 2;
 const e1 = moverPunto(14.582085, -90.527770, mitad, 17.5);
 const e2 = moverPunto(14.582085, -90.527770, mitad, 197.5);
 
-// EXTREMO 1
-crearZonaVuelo(e1[0], e1[1], 60, 1080, 280, 40, 17.5, Cesium.Color.RED);
-crearZonaVuelo(e1[0], e1[1], 1080, 2040, 586, 60, 17.5, Cesium.Color.ORANGE);
-crearZonaVuelo(e1[0], e1[1], 2040, 3000, 892, 80, 17.5, Cesium.Color.YELLOW);
-crearZonaVuelo(e1[0], e1[1], 3000, 3800, 1180, 100, 17.5, Cesium.Color.GREEN);
+// EXTREMO 1 (6 ZONAS)
+crearZonaVuelo(e1[0], e1[1], 60, 1080, 280, 0, 17.5, Cesium.Color.RED);
+crearZonaVuelo(e1[0], e1[1], 1080, 2100, 586, 20, 17.5, Cesium.Color.ORANGE);
+crearZonaVuelo(e1[0], e1[1], 2100, 3060, 892, 40, 17.5, Cesium.Color.YELLOW);
+crearZonaVuelo(e1[0], e1[1], 3060, 3860, 1180, 60, 17.5, Cesium.Color.BURLYWOOD);
+crearZonaVuelo(e1[0], e1[1], 3860, 4660, 1420, 80, 17.5, Cesium.Color.KHAKI);
+crearZonaVuelo(e1[0], e1[1], 4660, 5460, 1660, 100, 17.5, Cesium.Color.GREEN);
 
-// EXTREMO 2
-crearZonaVuelo(e2[0], e2[1], 60, 1080, 280, 40, 197.5, Cesium.Color.RED);
-crearZonaVuelo(e2[0], e2[1], 1080, 2040, 586, 60, 197.5, Cesium.Color.ORANGE);
-crearZonaVuelo(e2[0], e2[1], 2040, 3000, 892, 80, 197.5, Cesium.Color.YELLOW);
-crearZonaVuelo(e2[0], e2[1], 3000, 3800, 1180, 100, 197.5, Cesium.Color.GREEN);
+// EXTREMO 2 (6 ZONAS)
+crearZonaVuelo(e2[0], e2[1], 60, 1080, 280, 0, 197.5, Cesium.Color.RED);
+crearZonaVuelo(e2[0], e2[1], 1080, 2100, 586, 20, 197.5, Cesium.Color.ORANGE);
+crearZonaVuelo(e2[0], e2[1], 2100, 3060, 892, 40, 197.5, Cesium.Color.YELLOW);
+crearZonaVuelo(e2[0], e2[1], 3060, 3860, 1180, 60, 197.5, Cesium.Color.BURLYWOOD);
+crearZonaVuelo(e2[0], e2[1], 3860, 4660, 1420, 80, 197.5, Cesium.Color.KHAKI);
+crearZonaVuelo(e2[0], e2[1], 4660, 5460, 1660, 100, 197.5, Cesium.Color.GREEN);
   
   
 // ======================
