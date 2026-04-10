@@ -290,7 +290,7 @@ function crearZonaVuelo(lat, lon, distanciaInicio, distanciaFin, ancho, altura, 
 
   const entidad = viewer.entities.add({
     polygon: {
-      hierarchy: [
+      hierarchy: new Cesium.PolygonHierarchy([
         Cesium.Cartesian3.fromDegrees(p1[1], p1[0]),
         Cesium.Cartesian3.fromDegrees(p2[1], p2[0]),
         Cesium.Cartesian3.fromDegrees(p3[1], p3[0]),
@@ -322,10 +322,8 @@ function moverPunto(lat, lon, distancia, rumbo) {
 const mitad = 3000 / 2; // largo pista
 
 const e1 = moverPunto(14.582085, -90.527770, mitad, 20);
-const e2 = moverPunto(14.582085, -90.527770, mitad, 200);const mitad = 3000 / 2; // largo pista
-
-const e1 = moverPunto(14.582085, -90.527770, mitad, 20);
 const e2 = moverPunto(14.582085, -90.527770, mitad, 200);
+
   
 // EXTREMO 1
 crearZonaVuelo(e1[0], e1[1], 60, 1080, 280, 0, 20, Cesium.Color.RED);
