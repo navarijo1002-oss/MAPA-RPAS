@@ -178,32 +178,34 @@ function crearZonasAerodromo(nombre, lat, lon) {
     return posiciones;
   }
 
-  function anillo(rExt, rInt, altura, color) {
-    try {
-      const entidad = viewer.entities.add({
-          name: nombre,
-          polygon: {
-            hierarchy: new Cesium.PolygonHierarchy(
-            crearCirculo(rExt),
-            [new Cesium.PolygonHierarchy(crearCirculo(rInt))]
-          ),
-          description: `
-          <b>${nombre}</b><br><br>
-          Zona de restricción por proximidad a aeródromo<br><br>
-          <b>Altura máxima permitida:</b> ${altura} metros<br>
-          <b>Radio:</b> ${rExt/1000} km
-           `
-          extrudedHeight: altura,
-          height: 0,
-          material: color.withAlpha(0.15)
-        }
-      });
+ function anillo(rExt, rInt, altura, color) {
+  try {
+    const entidad = viewer.entities.add({
+      name: nombre,
 
-      capas.aerodromos.push(entidad);
-    } catch (e) {
-      console.error("Error creando anillo:", e);
-    }
+      polygon: {
+        hierarchy: new Cesium.PolygonHierarchy(
+          crearCirculo(rExt),
+          [new Cesium.PolygonHierarchy(crearCirculo(rInt))]
+        ),
+        extrudedHeight: altura,
+        height: 0,
+        material: color.withAlpha(0.15)
+      },
+
+      description: `
+      <b>${nombre}</b><br><br>
+      Zona de restricción por proximidad a aeródromo<br><br>
+      <b>Altura máxima permitida:</b> ${altura} metros<br>
+      <b>Radio:</b> ${rExt/1000} km
+      `
+    });
+
+    capas.aerodromos.push(entidad);
+  } catch (e) {
+    console.error("Error creando anillo:", e);
   }
+}
 
   anillo(2000, 0, 40, Cesium.Color.PINK.withAlpha(0.05));
   anillo(4000, 2000, 60, Cesium.Color.ORANGE);
