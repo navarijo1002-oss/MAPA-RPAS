@@ -177,20 +177,7 @@ function crearZonasAerodromo(nombre, lat, lon) {
 
     return posiciones;
   }
-function moverPunto(lat, lon, distancia, rumbo) {
-  const rad = Cesium.Math.toRadians(rumbo);
 
-  const dLat = (distancia * Math.cos(rad)) / 111320;
-  const dLon = (distancia * Math.sin(rad)) / (111320 * Math.cos(Cesium.Math.toRadians(lat)));
-
-  return [lat + dLat, lon + dLon];
-
-const mitad = 3000 / 2;
-
-const e1 = moverPunto(14.582085, -90.527770, mitad, 20);
-const e2 = moverPunto(14.582085, -90.527770, mitad, 200);
-  
-}
 function anillo(rExt, rInt, altura, color) {
   try {
 
@@ -304,6 +291,21 @@ function crearZonaVuelo(lat, lon, distanciaInicio, distanciaFin, ancho, altura, 
     return [punto[0] + dLat, punto[1] + dLon];
   }
 
+ function moverPunto(lat, lon, distancia, rumbo) {
+  const rad = Cesium.Math.toRadians(rumbo);
+
+  const dLat = (distancia * Math.cos(rad)) / 111320;
+  const dLon = (distancia * Math.sin(rad)) / (111320 * Math.cos(Cesium.Math.toRadians(lat)));
+
+  return [lat + dLat, lon + dLon];
+
+const mitad = 3000 / 2;
+
+const e1 = moverPunto(14.582085, -90.527770, mitad, 20);
+const e2 = moverPunto(14.582085, -90.527770, mitad, 200);
+  
+}
+  
   const mitad = ancho / 2;
 
   const p1 = anchoOffset(inicio, izquierda, mitad);
