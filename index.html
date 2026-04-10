@@ -274,8 +274,9 @@ function moverPunto(lat, lon, distancia, rumbo) {
   return [
     lat + Cesium.Math.toDegrees(dLat),
     lon + Cesium.Math.toDegrees(dLon)
- 
-const mitad = 2984 / 2;
+  ];
+}
+const mitad = 3000 / 2;
 
 const e1 = moverPunto(14.582085, -90.527770, mitad, 20);
 const e2 = moverPunto(14.582085, -90.527770, mitad, 200);
@@ -290,8 +291,7 @@ viewer.entities.add({
   point: { pixelSize: 10, color: Cesium.Color.BLUE }
 });
 
-  
-}  
+
   
 // ======================
 // PUERTOS
