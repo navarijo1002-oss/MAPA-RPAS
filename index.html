@@ -265,77 +265,8 @@ aerodromos.forEach(a => crearZonasAerodromo(a[0], a[1], a[2]));
 //=====================
 //CREAR ZONAS DE VUELO EN TRAYECTORIA DE PISTA
 //======================
-function crearZonaVuelo(lat, lon, distanciaInicio, distanciaFin, ancho, altura, rumbo, color) {
 
-  function mover(dist, angulo) {
-    const rad = Cesium.Math.toRadians(angulo);
 
-    const dLat = (dist * Math.cos(rad)) / 111320;
-    const dLon = (dist * Math.sin(rad)) / (111320 * Math.cos(Cesium.Math.toRadians(lat)));
-
-    return [lat + dLat, lon + dLon];
-  }
-
-  const inicio = mover(distanciaInicio, rumbo);
-  const fin = mover(distanciaFin, rumbo);
-
-  const izquierda = rumbo - 90;
-  const derecha = rumbo + 90;
-
-  function anchoOffset(punto, angulo, distancia) {
-    const rad = Cesium.Math.toRadians(angulo);
-
-    const dLat = (distancia * Math.cos(rad)) / 111320;
-    const dLon = (distancia * Math.sin(rad)) / (111320 * Math.cos(Cesium.Math.toRadians(punto[0])));
-
-    return [punto[0] + dLat, punto[1] + dLon];
-  }
-
- function moverPunto(lat, lon, distancia, rumbo) {
-  const rad = Cesium.Math.toRadians(rumbo);
-
-  const dLat = (distancia * Math.cos(rad)) / 111320;
-  const dLon = (distancia * Math.sin(rad)) / (111320 * Math.cos(Cesium.Math.toRadians(lat)));
-
-  return [lat + dLat, lon + dLon];
-
-const mitad = 3000 / 2;
-
-const e1 = moverPunto(14.582085, -90.527770, mitad, 20);
-const e2 = moverPunto(14.582085, -90.527770, mitad, 200);
-  
-}
-  
-  const mitad = ancho / 2;
-
-  const p1 = anchoOffset(inicio, izquierda, mitad);
-  const p2 = anchoOffset(inicio, derecha, mitad);
-  const p3 = anchoOffset(fin, derecha, mitad);
-  const p4 = anchoOffset(fin, izquierda, mitad);
-
-  const entidad = viewer.entities.add({
-    polygon: {
-      hierarchy: [
-        Cesium.Cartesian3.fromDegrees(p1[1], p1[0]),
-        Cesium.Cartesian3.fromDegrees(p2[1], p2[0]),
-        Cesium.Cartesian3.fromDegrees(p3[1], p3[0]),
-        Cesium.Cartesian3.fromDegrees(p4[1], p4[0])
-      ],
-      extrudedHeight: altura,
-      height: 0,
-      material: color.withAlpha(0.35)
-    },
-
-    description: `
-    <b>Zona de aproximación</b><br>
-    Altura máxima: ${altura} m
-    `
-  });
-
-  capas.aerodromos.push(entidad);
-}
-
-crearZonaVuelo(e1[0], e1[1], 60, 1080, 280, 40, 20, Cesium.Color.RED);
   
 // ======================
 // PUERTOS
