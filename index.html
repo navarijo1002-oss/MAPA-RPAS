@@ -272,7 +272,7 @@ aerodromos.forEach(a => crearZonasAerodromo(a[0], a[1], a[2]));
   const dLon = (distancia * Math.sin(rad)) / (111320 * Math.cos(Cesium.Math.toRadians(lat)));
   return [lat + dLat, lon + dLon];
 }
-const mitad = 3000 / 2;
+const mitad = 2987 / 2;
 
 const e1 = moverPunto(14.582085, -90.527770, mitad, 20);
 const e2 = moverPunto(14.582085, -90.527770, mitad, 200);
