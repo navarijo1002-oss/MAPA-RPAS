@@ -290,11 +290,11 @@ function crearZonaVuelo(lat, lon, distanciaInicio, distanciaFin, ancho, altura, 
 
   const entidad = viewer.entities.add({
     polygon: {
-      Cesium.PolygonHierarchy([
-      Cesium.Cartesian3.fromDegrees(p1[1], p1[0]),
-      Cesium.Cartesian3.fromDegrees(p2[1], p2[0]),
-      Cesium.Cartesian3.fromDegrees(p3[1], p3[0]),
-      Cesium.Cartesian3.fromDegrees(p4[1], p4[0])
+      hierarchy: new Cesium.PolygonHierarchy([
+        Cesium.Cartesian3.fromDegrees(p1[1], p1[0]),
+        Cesium.Cartesian3.fromDegrees(p2[1], p2[0]),
+        Cesium.Cartesian3.fromDegrees(p3[1], p3[0]),
+        Cesium.Cartesian3.fromDegrees(p4[1], p4[0])
       ]),
       extrudedHeight: altura,
       height: 0,
@@ -309,11 +309,6 @@ function crearZonaVuelo(lat, lon, distanciaInicio, distanciaFin, ancho, altura, 
 
   capas.aerodromos.push(entidad);
 }
-
-const extremos = calcularExtremosPista(14.582085, -90.527770, 3000, 20);
-
-const e1 = extremos[0];
-const e2 = extremos[1];
   
 // EXTREMO 1
 crearZonaVuelo(e1[0], e1[1], 1, 1020, 280, 0, 20, Cesium.Color.RED);
