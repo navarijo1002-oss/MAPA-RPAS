@@ -266,7 +266,30 @@ aerodromos.forEach(a => crearZonasAerodromo(a[0], a[1], a[2]));
 //CREAR ZONAS DE VUELO EN TRAYECTORIA DE PISTA
 //======================
 
+  function moverPunto(lat, lon, distancia, rumbo) {
+  const rad = Cesium.Math.toRadians(rumbo);
+  const dLat = (distancia * Math.cos(rad)) / 111320;
+  const dLon = (distancia * Math.sin(rad)) / (111320 * Math.cos(Cesium.Math.toRadians(lat)));
+  return [lat + dLat, lon + dLon];
+}
+const mitad = 3000 / 2;
 
+const e1 = moverPunto(14.582085, -90.527770, mitad, 20);
+const e2 = moverPunto(14.582085, -90.527770, mitad, 200);
+
+// puntos de prueba
+viewer.entities.add({
+  position: Cesium.Cartesian3.fromDegrees(e1[1], e1[0]),
+  point: { pixelSize: 10, color: Cesium.Color.RED }
+});
+
+viewer.entities.add({
+  position: Cesium.Cartesian3.fromDegrees(e2[1], e2[0]),
+  point: { pixelSize: 10, color: Cesium.Color.BLUE }
+});
+
+
+  
   
 // ======================
 // PUERTOS
