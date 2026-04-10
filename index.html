@@ -163,13 +163,10 @@ function crearZonasAerodromo(nombre, lat, lon) {
 
   function crearCirculo(radio) {
     const posiciones = [];
-
     for (let i = 0; i < 360; i += 15) {
       const angulo = Cesium.Math.toRadians(i);
-
       const latOffset = (radio / 111320) * Math.sin(angulo);
       const lonOffset = (radio / (111320 * Math.cos(Cesium.Math.toRadians(lat)))) * Math.cos(angulo);
-
       posiciones.push(
         Cesium.Cartesian3.fromDegrees(lon + lonOffset, lat + latOffset)
       );
@@ -178,7 +175,7 @@ function crearZonasAerodromo(nombre, lat, lon) {
     return posiciones;
   }
 
-function anillo(rExt, rInt, altura, color) {
+  function anillo(rExt, rInt, altura, color) {
   try {
 
     let hierarchy;
@@ -194,7 +191,6 @@ function anillo(rExt, rInt, altura, color) {
 
     const entidad = viewer.entities.add({
       name: nombre,
-
       polygon: {
         hierarchy: hierarchy,
         extrudedHeight: altura,
@@ -269,10 +265,8 @@ aerodromos.forEach(a => crearZonasAerodromo(a[0], a[1], a[2]));
 function moverPunto(lat, lon, distancia, rumbo) {
   const rad = Cesium.Math.toRadians(rumbo);
   const R = 6378137;
-
   const dLat = (distancia * Math.cos(rad)) / R;
   const dLon = (distancia * Math.sin(rad)) / (R * Math.cos(Cesium.Math.toRadians(lat)));
-
   return [
     lat + Cesium.Math.toDegrees(dLat),
     lon + Cesium.Math.toDegrees(dLon)
@@ -329,19 +323,21 @@ function crearZonaVuelo(lat, lon, distanciaInicio, distanciaFin, ancho, altura, 
 }
 
 const mitad = 2987 / 2;
-const e1 = moverPunto(14.582085, -90.527770, mitad, 17.5);
 
-//EXTREMO 1 DE PISTA
+const e1 = moverPunto(14.582085, -90.527770, mitad, 17.5);
+const e2 = moverPunto(14.582085, -90.527770, mitad, 197.5);
+
+// EXTREMO 1
 crearZonaVuelo(e1[0], e1[1], 60, 1080, 280, 40, 17.5, Cesium.Color.RED);
 crearZonaVuelo(e1[0], e1[1], 1080, 2040, 586, 60, 17.5, Cesium.Color.ORANGE);
 crearZonaVuelo(e1[0], e1[1], 2040, 3000, 892, 80, 17.5, Cesium.Color.YELLOW);
 crearZonaVuelo(e1[0], e1[1], 3000, 3800, 1180, 100, 17.5, Cesium.Color.GREEN);
 
-//EXTREMO 2 DE PISTA
+// EXTREMO 2
 crearZonaVuelo(e2[0], e2[1], 60, 1080, 280, 40, 197.5, Cesium.Color.RED);
-//crearZonaVuelo(e2[0], e2[1], 1080, 2040, 586, 60, 197.5, Cesium.Color.ORANGE);
-//crearZonaVuelo(e2[0], e2[1], 2040, 3000, 892, 80, 197.5, Cesium.Color.YELLOW);
-//crearZonaVuelo(e2[0], e2[1], 3000, 3800, 1180, 100, 197.5, Cesium.Color.GREEN);
+crearZonaVuelo(e2[0], e2[1], 1080, 2040, 586, 60, 197.5, Cesium.Color.ORANGE);
+crearZonaVuelo(e2[0], e2[1], 2040, 3000, 892, 80, 197.5, Cesium.Color.YELLOW);
+crearZonaVuelo(e2[0], e2[1], 3000, 3800, 1180, 100, 197.5, Cesium.Color.GREEN);
   
   
 // ======================
