@@ -274,17 +274,25 @@ function moverPunto(lat, lon, distancia, rumbo) {
   return [
     lat + Cesium.Math.toDegrees(dLat),
     lon + Cesium.Math.toDegrees(dLon)
+  ];
 
-  const mitad = 3000 / 2;
+ const mitad = 3000 / 2;
 
 const e1 = moverPunto(14.582085, -90.527770, mitad, 20);
 const e2 = moverPunto(14.582085, -90.527770, mitad, 200);
 
+viewer.entities.add({
+  position: Cesium.Cartesian3.fromDegrees(e1[1], e1[0]),
+  point: { pixelSize: 10, color: Cesium.Color.RED }
+});
+
+viewer.entities.add({
+  position: Cesium.Cartesian3.fromDegrees(e2[1], e2[0]),
+  point: { pixelSize: 10, color: Cesium.Color.BLUE }
+}); 
+}
 // EXTREMO 1
 crearZonaVuelo(e1[0], e1[1], 60, 1080, 280, 40, 20, Cesium.Color.RED);
-  ];
-}
-
   
 // ======================
 // PUERTOS
