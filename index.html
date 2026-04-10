@@ -313,10 +313,12 @@ function crearZonaVuelo(lat, lon, distanciaInicio, distanciaFin, ancho, altura, 
       outlineColor: color
     },
 
-    description: `
-    <b>Zona de aproximación</b><br>
-    Altura máxima: ${altura} m
-    `
+   description: altura === 0 ? 
+     `<b style="color:red;">PROHIBIDO VOLAR</b><br>
+     Zona crítica de Aproximación y Despegue<br>
+     NO SE PERMITEN OPERACIONES CON DRONES`
+  : `<b>Zona de aproximación y Despegue</b><br>
+     ALTURA MAXIMA PERMITIDA: ${altura} m`
   });
 
   capas.aerodromos.push(entidad);
