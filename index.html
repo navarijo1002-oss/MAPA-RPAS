@@ -181,11 +181,18 @@ function crearZonasAerodromo(nombre, lat, lon) {
   function anillo(rExt, rInt, altura, color) {
     try {
       const entidad = viewer.entities.add({
-        polygon: {
-          hierarchy: new Cesium.PolygonHierarchy(
+          name: nombre,
+          polygon: {
+            hierarchy: new Cesium.PolygonHierarchy(
             crearCirculo(rExt),
             [new Cesium.PolygonHierarchy(crearCirculo(rInt))]
           ),
+          description: `
+          <b>${nombre}</b><br><br>
+          Zona de restricción por proximidad a aeródromo<br><br>
+          <b>Altura máxima permitida:</b> ${altura} metros<br>
+          <b>Radio:</b> ${rExt/1000} km
+           `
           extrudedHeight: altura,
           height: 0,
           material: color.withAlpha(0.15)
