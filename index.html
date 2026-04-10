@@ -290,15 +290,15 @@ function crearZonaVuelo(lat, lon, distanciaInicio, distanciaFin, ancho, altura, 
 
   const entidad = viewer.entities.add({
     polygon: {
-      hierarchy: [
-        Cesium.Cartesian3.fromDegrees(p1[1], p1[0]),
-        Cesium.Cartesian3.fromDegrees(p2[1], p2[0]),
-        Cesium.Cartesian3.fromDegrees(p3[1], p3[0]),
-        Cesium.Cartesian3.fromDegrees(p4[1], p4[0])
-      ],
+      Cesium.PolygonHierarchy([
+      Cesium.Cartesian3.fromDegrees(p1[1], p1[0]),
+      Cesium.Cartesian3.fromDegrees(p2[1], p2[0]),
+      Cesium.Cartesian3.fromDegrees(p3[1], p3[0]),
+      Cesium.Cartesian3.fromDegrees(p4[1], p4[0])
+      ]),
       extrudedHeight: altura,
       height: 0,
-      material: color.withAlpha(0.35)
+      material: color.withAlpha(0.5)
     },
 
     description: `
