@@ -268,29 +268,29 @@ aerodromos.forEach(a => crearZonasAerodromo(a[0], a[1], a[2]));
 
 function moverPunto(lat, lon, distancia, rumbo) {
   const rad = Cesium.Math.toRadians(rumbo);
-  const R = 6378137; // radio de la tierra (más preciso)
+  const R = 6378137;
+
   const dLat = (distancia * Math.cos(rad)) / R;
   const dLon = (distancia * Math.sin(rad)) / (R * Math.cos(Cesium.Math.toRadians(lat)));
-  return [lat + Cesium.Math.toDegrees(dLat),lon + Cesium.Math.toDegrees(dLon)];
 
-const mitad = 2987 / 2;
+  return [
+    lat + Cesium.Math.toDegrees(dLat),
+    lon + Cesium.Math.toDegrees(dLon)
+  ];
+}
+  const mitad = 2987 / 2;
 
 const e1 = moverPunto(14.582085, -90.527770, mitad, 17.5);
 const e2 = moverPunto(14.582085, -90.527770, mitad, 197.5);
-
 viewer.entities.add({
   position: Cesium.Cartesian3.fromDegrees(e1[1], e1[0]),
   point: { pixelSize: 10, color: Cesium.Color.RED }
-  
 });
 
 viewer.entities.add({
   position: Cesium.Cartesian3.fromDegrees(e2[1], e2[0]),
   point: { pixelSize: 10, color: Cesium.Color.BLUE }
 });
-  
-}
-
   
 // ======================
 // PUERTOS
