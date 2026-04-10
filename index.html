@@ -276,7 +276,7 @@ function moverPunto(lat, lon, distancia, rumbo) {
     lon + Cesium.Math.toDegrees(dLon)
   ];
 
- const mitad = 3000 / 2;
+ const mitad = 2987 / 2;
 
 const e1 = moverPunto(14.582085, -90.527770, mitad, 20);
 const e2 = moverPunto(14.582085, -90.527770, mitad, 200);
@@ -291,8 +291,7 @@ viewer.entities.add({
   point: { pixelSize: 10, color: Cesium.Color.BLUE }
 }); 
 }
-// EXTREMO 1
-crearZonaVuelo(e1[0], e1[1], 60, 1080, 280, 40, 20, Cesium.Color.RED);
+
   
 // ======================
 // PUERTOS
