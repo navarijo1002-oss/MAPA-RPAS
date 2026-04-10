@@ -195,7 +195,7 @@ function crearZonasAerodromo(nombre, lat, lon) {
 
       description: `
       <b>${nombre}</b><br><br>
-      Zona de restricción por proximidad a aeródromo<br><br>
+      Zona Restringuida Por Proximidad a Aeródromo<br><br>
       <b>Altura máxima permitida:</b> ${altura} metros<br>
       <b>Radio:</b> ${rExt/1000} km
       `
@@ -214,7 +214,7 @@ function crearZonasAerodromo(nombre, lat, lon) {
 }
   
 // ======================
-// AERÓDROMOS (FUNCION PARA CREAR RECTANGULOS SOBRE LAS PISTAS)
+// AERÓDROMOS (FUNCION PARA CREAR  PISTAS)
 // ======================
     
  function crearPista(nombre, lat, lon, largo, ancho, rumbo) {
@@ -251,6 +251,79 @@ Restricción según distancia:<br>
 }
  
 aerodromos.forEach(a => crearZonasAerodromo(a[0], a[1], a[2]));
+
+//=====================
+//CREAR ZONAS DE VUELO EN TRAYECTORIA DE PISTA
+//======================
+function crearZonaVuelo(lat, lon, distanciaInicio, distanciaFin, ancho, altura, rumbo, color) {
+
+  function mover(dist, angulo) {
+    const rad = Cesium.Math.toRadians(angulo);
+
+    const dLat = (dist * Math.cos(rad)) / 111320;
+    const dLon = (dist * Math.sin(rad)) / (111320 * Math.cos(Cesium.Math.toRadians(lat)));
+
+    return [lat + dLat, lon + dLon];
+  }
+
+  const inicio = mover(distanciaInicio, rumbo);
+  const fin = mover(distanciaFin, rumbo);
+
+  const izquierda = rumbo - 90;
+  const derecha = rumbo + 90;
+
+  function anchoOffset(punto, angulo, distancia) {
+    const rad = Cesium.Math.toRadians(angulo);
+
+    const dLat = (distancia * Math.cos(rad)) / 111320;
+    const dLon = (distancia * Math.sin(rad)) / (111320 * Math.cos(Cesium.Math.toRadians(punto[0])));
+
+    return [punto[0] + dLat, punto[1] + dLon];
+  }
+
+  const mitad = ancho / 2;
+
+  const p1 = anchoOffset(inicio, izquierda, mitad);
+  const p2 = anchoOffset(inicio, derecha, mitad);
+  const p3 = anchoOffset(fin, derecha, mitad);
+  const p4 = anchoOffset(fin, izquierda, mitad);
+
+  const entidad = viewer.entities.add({
+    polygon: {
+      hierarchy: [
+        Cesium.Cartesian3.fromDegrees(p1[1], p1[0]),
+        Cesium.Cartesian3.fromDegrees(p2[1], p2[0]),
+        Cesium.Cartesian3.fromDegrees(p3[1], p3[0]),
+        Cesium.Cartesian3.fromDegrees(p4[1], p4[0])
+      ],
+      extrudedHeight: altura,
+      height: 0,
+      material: color.withAlpha(0.35)
+    },
+
+    description: `
+    <b>Zona de aproximación</b><br>
+    Altura máxima: ${altura} m
+    `
+  });
+
+  capas.aerodromos.push(entidad);
+}
+// EXTREMO 1
+crearZonaVuelo(14.582085, -90.527770, 60, 1080, 280, 0, 20, Cesium.Color.RED);
+crearZonaVuelo(14.582085, -90.527770, 1081, 2100, 586, 20, 20, Cesium.Color.ORANGE);
+crearZonaVuelo(14.582085, -90.527770, 2101, 3060, 892, 40, 20, Cesium.Color.YELLOW);
+crearZonaVuelo(14.582085, -90.527770, 3061, 3860, 1180, 60, 20, Cesium.Color.BURLYWOOD);
+crearZonaVuelo(14.582085, -90.527770, 3861, 4660, 1420, 80, 20, Cesium.Color.KHAKI);
+crearZonaVuelo(14.582085, -90.527770, 4661, 5460, 1660, 100, 20, Cesium.Color.GREEN);
+
+// EXTREMO OPUESTO (IMPORTANTE)
+crearZonaVuelo(14.582085, -90.527770, 60, 1080, 280, 0, 200, Cesium.Color.RED);
+crearZonaVuelo(14.582085, -90.527770, 1081, 2100, 586, 20, 200, Cesium.Color.ORANGE);
+crearZonaVuelo(14.582085, -90.527770, 2101, 3060, 892, 40, 200, Cesium.Color.YELLOW);
+crearZonaVuelo(14.582085, -90.527770, 3061, 3860, 1180, 60, 200, Cesium.Color.BURLYWOOD);
+crearZonaVuelo(14.582085, -90.527770, 3861, 4660, 1420, 80, 200, Cesium.Color.KHAKI);
+crearZonaVuelo(14.582085, -90.527770, 4661, 5460, 1660, 100, 200, Cesium.Color.GREEN);
 
   
 // ======================
