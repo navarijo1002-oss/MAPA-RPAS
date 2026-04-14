@@ -90,12 +90,13 @@ function toggleLayer(nombre) {
   capas[nombre].forEach(e => e.show = !e.show);
 }
 
+  
 //=========================================    
 // DATOS AERÓDROMOS 
 //===============================================
   
 const aerodromos = [
-["Chiquimula",14.830984, -89.520862],
+["Chiquimula",14.830984, -89.520862,],
 ["Coban",15.469216, -90.406632],
 ["Retalhuleu",14.521705, -91.696760],
 ["Mundo Maya",16.913534,-89.866057],
@@ -152,8 +153,16 @@ const pistas = [
 ["Zacapa - MGZA -",14.960000, -89.538889,1050,100,150],
 ["Iztapa",13.930708, -90.728809,1100,200,90]
 ];
-pistas.forEach(p => crearPista(p[0], p[1], p[2], p[3], p[4], p[5]));
+  
+pistas.forEach(p => {
 
+  // CREAR PISTA
+  crearPista(p[0], p[1], p[2], p[3], p[4], p[5]);
+
+  // CREAR APROXIMACIONES AUTOMÁTICAS
+  crearAproximaciones(p[1], p[2], p[3], p[5]);
+
+});
   
   
 // ======================
@@ -324,26 +333,62 @@ function crearZonaVuelo(lat, lon, distanciaInicio, distanciaFin, ancho, altura, 
   capas.aerodromos.push(entidad);
 }
 
+function crearAproximaciones(lat, lon, largo, rumbo) {
 
-const mitad = 2830 / 2;
-const e1 = moverPunto(14.582085, -90.527770, mitad, 17.5);
-const e2 = moverPunto(14.582085, -90.527770, mitad, 197.5);
+  const mitad = largo / 2;
+
+  const e1 = moverPunto(lat, lon, mitad, rumbo);
+  const e2 = moverPunto(lat, lon, mitad, (rumbo + 180) % 360);
+
+  const zonas = [
+    [60, 1080, 280, 0, Cesium.Color.RED],
+    [1080, 2100, 586, 20, Cesium.Color.ORANGE],
+    [2100, 3060, 892, 40, Cesium.Color.YELLOW],
+    [3060, 3860, 1180, 60, Cesium.Color.BURLYWOOD],
+    [3860, 4660, 1420, 80, Cesium.Color.KHAKI],
+    [4660, 5460, 1660, 100, Cesium.Color.GREEN]
+  ];
+
+  zonas.forEach(z => {
+
+    // EXTREMO 1
+    crearZonaVuelo(e1[0], e1[1], z[0], z[1], z[2], z[3], rumbo, z[4]);
+
+    // EXTREMO 2
+    crearZonaVuelo(
+      e2[0],
+      e2[1],
+      z[0],
+      z[1],
+      z[2],
+      z[3],
+      (rumbo + 180) % 360,
+      z[4]
+    );
+
+  });
+}
+
+  
+//const mitad = 2830 / 2;
+//const e1 = moverPunto(14.582085, -90.527770, mitad, 17.5);
+//const e2 = moverPunto(14.582085, -90.527770, mitad, 197.5);
 
 // EXTREMO 1 (6 ZONAS)
-crearZonaVuelo(e1[0], e1[1], 60, 1080, 280, 0, 17.5, Cesium.Color.RED);
-crearZonaVuelo(e1[0], e1[1], 1080, 2100, 586, 20, 17.5, Cesium.Color.ORANGE);
-crearZonaVuelo(e1[0], e1[1], 2100, 3060, 892, 40, 17.5, Cesium.Color.YELLOW);
-crearZonaVuelo(e1[0], e1[1], 3060, 3860, 1180, 60, 17.5, Cesium.Color.BURLYWOOD);
-crearZonaVuelo(e1[0], e1[1], 3860, 4660, 1420, 80, 17.5, Cesium.Color.KHAKI);
-crearZonaVuelo(e1[0], e1[1], 4660, 5460, 1660, 100, 17.5, Cesium.Color.GREEN);
+//crearZonaVuelo(e1[0], e1[1], 60, 1080, 280, 0, 17.5, Cesium.Color.RED);
+//crearZonaVuelo(e1[0], e1[1], 1080, 2100, 586, 20, 17.5, Cesium.Color.ORANGE);
+//crearZonaVuelo(e1[0], e1[1], 2100, 3060, 892, 40, 17.5, Cesium.Color.YELLOW);
+//crearZonaVuelo(e1[0], e1[1], 3060, 3860, 1180, 60, 17.5, Cesium.Color.BURLYWOOD);
+//crearZonaVuelo(e1[0], e1[1], 3860, 4660, 1420, 80, 17.5, Cesium.Color.KHAKI);
+//crearZonaVuelo(e1[0], e1[1], 4660, 5460, 1660, 100, 17.5, Cesium.Color.GREEN);
 
 // EXTREMO 2 (6 ZONAS)
-crearZonaVuelo(e2[0], e2[1], 60, 1080, 280, 0, 197.5, Cesium.Color.RED);
-crearZonaVuelo(e2[0], e2[1], 1080, 2100, 586, 20, 197.5, Cesium.Color.ORANGE);
-crearZonaVuelo(e2[0], e2[1], 2100, 3060, 892, 40, 197.5, Cesium.Color.YELLOW);
-crearZonaVuelo(e2[0], e2[1], 3060, 3860, 1180, 60, 197.5, Cesium.Color.BURLYWOOD);
-crearZonaVuelo(e2[0], e2[1], 3860, 4660, 1420, 80, 197.5, Cesium.Color.KHAKI);
-crearZonaVuelo(e2[0], e2[1], 4660, 5460, 1660, 100, 197.5, Cesium.Color.GREEN);
+//crearZonaVuelo(e2[0], e2[1], 60, 1080, 280, 0, 197.5, Cesium.Color.RED);
+//crearZonaVuelo(e2[0], e2[1], 1080, 2100, 586, 20, 197.5, Cesium.Color.ORANGE);
+//crearZonaVuelo(e2[0], e2[1], 2100, 3060, 892, 40, 197.5, Cesium.Color.YELLOW);
+//crearZonaVuelo(e2[0], e2[1], 3060, 3860, 1180, 60, 197.5, Cesium.Color.BURLYWOOD);
+//crearZonaVuelo(e2[0], e2[1], 3860, 4660, 1420, 80, 197.5, Cesium.Color.KHAKI);
+//crearZonaVuelo(e2[0], e2[1], 4660, 5460, 1660, 100, 197.5, Cesium.Color.GREEN);
   
   
 // ======================
