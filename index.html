@@ -75,7 +75,6 @@
 <script>
 
 Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJmNmRiN2M4Mi05NDkzLTQzZjctOTU2ZS1iNjJkMmNkOTM4OGYiLCJpZCI6NDE0NjA3LCJpYXQiOjE3NzU1MTUzMTB9.ZjCd0PlYQOc6EbzpBV9jLuSxyZSAbQz1D8qnJjEuhoo';
-
 const viewer = new Cesium.Viewer('cesiumContainer');
 
 // CAPAS
@@ -84,6 +83,7 @@ const capas = {
   puertos: [],
   prisiones: []
 };
+  
 let handler = new Cesium.ScreenSpaceEventHandler(viewer.canvas);
 
 let etiquetaCoordenadas = null;
@@ -94,42 +94,83 @@ function toggleLayer(nombre) {
 
 handler.setInputAction(function(click) {
 
-  // obtener punto en el mapa
   const cartesian = viewer.camera.pickEllipsoid(click.position);
   if (!cartesian) return;
 
-  // convertir a lat/lon
   const carto = Cesium.Cartographic.fromCartesian(cartesian);
-
   const lat = Cesium.Math.toDegrees(carto.latitude);
   const lon = Cesium.Math.toDegrees(carto.longitude);
 
-  // eliminar etiqueta anterior
-  if (etiquetaCoordenadas) {
-    viewer.entities.remove(etiquetaCoordenadas);
-  }
+  // guardar punto
+  puntoDespegue = Cesium.Cartesian3.fromDegrees(lon, lat);
 
-  // crear nueva etiqueta
-  etiquetaCoordenadas = viewer.entities.add({
-    position: Cesium.Cartesian3.fromDegrees(lon, lat),
+  // limpiar anteriores
+  if (circuloTemporal) viewer.entities.remove(circuloTemporal);
+  if (lineaTemporal) viewer.entities.remove(lineaTemporal);
+  if (etiquetaDistancia) viewer.entities.remove(etiquetaDistancia);
 
-    point: {
-      pixelSize: 8,
-      color: Cesium.Color.YELLOW
-    },
-
-    label: {
-      text: `DESPEGUE\nLat: ${lat.toFixed(6)}\nLon: ${lon.toFixed(6)}`,
-      font: '14px sans-serif',
-      fillColor: Cesium.Color.YELLOW,
-      showBackground: true,
-      backgroundColor: Cesium.Color.BLACK,
-      verticalOrigin: Cesium.VerticalOrigin.BOTTOM
-    }
+  // punto visual
+  viewer.entities.add({
+    position: puntoDespegue,
+    point: { pixelSize: 10, color: Cesium.Color.YELLOW }
   });
 
 }, Cesium.ScreenSpaceEventType.LEFT_DOWN);
+
+handler.setInputAction(function(movement) {
+
+  if (!puntoDespegue) return;
+
+  const cartesian = viewer.camera.pickEllipsoid(movement.endPosition);
+  if (!cartesian) return;
+
+  // calcular distancia
+  const distancia = Cesium.Cartesian3.distance(puntoDespegue, cartesian);
+
+  // eliminar anteriores
+  if (circuloTemporal) viewer.entities.remove(circuloTemporal);
+  if (lineaTemporal) viewer.entities.remove(lineaTemporal);
+  if (etiquetaDistancia) viewer.entities.remove(etiquetaDistancia);
+
+  // círculo
+  circuloTemporal = viewer.entities.add({
+    position: puntoDespegue,
+    ellipse: {
+      semiMajorAxis: distancia,
+      semiMinorAxis: distancia,
+      material: Cesium.Color.CYAN.withAlpha(0.2),
+      outline: true,
+      outlineColor: Cesium.Color.CYAN
+    }
+  });
+
+  // línea
+  lineaTemporal = viewer.entities.add({
+    polyline: {
+      positions: [puntoDespegue, cartesian],
+      width: 2,
+      material: Cesium.Color.WHITE
+    }
+  });
+
+  // etiqueta distancia
+  etiquetaDistancia = viewer.entities.add({
+    position: cartesian,
+    label: {
+      text: `${distancia.toFixed(0)} m`,
+      font: '14px sans-serif',
+      fillColor: Cesium.Color.WHITE,
+      showBackground: true,
+      backgroundColor: Cesium.Color.BLACK
+    }
+  });
+
+}, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
   
+  let puntoDespegue = null;
+  let circuloTemporal = null;
+  let lineaTemporal = null;
+  let etiquetaDistancia = null;
   
 //=========================================    
 // DATOS AERÓDROMOS 
