@@ -57,6 +57,8 @@
   <h2>Vista</h2>
   <button class="btn" onclick="viewer.zoomTo(viewer.entities)">Zoom general</button>
   <button class="btn" onclick="ubicarUsuario()">Mi ubicación</button>
+  <button class="btn" onclick="activarMedicion()">Activar medición</button>
+  <button class="btn" onclick="limpiarMedicion()">Borrar medición</button>
 
   <h2>Leyenda</h2>
   <p style="font-size:14px;">
@@ -83,6 +85,23 @@ const capas = {
   puertos: [],
   prisiones: []
 };
+//=========================
+// ACTIVAR MEDICION
+//=========================
+function activarMedicion() {
+  modoMedicion = true;
+}
+
+function limpiarMedicion() {
+  modoMedicion = false;
+  puntoDespegue = null;
+
+  if (circuloTemporal) viewer.entities.remove(circuloTemporal);
+  if (lineaTemporal) viewer.entities.remove(lineaTemporal);
+  if (etiquetaDistancia) viewer.entities.remove(etiquetaDistancia);
+}
+
+  
   
 let handler = new Cesium.ScreenSpaceEventHandler(viewer.canvas);
 
@@ -94,6 +113,8 @@ function toggleLayer(nombre) {
 
 handler.setInputAction(function(click) {
 
+  if (!modoMedicion) return; // 👈 ESTA ES LA CLAVE
+
   const cartesian = viewer.camera.pickEllipsoid(click.position);
   if (!cartesian) return;
 
@@ -101,38 +122,32 @@ handler.setInputAction(function(click) {
   const lat = Cesium.Math.toDegrees(carto.latitude);
   const lon = Cesium.Math.toDegrees(carto.longitude);
 
-  // guardar punto
   puntoDespegue = Cesium.Cartesian3.fromDegrees(lon, lat);
 
-  // limpiar anteriores
   if (circuloTemporal) viewer.entities.remove(circuloTemporal);
   if (lineaTemporal) viewer.entities.remove(lineaTemporal);
   if (etiquetaDistancia) viewer.entities.remove(etiquetaDistancia);
 
-  // punto visual
   viewer.entities.add({
     position: puntoDespegue,
     point: { pixelSize: 10, color: Cesium.Color.YELLOW }
   });
 
-}, Cesium.ScreenSpaceEventType.LEFT_DOWN);
+}, Cesium.ScreenSpaceEventType.LEFT_CLICK);
 
 handler.setInputAction(function(movement) {
 
-  if (!puntoDespegue) return;
+  if (!modoMedicion || !puntoDespegue) return; // 👈 CLAVE
 
   const cartesian = viewer.camera.pickEllipsoid(movement.endPosition);
   if (!cartesian) return;
 
-  // calcular distancia
   const distancia = Cesium.Cartesian3.distance(puntoDespegue, cartesian);
 
-  // eliminar anteriores
   if (circuloTemporal) viewer.entities.remove(circuloTemporal);
   if (lineaTemporal) viewer.entities.remove(lineaTemporal);
   if (etiquetaDistancia) viewer.entities.remove(etiquetaDistancia);
 
-  // círculo
   circuloTemporal = viewer.entities.add({
     position: puntoDespegue,
     ellipse: {
@@ -144,7 +159,6 @@ handler.setInputAction(function(movement) {
     }
   });
 
-  // línea
   lineaTemporal = viewer.entities.add({
     polyline: {
       positions: [puntoDespegue, cartesian],
@@ -153,7 +167,6 @@ handler.setInputAction(function(movement) {
     }
   });
 
-  // etiqueta distancia
   etiquetaDistancia = viewer.entities.add({
     position: cartesian,
     label: {
@@ -171,6 +184,7 @@ handler.setInputAction(function(movement) {
   let circuloTemporal = null;
   let lineaTemporal = null;
   let etiquetaDistancia = null;
+  let modoMedicion = false;
   
 //=========================================    
 // DATOS AERÓDROMOS 
