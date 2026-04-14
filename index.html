@@ -42,7 +42,7 @@
 <body>
 
 <div id="panel">
-  <h1>MAPA INTERACTIVO DE ÁREAS RESTRINGIDAS</h1>
+  <h1>MAPA INTERACTIVO DE ÁREAS RESTRINGIDAS PARA DRONES</h1>
 
   <p style="font-size:14px;">
   Herramienta informativa para identificar zonas con restricciones de vuelo para RPAS.<br>
@@ -84,12 +84,52 @@ const capas = {
   puertos: [],
   prisiones: []
 };
+let handler = new Cesium.ScreenSpaceEventHandler(viewer.canvas);
 
+let etiquetaCoordenadas = null;
 // TOGGLE
 function toggleLayer(nombre) {
   capas[nombre].forEach(e => e.show = !e.show);
 }
 
+handler.setInputAction(function(click) {
+
+  // obtener punto en el mapa
+  const cartesian = viewer.camera.pickEllipsoid(click.position);
+  if (!cartesian) return;
+
+  // convertir a lat/lon
+  const carto = Cesium.Cartographic.fromCartesian(cartesian);
+
+  const lat = Cesium.Math.toDegrees(carto.latitude);
+  const lon = Cesium.Math.toDegrees(carto.longitude);
+
+  // eliminar etiqueta anterior
+  if (etiquetaCoordenadas) {
+    viewer.entities.remove(etiquetaCoordenadas);
+  }
+
+  // crear nueva etiqueta
+  etiquetaCoordenadas = viewer.entities.add({
+    position: Cesium.Cartesian3.fromDegrees(lon, lat),
+
+    point: {
+      pixelSize: 8,
+      color: Cesium.Color.YELLOW
+    },
+
+    label: {
+      text: `DESPEGUE\nLat: ${lat.toFixed(6)}\nLon: ${lon.toFixed(6)}`,
+      font: '14px sans-serif',
+      fillColor: Cesium.Color.YELLOW,
+      showBackground: true,
+      backgroundColor: Cesium.Color.BLACK,
+      verticalOrigin: Cesium.VerticalOrigin.BOTTOM
+    }
+  });
+
+}, Cesium.ScreenSpaceEventType.LEFT_DOWN);
+  
   
 //=========================================    
 // DATOS AERÓDROMOS 
