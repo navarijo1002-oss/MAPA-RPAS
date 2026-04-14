@@ -113,31 +113,44 @@ function toggleLayer(nombre) {
 
 handler.setInputAction(function(click) {
 
-  if (!modoMedicion) return; // 👈 ESTA ES LA CLAVE
+  if (!modoMedicion) return;
 
   const cartesian = viewer.camera.pickEllipsoid(click.position);
   if (!cartesian) return;
 
-  const carto = Cesium.Cartographic.fromCartesian(cartesian);
-  const lat = Cesium.Math.toDegrees(carto.latitude);
-  const lon = Cesium.Math.toDegrees(carto.longitude);
+  // 🟢 PRIMER CLICK
+  if (!midiendo) {
 
-  puntoDespegue = Cesium.Cartesian3.fromDegrees(lon, lat);
+    const carto = Cesium.Cartographic.fromCartesian(cartesian);
+    const lat = Cesium.Math.toDegrees(carto.latitude);
+    const lon = Cesium.Math.toDegrees(carto.longitude);
 
-  if (circuloTemporal) viewer.entities.remove(circuloTemporal);
-  if (lineaTemporal) viewer.entities.remove(lineaTemporal);
-  if (etiquetaDistancia) viewer.entities.remove(etiquetaDistancia);
+    puntoDespegue = Cesium.Cartesian3.fromDegrees(lon, lat);
+    midiendo = true;
 
-  viewer.entities.add({
-    position: puntoDespegue,
-    point: { pixelSize: 10, color: Cesium.Color.YELLOW }
-  });
+    if (circuloTemporal) viewer.entities.remove(circuloTemporal);
+    if (lineaTemporal) viewer.entities.remove(lineaTemporal);
+    if (etiquetaDistancia) viewer.entities.remove(etiquetaDistancia);
+
+    viewer.entities.add({
+      position: puntoDespegue,
+      point: { pixelSize: 10, color: Cesium.Color.YELLOW }
+    });
+
+  } 
+  // 🔴 SEGUNDO CLICK (AQUÍ VA)
+  else {
+
+    midiendo = false;          // 🔒 congela medición
+    modoMedicion = false;      // 📴 apaga herramienta
+
+  }
 
 }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
 
 handler.setInputAction(function(movement) {
 
-  if (!modoMedicion || !puntoDespegue) return; // 👈 CLAVE
+  if (!modoMedicion || !midiendo || !puntoDespegue) return;
 
   const cartesian = viewer.camera.pickEllipsoid(movement.endPosition);
   if (!cartesian) return;
@@ -185,6 +198,7 @@ handler.setInputAction(function(movement) {
   let lineaTemporal = null;
   let etiquetaDistancia = null;
   let modoMedicion = false;
+  let midiendo = false; 
   
 //=========================================    
 // DATOS AERÓDROMOS 
