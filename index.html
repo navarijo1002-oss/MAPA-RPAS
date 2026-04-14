@@ -96,11 +96,13 @@ function activarMedicion() {
 
 function limpiarMedicion() {
   modoMedicion = false;
+  midiendo = false;
   puntoDespegue = null;
 
   if (circuloTemporal) viewer.entities.remove(circuloTemporal);
   if (lineaTemporal) viewer.entities.remove(lineaTemporal);
   if (etiquetaDistancia) viewer.entities.remove(etiquetaDistancia);
+  if (puntoEntidad) viewer.entities.remove(puntoEntidad);
 }
 
   
@@ -134,10 +136,10 @@ handler.setInputAction(function(click) {
     if (lineaTemporal) viewer.entities.remove(lineaTemporal);
     if (etiquetaDistancia) viewer.entities.remove(etiquetaDistancia);
 
-    viewer.entities.add({
-      position: puntoDespegue,
-      point: { pixelSize: 10, color: Cesium.Color.YELLOW }
-    });
+   puntoEntidad = viewer.entities.add({
+     position: puntoDespegue,
+     point: { pixelSize: 10, color: Cesium.Color.YELLOW }
+   });
 
   } 
   // 🔴 SEGUNDO CLICK (AQUÍ VA)
@@ -162,6 +164,7 @@ handler.setInputAction(function(movement) {
   if (circuloTemporal) viewer.entities.remove(circuloTemporal);
   if (lineaTemporal) viewer.entities.remove(lineaTemporal);
   if (etiquetaDistancia) viewer.entities.remove(etiquetaDistancia);
+  
 
   circuloTemporal = viewer.entities.add({
     position: puntoDespegue,
@@ -201,6 +204,7 @@ handler.setInputAction(function(movement) {
   let etiquetaDistancia = null;
   let modoMedicion = false;
   let midiendo = false; 
+  let puntoEntidad = null;
   
 //=========================================    
 // DATOS AERÓDROMOS 
@@ -480,28 +484,6 @@ function crearAproximaciones(lat, lon, largo, rumbo) {
 
   });
 }
-
-  
-//const mitad = 2830 / 2;
-//const e1 = moverPunto(14.582085, -90.527770, mitad, 17.5);
-//const e2 = moverPunto(14.582085, -90.527770, mitad, 197.5);
-
-// EXTREMO 1 (6 ZONAS)
-//crearZonaVuelo(e1[0], e1[1], 60, 1080, 280, 0, 17.5, Cesium.Color.RED);
-//crearZonaVuelo(e1[0], e1[1], 1080, 2100, 586, 20, 17.5, Cesium.Color.ORANGE);
-//crearZonaVuelo(e1[0], e1[1], 2100, 3060, 892, 40, 17.5, Cesium.Color.YELLOW);
-//crearZonaVuelo(e1[0], e1[1], 3060, 3860, 1180, 60, 17.5, Cesium.Color.BURLYWOOD);
-//crearZonaVuelo(e1[0], e1[1], 3860, 4660, 1420, 80, 17.5, Cesium.Color.KHAKI);
-//crearZonaVuelo(e1[0], e1[1], 4660, 5460, 1660, 100, 17.5, Cesium.Color.GREEN);
-
-// EXTREMO 2 (6 ZONAS)
-//crearZonaVuelo(e2[0], e2[1], 60, 1080, 280, 0, 197.5, Cesium.Color.RED);
-//crearZonaVuelo(e2[0], e2[1], 1080, 2100, 586, 20, 197.5, Cesium.Color.ORANGE);
-//crearZonaVuelo(e2[0], e2[1], 2100, 3060, 892, 40, 197.5, Cesium.Color.YELLOW);
-//crearZonaVuelo(e2[0], e2[1], 3060, 3860, 1180, 60, 197.5, Cesium.Color.BURLYWOOD);
-//crearZonaVuelo(e2[0], e2[1], 3860, 4660, 1420, 80, 197.5, Cesium.Color.KHAKI);
-//crearZonaVuelo(e2[0], e2[1], 4660, 5460, 1660, 100, 197.5, Cesium.Color.GREEN);
-  
   
 // ======================
 // PUERTOS
