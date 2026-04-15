@@ -118,7 +118,7 @@ const aerodromos = [
 ["Nebaj",15.446944, -91.161667],
 ["La Libertad - MGLL -",16.750625, -90.140639],
 ["Monterrico - MGRF -",13.894722, -90.484722],
-["Playa Grande - MGPG -",5.997500, -90.741667],
+["Playa Grande - MGPG -",15.997500, -90.741667],
 ["Quiche - MGQC -",15.011944, -91.150833,900],
 ["Rio Dulce - MGRD -",15.668889, -88.962778],
 ["Zacapa - MGZA -",14.960000, -89.538889]
@@ -146,7 +146,7 @@ const pistas = [
 ["Nebaj",15.446944, -91.161667,900,100,301],
 ["La Libertad - MGLL -",16.750625, -90.140639,1300,100,45],
 ["Monterrico - MGRF -",13.894722, -90.484722,900,100,110],
-["Playa Grande - MGPG -",5.997500, -90.741667,2000,100,160],
+["Playa Grande - MGPG -",15.997500, -90.741667,2000,100,160],
 ["Quiche - MGQC -",15.011944, -91.150833,1300,100,173],
 ["Rio Dulce - MGRD -",15.668889, -88.962778,1000,100,123],
 ["Zacapa - MGZA -",14.960000, -89.538889,1050,100,150],
@@ -221,9 +221,9 @@ function crearZonasAerodromo(nombre, lat, lon) {
   }
 }
 
-  anillo(2000, 0, 40, Cesium.Color.RED.withAlpha(0.05));
-  anillo(4000, 2000, 60, Cesium.Color.ORANGE);
-  anillo(6000, 4000, 80, Cesium.Color.YELLOW.withAlpha(0.15));
+  anillo(2000, 0, 20, Cesium.Color.RED.withAlpha(0.05));
+  anillo(4000, 2000, 40, Cesium.Color.ORANGE);
+  anillo(6000, 4000, 60, Cesium.Color.YELLOW.withAlpha(0.15));
   anillo(8000, 6000, 100, Cesium.Color.GREEN);
 }
   
@@ -234,33 +234,29 @@ function crearZonasAerodromo(nombre, lat, lon) {
  function crearPista(nombre, lat, lon, largo, ancho, rumbo) {
   const posicion = Cesium.Cartesian3.fromDegrees(lon, lat);
   const entidad = viewer.entities.add({
-    name: nombre,
-    position: posicion,
+  name: nombre,
+  position: posicion,
 
-    box: {
-      dimensions: new Cesium.Cartesian3(ancho, largo, 120),
-      material: Cesium.Color.RED.withAlpha(0.15)
-    },
+  box: {
+    dimensions: new Cesium.Cartesian3(ancho, largo, 120),
+    material: Cesium.Color.RED.withAlpha(0.15)
+  },
 
-    orientation: Cesium.Transforms.headingPitchRollQuaternion(
-      posicion,
-      new Cesium.HeadingPitchRoll(Cesium.Math.toRadians(rumbo),
-        0,
-        0
-      )
-    ),
+  orientation: Cesium.Transforms.headingPitchRollQuaternion(
+    posicion,
+    new Cesium.HeadingPitchRoll(Cesium.Math.toRadians(rumbo), 0, 0)
+  ),
 
-    
-  });
- description:`
-<b>${nombre}</b><br>
-Zona: Aeródromo<br>
-Restricción según distancia:<br>
-0–2 km → 40 m<br>
-2–4 km → 60 m<br>
-4–6 km → 80 m<br>
-6–8 km → 100 m
-`
+  description: `
+  <b>${nombre}</b><br>
+  Zona: Aeródromo<br>
+  Restricción según distancia:<br>
+  0–2 km → 40 m<br>
+  2–4 km → 60 m<br>
+  4–6 km → 80 m<br>
+  6–8 km → 100 m
+  `
+});
   capas.aerodromos.push(entidad);
 }
  
@@ -368,28 +364,7 @@ function crearAproximaciones(lat, lon, largo, rumbo) {
   });
 }
 
-  
-//const mitad = 2830 / 2;
-//const e1 = moverPunto(14.582085, -90.527770, mitad, 17.5);
-//const e2 = moverPunto(14.582085, -90.527770, mitad, 197.5);
-
-// EXTREMO 1 (6 ZONAS)
-//crearZonaVuelo(e1[0], e1[1], 60, 1080, 280, 0, 17.5, Cesium.Color.RED);
-//crearZonaVuelo(e1[0], e1[1], 1080, 2100, 586, 20, 17.5, Cesium.Color.ORANGE);
-//crearZonaVuelo(e1[0], e1[1], 2100, 3060, 892, 40, 17.5, Cesium.Color.YELLOW);
-//crearZonaVuelo(e1[0], e1[1], 3060, 3860, 1180, 60, 17.5, Cesium.Color.BURLYWOOD);
-//crearZonaVuelo(e1[0], e1[1], 3860, 4660, 1420, 80, 17.5, Cesium.Color.KHAKI);
-//crearZonaVuelo(e1[0], e1[1], 4660, 5460, 1660, 100, 17.5, Cesium.Color.GREEN);
-
-// EXTREMO 2 (6 ZONAS)
-//crearZonaVuelo(e2[0], e2[1], 60, 1080, 280, 0, 197.5, Cesium.Color.RED);
-//crearZonaVuelo(e2[0], e2[1], 1080, 2100, 586, 20, 197.5, Cesium.Color.ORANGE);
-//crearZonaVuelo(e2[0], e2[1], 2100, 3060, 892, 40, 197.5, Cesium.Color.YELLOW);
-//crearZonaVuelo(e2[0], e2[1], 3060, 3860, 1180, 60, 197.5, Cesium.Color.BURLYWOOD);
-//crearZonaVuelo(e2[0], e2[1], 3860, 4660, 1420, 80, 197.5, Cesium.Color.KHAKI);
-//crearZonaVuelo(e2[0], e2[1], 4660, 5460, 1660, 100, 197.5, Cesium.Color.GREEN);
-  
-  
+ 
 // ======================
 // PUERTOS
 // ======================
