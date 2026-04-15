@@ -58,6 +58,15 @@
   <button class="btn" onclick="viewer.zoomTo(viewer.entities)">Zoom general</button>
   <button class="btn" onclick="ubicarUsuario()">Mi ubicación</button>
 
+  <h2>Planificar vuelo</h2>
+
+  <input id="latInput" placeholder="Latitud" style="width:100%; margin:5px 0;">
+  <input id="lonInput" placeholder="Longitud" style="width:100%; margin:5px 0;">
+  <input id="radioInput" placeholder="Radio (m)" style="width:100%; margin:5px 0;">
+
+  <button class="btn" onclick="ubicarOperacion()">Ubicar operación</button>
+  <button class="btn" onclick="activarDibujo()">Dibujar con mouse</button>
+
   <h2>Leyenda</h2>
   <p style="font-size:14px;">
   🔴 Prohibido: Prisiones<br>
@@ -72,13 +81,27 @@
 
 <div id="cesiumContainer"></div>
 
+<div id="resultadoOperacion" style="
+  position:absolute;
+  bottom:10px;
+  left:300px;
+  background:white;
+  padding:10px;
+  border-radius:5px;
+  font-size:14px;
+  max-width:300px;
+  z-index:1;
+"></div>
+  
+  
 <script>
 
 Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJmNmRiN2M4Mi05NDkzLTQzZjctOTU2ZS1iNjJkMmNkOTM4OGYiLCJpZCI6NDE0NjA3LCJpYXQiOjE3NzU1MTUzMTB9.ZjCd0PlYQOc6EbzpBV9jLuSxyZSAbQz1D8qnJjEuhoo';
 
 const viewer = new Cesium.Viewer('cesiumContainer');
-
+//===============================
 // CAPAS
+//==============================
 const capas = {
   aerodromos: [],
   puertos: [],
@@ -89,6 +112,175 @@ const capas = {
 function toggleLayer(nombre) {
   capas[nombre].forEach(e => e.show = !e.show);
 }
+
+//=========================
+// VALIDAR OPERACION
+//=========================
+
+function validarOperacion(lat, lon, radio) {
+
+  let altura = 120;
+  let estado = "PERMITIDO";
+  let motivo = "Sin restricción";
+
+  // 🔴 PRISIONES
+  prisiones.forEach(p => {
+    const d = Cesium.Cartesian3.distance(
+      Cesium.Cartesian3.fromDegrees(lon, lat),
+      Cesium.Cartesian3.fromDegrees(p[2], p[1])
+    );
+
+    if (d < 300) {
+      altura = 0;
+      estado = "PROHIBIDO";
+      motivo = "Proximidad a prisión";
+    }
+  });
+
+  // 🔵 PUERTOS
+  puertos.forEach(p => {
+    const d = Cesium.Cartesian3.distance(
+      Cesium.Cartesian3.fromDegrees(lon, lat),
+      Cesium.Cartesian3.fromDegrees(p[2], p[1])
+    );
+
+    if (d < 500 && estado !== "PROHIBIDO") {
+      altura = Math.min(altura, 60);
+      estado = "RESTRINGIDO";
+      motivo = "Proximidad a puerto";
+    }
+  });
+
+  // 🟡 AERÓDROMOS
+  aerodromos.forEach(a => {
+    const d = Cesium.Cartesian3.distance(
+      Cesium.Cartesian3.fromDegrees(lon, lat),
+      Cesium.Cartesian3.fromDegrees(a[2], a[1])
+    );
+
+    if (d < 2000) { altura = Math.min(altura, 40); estado="RESTRINGIDO"; motivo="Aeródromo 0-2km"; }
+    else if (d < 4000) { altura = Math.min(altura, 60); estado="RESTRINGIDO"; motivo="Aeródromo 2-4km"; }
+    else if (d < 6000) { altura = Math.min(altura, 80); estado="RESTRINGIDO"; motivo="Aeródromo 4-6km"; }
+    else if (d < 8000) { altura = Math.min(altura, 100); estado="RESTRINGIDO"; motivo="Aeródromo 6-8km"; }
+  });
+
+  return `
+  <b>RESULTADO</b><br><br>
+  📍 ${lat.toFixed(6)}, ${lon.toFixed(6)}<br>
+  📏 Radio: ${radio.toFixed(0)} m<br><br>
+  ✈️ Altura máxima: <b>${altura} m</b><br><br>
+  <b style="color:${estado==="PERMITIDO"?"green":"red"};">${estado}</b><br>
+  ${motivo}<br><br>
+  ${estado!=="PERMITIDO"?"Puede solicitar permiso especial":""}
+  `;
+}
+
+let operacionActual = null;
+
+//=============================
+// ubicar operacion
+//=============================
+  
+function ubicarOperacion() {
+
+  const lat = parseFloat(document.getElementById("latInput").value);
+  const lon = parseFloat(document.getElementById("lonInput").value);
+  const radio = parseFloat(document.getElementById("radioInput").value);
+
+  if (isNaN(lat) || isNaN(lon) || isNaN(radio)) {
+    alert("Datos inválidos");
+    return;
+  }
+
+  if (operacionActual) viewer.entities.remove(operacionActual);
+
+  operacionActual = viewer.entities.add({
+    position: Cesium.Cartesian3.fromDegrees(lon, lat),
+    ellipse: {
+      semiMajorAxis: radio,
+      semiMinorAxis: radio,
+      material: Cesium.Color.CYAN.withAlpha(0.3),
+      outline: true
+    }
+  });
+
+  viewer.flyTo(operacionActual);
+
+  document.getElementById("resultadoOperacion").innerHTML =
+    validarOperacion(lat, lon, radio);
+}
+
+
+let handler = new Cesium.ScreenSpaceEventHandler(viewer.canvas);
+let dibujando = false;
+let puntoInicio = null;
+let circuloTemp = null;
+
+//=============================
+// ACTIVAR DIBUJO
+//============================
+
+function activarDibujo() {
+  dibujando = true;
+  puntoInicio = null;
+}
+
+handler.setInputAction(function(click) {
+
+  if (!dibujando) return;
+
+  const cartesian = viewer.camera.pickEllipsoid(click.position);
+  if (!cartesian) return;
+
+  const carto = Cesium.Cartographic.fromCartesian(cartesian);
+
+  puntoInicio = {
+    lat: Cesium.Math.toDegrees(carto.latitude),
+    lon: Cesium.Math.toDegrees(carto.longitude),
+    cartesian: cartesian
+  };
+
+}, Cesium.ScreenSpaceEventType.LEFT_DOWN);
+
+
+handler.setInputAction(function(move) {
+
+  if (!dibujando || !puntoInicio) return;
+
+  const cartesian = viewer.camera.pickEllipsoid(move.endPosition);
+  if (!cartesian) return;
+
+  const radio = Cesium.Cartesian3.distance(puntoInicio.cartesian, cartesian);
+
+  if (circuloTemp) viewer.entities.remove(circuloTemp);
+
+  circuloTemp = viewer.entities.add({
+    position: puntoInicio.cartesian,
+    ellipse: {
+      semiMajorAxis: radio,
+      semiMinorAxis: radio,
+      material: Cesium.Color.CYAN.withAlpha(0.3),
+      outline: true
+    }
+  });
+
+}, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
+
+
+handler.setInputAction(function() {
+
+  if (!dibujando || !puntoInicio) return;
+
+  const radio = circuloTemp.ellipse.semiMajorAxis.getValue();
+
+  document.getElementById("resultadoOperacion").innerHTML =
+    validarOperacion(puntoInicio.lat, puntoInicio.lon, radio);
+
+  dibujando = false;
+  puntoInicio = null;
+
+}, Cesium.ScreenSpaceEventType.LEFT_UP);
+  
 
   
 //=========================================    
@@ -431,9 +623,11 @@ prisiones.forEach(p => {
   capas.prisiones.push(entidad);
 });
 
+  
 // ======================
 // UBICACIÓN USUARIO
 // ======================
+  
 function ubicarUsuario() {
   navigator.geolocation.getCurrentPosition(function(pos) {
     const lat = pos.coords.latitude;
