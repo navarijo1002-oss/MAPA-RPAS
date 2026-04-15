@@ -41,20 +41,8 @@
 
 <body>
 
-<div id="coords" style="
-    position:absolute;
-    top:10px;
-    left:10px;
-    background:white;
-    padding:10px;
-    border-radius:5px;
-    box-shadow:0 0 5px rgba(0,0,0,0.3);
-    z-index:1;
-">
-  
-</div>
-  <div id="panel">
-  <h1>MAPA INTERACTIVO DE ÁREAS RESTRINGIDAS PARA DRONES</h1>
+<div id="panel">
+  <h1>MAPA INTERACTIVO DE ÁREAS RESTRINGIDAS</h1>
 
   <p style="font-size:14px;">
   Herramienta informativa para identificar zonas con restricciones de vuelo para RPAS.<br>
@@ -69,19 +57,6 @@
   <h2>Vista</h2>
   <button class="btn" onclick="viewer.zoomTo(viewer.entities)">Zoom general</button>
   <button class="btn" onclick="ubicarUsuario()">Mi ubicación</button>
-  <button class="btn" onclick="activarMedicion()">Activar medición</button>
-  <button class="btn" onclick="limpiarMedicion()">Borrar medición</button>
-
-  <h2>Planificar vuelo</h2>
-
-  <input id="latInput" placeholder="Latitud" style="width:100%; margin:5px 0;">
-  <input id="lonInput" placeholder="Longitud" style="width:100%; margin:5px 0;">
-  <input id="radioInput" placeholder="Radio (m)" style="width:100%; margin:5px 0;">
-
-  <button class="btn" onclick="ubicarOperacion()">Ubicar operación</button>
-  <button class="btn" onclick="limpiarOperacion()">Borrar operación</button>
-
-  <p id="resultadoOperacion" style="font-size:13px; margin-top:10px;"></p>
 
   <h2>Leyenda</h2>
   <p style="font-size:14px;">
@@ -98,162 +73,23 @@
 <div id="cesiumContainer"></div>
 
 <script>
+
 Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJmNmRiN2M4Mi05NDkzLTQzZjctOTU2ZS1iNjJkMmNkOTM4OGYiLCJpZCI6NDE0NjA3LCJpYXQiOjE3NzU1MTUzMTB9.ZjCd0PlYQOc6EbzpBV9jLuSxyZSAbQz1D8qnJjEuhoo';
+
 const viewer = new Cesium.Viewer('cesiumContainer');
 
-//=============================
 // CAPAS
-//=============================
-  
 const capas = {
   aerodromos: [],
   puertos: [],
   prisiones: []
 };
-//=========================
-// ACTIVAR MEDICION
-//=========================
-function activarMedicion() {
-  modoMedicion = true;
-  midiendo = false; // reinicia estado
-}
 
-function limpiarMedicion() {
-  modoMedicion = false;
-  midiendo = false;
-  puntoDespegue = null;
-
-  if (circuloTemporal) viewer.entities.remove(circuloTemporal);
-  if (lineaTemporal) viewer.entities.remove(lineaTemporal);
-  if (etiquetaDistancia) viewer.entities.remove(etiquetaDistancia);
-  if (puntoEntidad) viewer.entities.remove(puntoEntidad);
-}
- 
-let handler = new Cesium.ScreenSpaceEventHandler(viewer.canvas);
-
-let etiquetaCoordenadas = null;
 // TOGGLE
 function toggleLayer(nombre) {
   capas[nombre].forEach(e => e.show = !e.show);
 }
 
-handler.setInputAction(function(click) {
-
-  if (!modoMedicion) return;
-
-  const cartesian = viewer.camera.pickEllipsoid(click.position);
-  if (!cartesian) return;
-
-  // 🟢 PRIMER CLICK
-  if (!midiendo) {
-
-    const carto = Cesium.Cartographic.fromCartesian(cartesian);
-    const lat = Cesium.Math.toDegrees(carto.latitude);
-    const lon = Cesium.Math.toDegrees(carto.longitude);
-
-    puntoDespegue = Cesium.Cartesian3.fromDegrees(lon, lat);
-    midiendo = true;
-
-    etiquetaMedicion = viewer.entities.add({
-    position: puntoDespegue,
-    label: {text: `Lat: ${lat.toFixed(6)}\nLon: ${lon.toFixed(6)}\nDist: 0 m`,
-    font: "16px sans-serif",
-    fillColor: Cesium.Color.WHITE,
-    showBackground: true,
-    backgroundColor: Cesium.Color.BLACK
-  }
-});
-
-    if (circuloTemporal) viewer.entities.remove(circuloTemporal);
-    if (lineaTemporal) viewer.entities.remove(lineaTemporal);
-    if (etiquetaDistancia) viewer.entities.remove(etiquetaDistancia);
-
-   puntoEntidad = viewer.entities.add({
-     position: puntoDespegue,
-     point: { pixelSize: 10, color: Cesium.Color.YELLOW }
-   });
-
-  } 
-  // 🔴 SEGUNDO CLICK (AQUÍ VA)
-  else {
-
-    midiendo = false;          // congela medición
-    modoMedicion = false;      // apaga herramienta
-  }
-
-}, Cesium.ScreenSpaceEventType.LEFT_CLICK);
-
-handler.setInputAction(function(movement) {
-
-  if (!modoMedicion || !midiendo || !puntoDespegue) return;
-     const cartesian = viewer.camera.pickEllipsoid(movement.endPosition);
-  if (!cartesian) return;
-     const distancia = Cesium.Cartesian3.distance(puntoDespegue, cartesian);
-  if (circuloTemporal) viewer.entities.remove(circuloTemporal);
-  if (lineaTemporal) viewer.entities.remove(lineaTemporal);
-  if (etiquetaDistancia) viewer.entities.remove(etiquetaDistancia);
- 
- circuloTemporal = viewer.entities.add({
-  position: puntoDespegue,
-  ellipse: {
-    semiMajorAxis: distancia,
-    semiMinorAxis: distancia,
-    material: Cesium.Color.CYAN.withAlpha(0.2),
-    outline: true,
-    outlineColor: Cesium.Color.CYAN
-  }
-});
-      //=======================
-    const distancia = Cesium.Cartesian3.distance(puntoDespegue, puntoActual);
-  
-if (etiquetaMedicion) {
-  etiquetaMedicion.label.text = `
-Lat: ${lat.toFixed(6)}
-Lon: ${lon.toFixed(6)}
-Dist: ${distancia.toFixed(0)} m
-`;
-}
-
-  
-  //========================
-  });
-
-  lineaTemporal = viewer.entities.add({
-    polyline: {
-      positions: [puntoDespegue, cartesian],
-      width: 2,
-      material: Cesium.Color.WHITE
-    }
-  });
-
-  etiquetaDistancia = viewer.entities.add({
-    position: cartesian,
-    label: {text: `${distancia.toFixed(0)} m`,
-      font: '16px sans-serif',
-      fillColor: Cesium.Color.WHITE,
-      showBackground: true,
-      backgroundColor: Cesium.Color.BLACK
-    }
-  });
-
-//const resultado = validarOperacion(lat, lon);
-document.getElementById("resultadoOperacion").innerHTML = resultado;
-  
-}, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
-
-//==================================
-//JS
-//==================================
-  let puntoDespegue = null;
-  let circuloTemporal = null;
-  let lineaTemporal = null;
-  let etiquetaDistancia = null;
-  let modoMedicion = false;
-  let midiendo = false; 
-  let puntoEntidad = null;
-  let puntoOperacion = null;
-  let circuloOperacion = null;
-  let etiquetaMedicion = null;
   
 //=========================================    
 // DATOS AERÓDROMOS 
@@ -282,11 +118,10 @@ const aerodromos = [
 ["Nebaj",15.446944, -91.161667],
 ["La Libertad - MGLL -",16.750625, -90.140639],
 ["Monterrico - MGRF -",13.894722, -90.484722],
-["Playa Grande - MGPG -",15.997500, -90.741667],
+["Playa Grande - MGPG -",5.997500, -90.741667],
 ["Quiche - MGQC -",15.011944, -91.150833,900],
 ["Rio Dulce - MGRD -",15.668889, -88.962778],
-["Zacapa - MGZA -",14.960000, -89.538889],
-["Atitlan ",14.609365, -91.243982]
+["Zacapa - MGZA -",14.960000, -89.538889]
 ];
 
 const pistas = [
@@ -311,12 +146,11 @@ const pistas = [
 ["Nebaj",15.446944, -91.161667,900,100,301],
 ["La Libertad - MGLL -",16.750625, -90.140639,1300,100,45],
 ["Monterrico - MGRF -",13.894722, -90.484722,900,100,110],
-["Playa Grande - MGPG -",15.997500, -90.741667,2000,100,165],
+["Playa Grande - MGPG -",5.997500, -90.741667,2000,100,160],
 ["Quiche - MGQC -",15.011944, -91.150833,1300,100,173],
 ["Rio Dulce - MGRD -",15.668889, -88.962778,1000,100,123],
 ["Zacapa - MGZA -",14.960000, -89.538889,1050,100,150],
-["Iztapa",13.930708, -90.728809,1100,200,90],
-["Atitlan ",14.609365, -91.243982,820,80,308.5]
+["Iztapa",13.930708, -90.728809,1100,200,90]
 ];
   
 pistas.forEach(p => {
@@ -387,9 +221,9 @@ function crearZonasAerodromo(nombre, lat, lon) {
   }
 }
 
-  anillo(2000, 0, 20, Cesium.Color.RED.withAlpha(0.05));
-  anillo(4000, 2000, 40, Cesium.Color.ORANGE);
-  anillo(6000, 4000, 60, Cesium.Color.YELLOW.withAlpha(0.15));
+  anillo(2000, 0, 40, Cesium.Color.RED.withAlpha(0.05));
+  anillo(4000, 2000, 60, Cesium.Color.ORANGE);
+  anillo(6000, 4000, 80, Cesium.Color.YELLOW.withAlpha(0.15));
   anillo(8000, 6000, 100, Cesium.Color.GREEN);
 }
   
@@ -432,140 +266,6 @@ Restricción según distancia:<br>
  
 aerodromos.forEach(a => crearZonasAerodromo(a[0], a[1], a[2]));
 
-//===========================================
-// PANEL INGRESO COORDENAS Y OPERACION
-//===========================================
-
-function ubicarOperacion() {
-
-  const lat = parseFloat(document.getElementById("latInput").value);
-  const lon = parseFloat(document.getElementById("lonInput").value);
-  const radio = parseFloat(document.getElementById("radioInput").value);
-
-  if (isNaN(lat) || isNaN(lon) || isNaN(radio)) {
-    alert("Ingrese datos válidos");
-    return;
-  }
-
-  //========================
-  // limpiar anterior
-  //========================
-  
-  limpiarOperacion();
-
-  //=============================
-  // punto
-  //=============================
-  puntoOperacion = viewer.entities.add({
-    position: Cesium.Cartesian3.fromDegrees(lon, lat),
-    point: { pixelSize: 10, color: Cesium.Color.CYAN },
-
-    description: `
-    <b>Punto de despegue</b><br>
-    Lat: ${lat.toFixed(6)}<br>
-    Lon: ${lon.toFixed(6)}<br>
-    Radio: ${radio} m
-    `
-  });
-
-  //========================
-  // círculo
-  //========================
-  circuloOperacion = viewer.entities.add({
-    position: Cesium.Cartesian3.fromDegrees(lon, lat),
-    ellipse: {
-      semiMajorAxis: radio,
-      semiMinorAxis: radio,
-      material: Cesium.Color.CYAN.withAlpha(0.2),
-      outline: true
-    }
-  });
-
-  viewer.flyTo(puntoOperacion);
-
-  //=========================================
-  // VALIDACIÓN 
-  //=========================================
-  
-  const resultado = validarOperacion(lat, lon);
-
-  document.getElementById("resultadoOperacion").innerHTML = resultado;
-}
-
-//=================================
-// FUNCION PARA LIMPIAR
-//=================================
-
-function limpiarOperacion() {
-  if (puntoOperacion) viewer.entities.remove(puntoOperacion);
-  if (circuloOperacion) viewer.entities.remove(circuloOperacion);
-
-  puntoOperacion = null;
-  circuloOperacion = null;
-
-  document.getElementById("resultadoOperacion").innerHTML = "";
-}
-
-//=============================
-// FUNCION INTELIGENTE
-//=============================
-
-function validarOperacion(lat, lon) {
-
-  let mensaje = "";
-  let alturaPermitida = 120;
-  let restriccion = false;
-  let motivo = "";
-
-  // 🔴 ejemplo: zona prohibida simple
-  for (let z of zonasProhibidas) {
-
-    const d = Cesium.Cartesian3.distance(
-      Cesium.Cartesian3.fromDegrees(lon, lat),
-      Cesium.Cartesian3.fromDegrees(z.lon, z.lat)
-    );
-
-    if (d < 300) {
-      restriccion = true;
-      alturaPermitida = 0;
-      motivo = "Zona de pista (prohibido volar)";
-    }
-  }
-
-  // 🟠 anillos
-  for (let z of zonasRestriccion) {
-
-    const d = Cesium.Cartesian3.distance(
-      Cesium.Cartesian3.fromDegrees(lon, lat),
-      Cesium.Cartesian3.fromDegrees(z.lon, z.lat)
-    );
-
-    if (d < z.radio) {
-      restriccion = true;
-      alturaPermitida = Math.min(alturaPermitida, z.altura);
-      motivo = "Proximidad a aeródromo";
-    }
-  }
-
-  // 🧾 RESULTADO FINAL
-  if (restriccion) {
-    mensaje = `
-    <b style="color:red;">OPERACIÓN RESTRINGIDA</b><br><br>
-    Altura máxima permitida: <b>${alturaPermitida} m</b><br>
-    Motivo: ${motivo}<br><br>
-    Para operar en esta zona deberá solicitar un <b>permiso especial</b>.
-    `;
-  } else {
-    mensaje = `
-    <b style="color:green;">OPERACIÓN PERMITIDA</b><br><br>
-    Altura máxima: 120 m AGL
-    `;
-  }
-
-  return mensaje;
-}
-  
-  
 //=====================
 //CREAR ZONAS DE VUELO EN TRAYECTORIA DE PISTA
 //======================
@@ -667,6 +367,28 @@ function crearAproximaciones(lat, lon, largo, rumbo) {
 
   });
 }
+
+  
+//const mitad = 2830 / 2;
+//const e1 = moverPunto(14.582085, -90.527770, mitad, 17.5);
+//const e2 = moverPunto(14.582085, -90.527770, mitad, 197.5);
+
+// EXTREMO 1 (6 ZONAS)
+//crearZonaVuelo(e1[0], e1[1], 60, 1080, 280, 0, 17.5, Cesium.Color.RED);
+//crearZonaVuelo(e1[0], e1[1], 1080, 2100, 586, 20, 17.5, Cesium.Color.ORANGE);
+//crearZonaVuelo(e1[0], e1[1], 2100, 3060, 892, 40, 17.5, Cesium.Color.YELLOW);
+//crearZonaVuelo(e1[0], e1[1], 3060, 3860, 1180, 60, 17.5, Cesium.Color.BURLYWOOD);
+//crearZonaVuelo(e1[0], e1[1], 3860, 4660, 1420, 80, 17.5, Cesium.Color.KHAKI);
+//crearZonaVuelo(e1[0], e1[1], 4660, 5460, 1660, 100, 17.5, Cesium.Color.GREEN);
+
+// EXTREMO 2 (6 ZONAS)
+//crearZonaVuelo(e2[0], e2[1], 60, 1080, 280, 0, 197.5, Cesium.Color.RED);
+//crearZonaVuelo(e2[0], e2[1], 1080, 2100, 586, 20, 197.5, Cesium.Color.ORANGE);
+//crearZonaVuelo(e2[0], e2[1], 2100, 3060, 892, 40, 197.5, Cesium.Color.YELLOW);
+//crearZonaVuelo(e2[0], e2[1], 3060, 3860, 1180, 60, 197.5, Cesium.Color.BURLYWOOD);
+//crearZonaVuelo(e2[0], e2[1], 3860, 4660, 1420, 80, 197.5, Cesium.Color.KHAKI);
+//crearZonaVuelo(e2[0], e2[1], 4660, 5460, 1660, 100, 197.5, Cesium.Color.GREEN);
+  
   
 // ======================
 // PUERTOS
