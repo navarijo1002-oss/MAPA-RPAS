@@ -193,18 +193,19 @@ handler.setInputAction(function(movement) {
   if (lineaTemporal) viewer.entities.remove(lineaTemporal);
   if (etiquetaDistancia) viewer.entities.remove(etiquetaDistancia);
  
-  circuloTemporal = viewer.entities.add({
-    position: puntoDespegue,
-    ellipse: {
-      semiMajorAxis: distancia,
-      semiMinorAxis: distancia,
-      material: Cesium.Color.CYAN.withAlpha(0.2),
-      outline: true,
-      outlineColor: Cesium.Color.CYAN
-    }
+ circuloTemporal = viewer.entities.add({
+  position: puntoDespegue,
+  ellipse: {
+    semiMajorAxis: distancia,
+    semiMinorAxis: distancia,
+    material: Cesium.Color.CYAN.withAlpha(0.2),
+    outline: true,
+    outlineColor: Cesium.Color.CYAN
+  }
+});
       //=======================
     const distancia = Cesium.Cartesian3.distance(puntoDespegue, puntoActual);
-
+  
 if (etiquetaMedicion) {
   etiquetaMedicion.label.text = `
 Lat: ${lat.toFixed(6)}
@@ -212,9 +213,6 @@ Lon: ${lon.toFixed(6)}
 Dist: ${distancia.toFixed(0)} m
 `;
 }
-if (etiquetaMedicion) viewer.entities.remove(etiquetaMedicion);
-etiquetaMedicion = null;
-
 
   
   //========================
@@ -238,7 +236,7 @@ etiquetaMedicion = null;
     }
   });
 
-const resultado = validarOperacion(lat, lon);
+//const resultado = validarOperacion(lat, lon);
 document.getElementById("resultadoOperacion").innerHTML = resultado;
   
 }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
@@ -449,10 +447,15 @@ function ubicarOperacion() {
     return;
   }
 
+  //========================
   // limpiar anterior
+  //========================
+  
   limpiarOperacion();
 
+  //=============================
   // punto
+  //=============================
   puntoOperacion = viewer.entities.add({
     position: Cesium.Cartesian3.fromDegrees(lon, lat),
     point: { pixelSize: 10, color: Cesium.Color.CYAN },
@@ -465,7 +468,9 @@ function ubicarOperacion() {
     `
   });
 
+  //========================
   // círculo
+  //========================
   circuloOperacion = viewer.entities.add({
     position: Cesium.Cartesian3.fromDegrees(lon, lat),
     ellipse: {
