@@ -101,7 +101,10 @@
 Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJmNmRiN2M4Mi05NDkzLTQzZjctOTU2ZS1iNjJkMmNkOTM4OGYiLCJpZCI6NDE0NjA3LCJpYXQiOjE3NzU1MTUzMTB9.ZjCd0PlYQOc6EbzpBV9jLuSxyZSAbQz1D8qnJjEuhoo';
 const viewer = new Cesium.Viewer('cesiumContainer');
 
+//=============================
 // CAPAS
+//=============================
+  
 const capas = {
   aerodromos: [],
   puertos: [],
@@ -151,6 +154,16 @@ handler.setInputAction(function(click) {
     puntoDespegue = Cesium.Cartesian3.fromDegrees(lon, lat);
     midiendo = true;
 
+    etiquetaMedicion = viewer.entities.add({
+    position: puntoDespegue,
+    label: {text: `Lat: ${lat.toFixed(6)}\nLon: ${lon.toFixed(6)}\nDist: 0 m`,
+    font: "16px sans-serif",
+    fillColor: Cesium.Color.WHITE,
+    showBackground: true,
+    backgroundColor: Cesium.Color.BLACK
+  }
+});
+
     if (circuloTemporal) viewer.entities.remove(circuloTemporal);
     if (lineaTemporal) viewer.entities.remove(lineaTemporal);
     if (etiquetaDistancia) viewer.entities.remove(etiquetaDistancia);
@@ -164,8 +177,8 @@ handler.setInputAction(function(click) {
   // 🔴 SEGUNDO CLICK (AQUÍ VA)
   else {
 
-    midiendo = false;          // 🔒 congela medición
-    modoMedicion = false;      // 📴 apaga herramienta
+    midiendo = false;          // congela medición
+    modoMedicion = false;      // apaga herramienta
   }
 
 }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
@@ -189,6 +202,22 @@ handler.setInputAction(function(movement) {
       outline: true,
       outlineColor: Cesium.Color.CYAN
     }
+      //=======================
+    const distancia = Cesium.Cartesian3.distance(puntoDespegue, puntoActual);
+
+if (etiquetaMedicion) {
+  etiquetaMedicion.label.text = `
+Lat: ${lat.toFixed(6)}
+Lon: ${lon.toFixed(6)}
+Dist: ${distancia.toFixed(0)} m
+`;
+}
+if (etiquetaMedicion) viewer.entities.remove(etiquetaMedicion);
+etiquetaMedicion = null;
+
+
+  
+  //========================
   });
 
   lineaTemporal = viewer.entities.add({
@@ -201,17 +230,22 @@ handler.setInputAction(function(movement) {
 
   etiquetaDistancia = viewer.entities.add({
     position: cartesian,
-    label: {
-      text: `${distancia.toFixed(0)} m`,
-      font: '14px sans-serif',
+    label: {text: `${distancia.toFixed(0)} m`,
+      font: '16px sans-serif',
       fillColor: Cesium.Color.WHITE,
       showBackground: true,
       backgroundColor: Cesium.Color.BLACK
     }
   });
 
-}, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
+const resultado = validarOperacion(lat, lon);
+document.getElementById("resultadoOperacion").innerHTML = resultado;
   
+}, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
+
+//==================================
+//JS
+//==================================
   let puntoDespegue = null;
   let circuloTemporal = null;
   let lineaTemporal = null;
@@ -221,6 +255,8 @@ handler.setInputAction(function(movement) {
   let puntoEntidad = null;
   let puntoOperacion = null;
   let circuloOperacion = null;
+  let etiquetaMedicion = null;
+  
 //=========================================    
 // DATOS AERÓDROMOS 
 //===============================================
@@ -442,7 +478,10 @@ function ubicarOperacion() {
 
   viewer.flyTo(puntoOperacion);
 
-  // 🔥 VALIDACIÓN (aún básica)
+  //=========================================
+  // VALIDACIÓN 
+  //=========================================
+  
   const resultado = validarOperacion(lat, lon);
 
   document.getElementById("resultadoOperacion").innerHTML = resultado;
