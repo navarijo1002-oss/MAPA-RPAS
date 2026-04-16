@@ -381,7 +381,8 @@ pistas.forEach(p => {
 // ======================
 // AERÓDROMOS (FUNCION PARA CREAR ANILLOS 3D)
 // ======================
-function crearAnillosAerodromo(lat, lon, distanciaInicio, distanciaFin, ancho, altura, rumbo, color) {
+function crearAnillosAerodromo(lat, lon) {
+
   function crearCirculo(radio) {
     const posiciones = [];
     for (let i = 0; i < 360; i += 10) {
@@ -418,7 +419,7 @@ function crearAnillosAerodromo(lat, lon, distanciaInicio, distanciaFin, ancho, a
         outline: true,
         outlineColor: color
       },
-      description: `<b>${nombre}</b><br>Altura máxima: ${altura} m`
+      description: `Altura máxima: ${altura} m`
     });
 
     capas.aerodromos.push(entidad);
