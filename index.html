@@ -190,7 +190,7 @@ for (let zona of zonasAproximacion) {
     );
 
     if (d < 2000) { altura = Math.min(altura, 20); estado="RESTRINGIDO"; motivo="Aeródromo 0-2km"; }
-    else if (d < 4000) { altura = Math.min(altura, 80); estado="RESTRINGIDO"; motivo="Aeródromo 2-4km"; }
+    else if (d < 4000) { altura = Math.min(altura, 40); estado="RESTRINGIDO"; motivo="Aeródromo 2-4km"; }
     else if (d < 6000) { altura = Math.min(altura, 60); estado="RESTRINGIDO"; motivo="Aeródromo 4-6km"; }
     else if (d < 8000) { altura = Math.min(altura, 100); estado="RESTRINGIDO"; motivo="Aeródromo 6-8km"; }
   });
