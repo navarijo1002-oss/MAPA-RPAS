@@ -156,8 +156,8 @@ for (let zona of zonasAproximacion) {
   // 🔴 PRISIONES
   //==================
   prisiones.forEach(p => {
-    const d = Cesium.Cartesian3.distance(
-      Cesium.Cartesian3.fromDegrees(lon, lat),
+const d = distanciaSuperficie(lat, lon, p[1], p[2]);
+    Cesium.Cartesian3.fromDegrees(lon, lat),
       Cesium.Cartesian3.fromDegrees(p[2], p[1])
     );
 
@@ -170,8 +170,8 @@ for (let zona of zonasAproximacion) {
 
   // 🔵 PUERTOS
   puertos.forEach(p => {
-    const d = Cesium.Cartesian3.distance(
-      Cesium.Cartesian3.fromDegrees(lon, lat),
+const d = distanciaSuperficie(lat, lon, p[1], p[2]);
+    Cesium.Cartesian3.fromDegrees(lon, lat),
       Cesium.Cartesian3.fromDegrees(p[2], p[1])
     );
 
@@ -184,8 +184,8 @@ for (let zona of zonasAproximacion) {
 
   // 🟡 AERÓDROMOS
   aerodromos.forEach(a => {
-    const d = Cesium.Cartesian3.distance(
-      Cesium.Cartesian3.fromDegrees(lon, lat),
+const d = distanciaSuperficie(lat, lon, a[1], a[2]);
+    Cesium.Cartesian3.fromDegrees(lon, lat),
       Cesium.Cartesian3.fromDegrees(a[2], a[1])
     );
 
@@ -207,7 +207,18 @@ for (let zona of zonasAproximacion) {
 }
 
 let operacionActual = null;
+//==================
+// DISTANCIA SUPERFICIE
+//========================
+function distanciaSuperficie(lat1, lon1, lat2, lon2) {
+  const c1 = Cesium.Cartographic.fromDegrees(lon1, lat1);
+  const c2 = Cesium.Cartographic.fromDegrees(lon2, lat2);
+  const geodesic = new Cesium.EllipsoidGeodesic(c1, c2);
+  return geodesic.surfaceDistance;
+}
 
+
+  
 //=============================
 // ubicar operacion
 //=============================
