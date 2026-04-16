@@ -137,18 +137,17 @@ for (let zona of zonasAproximacion) {
       📏 Radio: ${radio.toFixed(0)} m<br><br>
       ✈️ Altura máxima: <b>0 m</b><br><br>
       <b style="color:red;">PROHIBIDO</b><br>
-      Trayectoria de aproximación/despegue
-      `;
+      Trayectoria de aproximación/despegue`;
     }
 
-   return `
-  <b>RESULTADO</b><br><br>
-  📍 ${lat.toFixed(6)}, ${lon.toFixed(6)}<br>
-  📏 Radio: ${radio.toFixed(0)} m<br><br>
-  ✈️ Altura máxima: <b>${altura} m</b><br><br>
-  <b style="color:${estado==="PERMITIDO"?"green":"red"};">${estado}</b><br>
-  ${motivo}
-`;
+     return `
+     <b>RESULTADO</b><br><br>
+     📍 ${lat.toFixed(6)}, ${lon.toFixed(6)}<br>
+     📏 Radio: ${radio.toFixed(0)} m<br><br>
+     ✈️ Altura máxima: <b>${altura} m</b><br><br>
+     <b style="color:${estado==="PERMITIDO"?"green":"red"};">${estado}</b><br>
+     ${motivo}`;
+}
 }
   //==================
   // 🔴 PRISIONES
