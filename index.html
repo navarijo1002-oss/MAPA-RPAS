@@ -259,23 +259,7 @@ function activarDibujo() {
   puntoInicio = null;
 }
 
-handler.setInputAction(function(click) {
-
-  if (!dibujando) return;
-
-  const cartesian = viewer.camera.pickEllipsoid(click.position);
-  if (!cartesian) return;
-
-  const carto = Cesium.Cartographic.fromCartesian(cartesian);
-
-  puntoInicio = {
-    lat: Cesium.Math.toDegrees(carto.latitude),
-    lon: Cesium.Math.toDegrees(carto.longitude),
-    cartesian: cartesian
-  };
-
-}, Cesium.ScreenSpaceEventType.LEFT_DOWN);
-
+let radioActual = 0;
 
 handler.setInputAction(function(move) {
 
@@ -284,13 +268,16 @@ handler.setInputAction(function(move) {
   const cartesian = viewer.camera.pickEllipsoid(move.endPosition);
   if (!cartesian) return;
 
-const carto1 = Cesium.Cartographic.fromCartesian(puntoInicio.cartesian);
-const carto2 = Cesium.Cartographic.fromCartesian(cartesian);
+  const carto1 = Cesium.Cartographic.fromCartesian(puntoInicio.cartesian);
+  const carto2 = Cesium.Cartographic.fromCartesian(cartesian);
 
-const geodesic = new Cesium.EllipsoidGeodesic(carto1, carto2);
-const radio = geodesic.surfaceDistance;
+  const geodesic = new Cesium.EllipsoidGeodesic(carto1, carto2);
+  const radio = geodesic.surfaceDistance;
 
-if (!radio || isNaN(radio)) return;
+  radioActual = radio; // ✅ CLAVE
+
+  if (!radio || isNaN(radio)) return;
+
   if (circuloTemp) viewer.entities.remove(circuloTemp);
 
   circuloTemp = viewer.entities.add({
@@ -310,17 +297,13 @@ handler.setInputAction(function() {
 
   if (!dibujando || !puntoInicio) return;
 
-  const radio = circuloTemp.ellipse.semiMajorAxis.getValue();
-
   document.getElementById("resultadoOperacion").innerHTML =
-    validarOperacion(puntoInicio.lat, puntoInicio.lon, radio);
+    validarOperacion(puntoInicio.lat, puntoInicio.lon, radioActual);
 
   dibujando = false;
   puntoInicio = null;
 
-}, Cesium.ScreenSpaceEventType.LEFT_UP);
-  
-
+}, Cesium.ScreenSpaceEventType.LEFT_UP);  
   
 //=========================================    
 // DATOS AERÓDROMOS 
@@ -502,8 +485,6 @@ function puntoEnPoligono(lat, lon, poligono) {
   capas.aerodromos.push(entidad);
 }
  
-aerodromos.forEach(a => crearZonasAerodromo(a[0], a[1], a[2]));
-
 //=====================
 //CREAR ZONAS DE VUELO EN TRAYECTORIA DE PISTA
 //======================
@@ -544,13 +525,9 @@ function crearZonaVuelo(lat, lon, distanciaInicio, distanciaFin, ancho, altura, 
   const p3 = anchoOffset(fin, derecha, mitad);
   const p4 = anchoOffset(fin, izquierda, mitad);
 
-// 🔥 IMPORTANTE
 const coords = [p1, p2, p3, p4];
 
-zonasAproximacion.push({
-  coords: coords,
-  altura: altura
-});
+zonasAproximacion.push({coords: coords,altura: altura});
   const entidad = viewer.entities.add({
     polygon: {
       hierarchy: new Cesium.PolygonHierarchy([
