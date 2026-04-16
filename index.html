@@ -398,7 +398,7 @@ pistas.forEach(p => {
 // ======================
 // AERÓDROMOS (FUNCION PARA CREAR ANILLOS 3D)
 // ======================
-function crearZonaVuelo(lat, lon, distanciaInicio, distanciaFin, ancho, altura, rumbo, color) {
+function crearAnillosAerodromo(lat, lon, distanciaInicio, distanciaFin, ancho, altura, rumbo, color) {
   function crearCirculo(radio) {
     const posiciones = [];
     for (let i = 0; i < 360; i += 10) {
