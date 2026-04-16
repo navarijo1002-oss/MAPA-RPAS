@@ -126,76 +126,91 @@ function validarOperacion(lat, lon, radio) {
 //========================
 // 🔴 PRIORIDAD MÁXIMA: APROXIMACIONES
 //============================
-for (let zona of zonasAproximacion) {
+function validarOperacion(lat, lon, radio) {
 
-  if (puntoEnPoligono(lat, lon, zona.coords)) {
+  let altura = 120;
+  let estado = "PERMITIDO";
+  let motivo = "Sin restricción";
 
-    if (zona.altura === 0) {
+  // 🔴 PRIORIDAD MÁXIMA: APROXIMACIONES
+  for (let zona of zonasAproximacion) {
+
+    if (puntoEnPoligono(lat, lon, zona.coords)) {
+
+      if (zona.altura === 0) {
+        return `
+        <b>RESULTADO</b><br><br>
+        📍 ${lat.toFixed(6)}, ${lon.toFixed(6)}<br>
+        📏 Radio: ${radio.toFixed(0)} m<br><br>
+        ✈️ Altura máxima: <b>0 m</b><br><br>
+        <b style="color:red;">PROHIBIDO</b><br>
+        Trayectoria de aproximación/despegue`;
+      }
+
       return `
       <b>RESULTADO</b><br><br>
       📍 ${lat.toFixed(6)}, ${lon.toFixed(6)}<br>
       📏 Radio: ${radio.toFixed(0)} m<br><br>
-      ✈️ Altura máxima: <b>0 m</b><br><br>
-      <b style="color:red;">PROHIBIDO</b><br>
-      Trayectoria de aproximación/despegue`;
+      ✈️ Altura máxima: <b>${zona.altura} m</b><br><br>
+      <b style="color:red;">RESTRINGIDO</b><br>
+      Aproximación/despegue`;
     }
-
-    return `
-    <b>RESULTADO</b><br><br>
-    📍 ${lat.toFixed(6)}, ${lon.toFixed(6)}<br>
-    📏 Radio: ${radio.toFixed(0)} m<br><br>
-    ✈️ Altura máxima: <b>${zona.altura} m</b><br><br>
-    <b style="color:red;">RESTRINGIDO</b><br>
-    Aproximación/despegue`;
-}
-}
-  //==================
-  // 🔴 PRISIONES
-  //==================
- prisiones.forEach(p => {
-  const d = distanciaSuperficie(lat, lon, p[1], p[2]);
-
-  if (d < 300) {
-    altura = 0;
-    estado = "PROHIBIDO";
-    motivo = "Proximidad a prisión";
   }
-});
+
+  // 🔴 PRISIONES
+  prisiones.forEach(p => {
+    const d = distanciaSuperficie(lat, lon, p[1], p[2]);
+
+    if (d < 300) {
+      altura = 0;
+      estado = "PROHIBIDO";
+      motivo = "Proximidad a prisión";
+    }
+  });
 
   // 🔵 PUERTOS
   puertos.forEach(p => {
-  const d = distanciaSuperficie(lat, lon, p[1], p[2]);
+    const d = distanciaSuperficie(lat, lon, p[1], p[2]);
 
-  if (d < 500 && estado !== "PROHIBIDO") {
-    altura = Math.min(altura, 60);
-    estado = "RESTRINGIDO";
-    motivo = "Proximidad a puert maritimo";
-  }
-});
-  
+    if (d < 500 && estado !== "PROHIBIDO") {
+      altura = Math.min(altura, 60);
+      estado = "RESTRINGIDO";
+      motivo = "Proximidad a puerto marítimo";
+    }
+  });
+
   // 🟡 AERÓDROMOS
-aerodromos.forEach(a => {
-  const d = distanciaSuperficie(lat, lon, a[1], a[2]);
+  aerodromos.forEach(a => {
+    const d = distanciaSuperficie(lat, lon, a[1], a[2]);
 
-  if (d < 2000) {
-    altura = Math.min(altura, 20);
-    estado = "RESTRINGIDO";
-    motivo = "Aeródromo 0-2km";
-  } else if (d < 4000) {
-    altura = Math.min(altura, 40); // 🔧 aquí tenías 80, ya corregido
-    estado = "RESTRINGIDO";
-    motivo = "Aeródromo 2-4km";
-  } else if (d < 6000) {
-    altura = Math.min(altura, 60);
-    estado = "RESTRINGIDO";
-    motivo = "Aeródromo 4-6km";
-  } else if (d < 8000) {
-    altura = Math.min(altura, 100);
-    estado = "RESTRINGIDO";
-    motivo = "Aeródromo 6-8km";
-  }
-});
+    if (d < 2000) {
+      altura = Math.min(altura, 20);
+      estado = "RESTRINGIDO";
+      motivo = "Aeródromo 0-2km";
+    } else if (d < 4000) {
+      altura = Math.min(altura, 40);
+      estado = "RESTRINGIDO";
+      motivo = "Aeródromo 2-4km";
+    } else if (d < 6000) {
+      altura = Math.min(altura, 60);
+      estado = "RESTRINGIDO";
+      motivo = "Aeródromo 4-6km";
+    } else if (d < 8000) {
+      altura = Math.min(altura, 100);
+      estado = "RESTRINGIDO";
+      motivo = "Aeródromo 6-8km";
+    }
+  });
 
+  return `
+  <b>RESULTADO</b><br><br>
+  📍 ${lat.toFixed(6)}, ${lon.toFixed(6)}<br>
+  📏 Radio: ${radio.toFixed(0)} m<br><br>
+  ✈️ Altura máxima: <b>${altura} m</b><br><br>
+  <b style="color:${estado==="PERMITIDO"?"green":"red"};">${estado}</b><br>
+  ${motivo}
+  `;
+}
 let operacionActual = null;
   
 //==================
@@ -397,8 +412,7 @@ pistas.forEach(p => {
 // ======================
 // AERÓDROMOS (FUNCION PARA CREAR ANILLOS 3D)
 // ======================
-function crearZonasAerodromo(nombre, lat, lon) {
-
+function crearZonaVuelo(lat, lon, distanciaInicio, distanciaFin, ancho, altura, rumbo, color) {
   function crearCirculo(radio) {
     const posiciones = [];
     for (let i = 0; i < 360; i += 10) {
@@ -544,6 +558,13 @@ function crearZonaVuelo(lat, lon, distanciaInicio, distanciaFin, ancho, altura, 
   const p3 = anchoOffset(fin, derecha, mitad);
   const p4 = anchoOffset(fin, izquierda, mitad);
 
+// 🔥 IMPORTANTE
+const coords = [p1, p2, p3, p4];
+
+zonasAproximacion.push({
+  coords: coords,
+  altura: altura
+});
   const entidad = viewer.entities.add({
     polygon: {
       hierarchy: new Cesium.PolygonHierarchy([
