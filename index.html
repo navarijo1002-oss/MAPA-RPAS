@@ -152,10 +152,6 @@ for (let zona of zonasAproximacion) {
   }
 }
 
-
-  
-
-
   //==================
   // 🔴 PRISIONES
   //==================
@@ -285,8 +281,13 @@ handler.setInputAction(function(move) {
   const cartesian = viewer.camera.pickEllipsoid(move.endPosition);
   if (!cartesian) return;
 
-  const radio = Cesium.Cartesian3.distance(puntoInicio.cartesian, cartesian);
+const carto1 = Cesium.Cartographic.fromCartesian(puntoInicio.cartesian);
+const carto2 = Cesium.Cartographic.fromCartesian(cartesian);
 
+const geodesic = new Cesium.EllipsoidGeodesic(carto1, carto2);
+const radio = geodesic.surfaceDistance;
+
+if (!radio || isNaN(radio)) return;
   if (circuloTemp) viewer.entities.remove(circuloTemp);
 
   circuloTemp = viewer.entities.add({
@@ -398,76 +399,51 @@ function crearZonasAerodromo(nombre, lat, lon) {
 
   function crearCirculo(radio) {
     const posiciones = [];
-    for (let i = 0; i < 360; i += 15) {
+    for (let i = 0; i < 360; i += 10) {
       const angulo = Cesium.Math.toRadians(i);
       const latOffset = (radio / 111320) * Math.sin(angulo);
       const lonOffset = (radio / (111320 * Math.cos(Cesium.Math.toRadians(lat)))) * Math.cos(angulo);
+
       posiciones.push(
         Cesium.Cartesian3.fromDegrees(lon + lonOffset, lat + latOffset)
       );
     }
-
     return posiciones;
   }
 
   function anillo(rExt, rInt, altura, color) {
-  try {
 
     let hierarchy;
 
-    if (rInt === 0) {hierarchy = new Cesium.PolygonHierarchy(crearCirculo(rExt));} 
-    else {hierarchy = new Cesium.PolygonHierarchy(crearCirculo(rExt),[new Cesium.PolygonHierarchy(crearCirculo(rInt))]);
+    if (rInt === 0) {
+      hierarchy = new Cesium.PolygonHierarchy(crearCirculo(rExt));
+    } else {
+      hierarchy = new Cesium.PolygonHierarchy(
+        crearCirculo(rExt),
+        [new Cesium.PolygonHierarchy(crearCirculo(rInt))]
+      );
     }
 
-  const coordenadas = [
-  [p1[1], p1[0]],
-  [p2[1], p2[0]],
-  [p3[1], p3[0]],
-  [p4[1], p4[0]],
-  [p1[1], p1[0]] // cerrar polígono
-];
+    const entidad = viewer.entities.add({
+      polygon: {
+        hierarchy: hierarchy,
+        extrudedHeight: altura,
+        height: 0,
+        material: color.withAlpha(0.2),
+        outline: true,
+        outlineColor: color
+      },
+      description: `<b>${nombre}</b><br>Altura máxima: ${altura} m`
+    });
 
-zonasAproximacion.push({
-  coords: coordenadas,
-  altura: altura
-});
-
-const entidad = viewer.entities.add({
-  polygon: {
-    hierarchy: new Cesium.PolygonHierarchy([
-      Cesium.Cartesian3.fromDegrees(p1[1], p1[0]),
-      Cesium.Cartesian3.fromDegrees(p2[1], p2[0]),
-      Cesium.Cartesian3.fromDegrees(p3[1], p3[0]),
-      Cesium.Cartesian3.fromDegrees(p4[1], p4[0])
-    ]),
-    extrudedHeight: altura === 0 ? 1 : altura,
-    height: 0,
-    material: color.withAlpha(0.4),
-    outline: true,
-    outlineColor: color
-  },
-  description: altura === 0 ? 
-   `<b style="color:red;">PROHIBIDO VOLAR</b><br>
-   Zona crítica de Aproximación y Despegue`
-  : `<b>Zona de aproximación</b><br>
-   Altura máxima: ${altura} m`
-});
-  capas.aerodromos.push(entidad);  
-
-    //
-} 
-  //
-  catch (e) {
-    console.error("Error creando anillo:", e);
+    capas.aerodromos.push(entidad);
   }
-}
 
-  anillo(2000, 0, 20, Cesium.Color.RED.withAlpha(0.05));
+  anillo(2000, 0, 20, Cesium.Color.RED);
   anillo(4000, 2000, 40, Cesium.Color.ORANGE);
-  anillo(6000, 4000, 60, Cesium.Color.YELLOW.withAlpha(0.15));
+  anillo(6000, 4000, 60, Cesium.Color.YELLOW);
   anillo(8000, 6000, 100, Cesium.Color.GREEN);
 }
-
 //=====================================
 // FUNCION DETECTA PUNTO EN POLIGONO
 //=====================================
