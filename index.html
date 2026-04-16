@@ -93,7 +93,9 @@
   z-index:1;
 "></div>
   
-  
+//========================================================
+//                          SCRIPT
+//========================================================
 <script>
 
 Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJmNmRiN2M4Mi05NDkzLTQzZjctOTU2ZS1iNjJkMmNkOTM4OGYiLCJpZCI6NDE0NjA3LCJpYXQiOjE3NzU1MTUzMTB9.ZjCd0PlYQOc6EbzpBV9jLuSxyZSAbQz1D8qnJjEuhoo';
@@ -110,7 +112,7 @@ const capas = {
 const zonasAproximacion = [];
 
 //========================
-// 🔴 PRIORIDAD MÁXIMA: APROXIMACIONES
+// 🔴VALIDAR OPERACION  - PRIORIDAD MÁXIMA: APROXIMACIONES
 //============================
 function validarOperacion(lat, lon, radio) {
 
@@ -118,7 +120,6 @@ function validarOperacion(lat, lon, radio) {
   let estado = "PERMITIDO";
   let motivo = "Sin restricción";
 
-  // 🔴 PRIORIDAD MÁXIMA: APROXIMACIONES
   for (let zona of zonasAproximacion) {
 
     if (puntoEnPoligono(lat, lon, zona.coords)) {
@@ -144,30 +145,28 @@ function validarOperacion(lat, lon, radio) {
   }
 
   // 🔴 PRISIONES
-  prisiones.forEach(p => {
-    const d = distanciaSuperficie(lat, lon, p[1], p[2]);
+datosPrisiones.forEach(p => {
+  const d = distanciaSuperficie(lat, lon, p[1], p[2]);
 
-    if (d < 300) {
-      altura = 0;
-      estado = "PROHIBIDO";
-      motivo = "Proximidad a prisión";
+    if (d < 300) {altura = 0;
+      estado = "PROHIBIDO ";
+      motivo = "PROXIMO A UNA PRISION";
     }
   });
 
   // 🔵 PUERTOS
-  puertos.forEach(p => {
-    const d = distanciaSuperficie(lat, lon, p[1], p[2]);
-
-    if (d < 500 && estado !== "PROHIBIDO") {
-      altura = Math.min(altura, 60);
-      estado = "RESTRINGIDO";
-      motivo = "Proximidad a puerto marítimo";
+  
+  datosPuertos.forEach(p => {
+  const d = distanciaSuperficie(lat, lon, p[1], p[2]);
+         if (d < 500 && estado !== "PROHIBIDO") {altura = Math.min(altura, 60);
+            estado = "RESTRINGIDO";
+            motivo = "Proximo un puerto marítimo";
     }
   });
 
   // 🟡 AERÓDROMOS
-  aerodromos.forEach(a => {
-    const d = distanciaSuperficie(lat, lon, a[1], a[2]);
+  datosAerodromos.forEach(a => {
+  const d = distanciaSuperficie(lat, lon, a[1], a[2]);
 
     if (d < 2000) {
       altura = Math.min(altura, 20);
@@ -192,7 +191,7 @@ function validarOperacion(lat, lon, radio) {
   <b>RESULTADO</b><br><br>
   📍 ${lat.toFixed(6)}, ${lon.toFixed(6)}<br>
   📏 Radio: ${radio.toFixed(0)} m<br><br>
-  ✈️ Altura máxima: <b>${altura} m</b><br><br>
+  ✈️ Altura máxima Permitida de Vuelo: <b>${altura} m</b><br><br>
   <b style="color:${estado==="PERMITIDO"?"green":"red"};">${estado}</b><br>
   ${motivo}
   `;
@@ -227,7 +226,6 @@ function ubicarOperacion() {
   }
 
   if (operacionActual) viewer.entities.remove(operacionActual);
-
   operacionActual = viewer.entities.add({
     position: Cesium.Cartesian3.fromDegrees(lon, lat),
     ellipse: {
@@ -237,18 +235,15 @@ function ubicarOperacion() {
       outline: true
     }
   });
-
   viewer.flyTo(operacionActual);
-
   document.getElementById("resultadoOperacion").innerHTML =
     validarOperacion(lat, lon, radio);
 }
 
-
-let handler = new Cesium.ScreenSpaceEventHandler(viewer.canvas);
-let dibujando = false;
-let puntoInicio = null;
-let circuloTemp = null;
+  let handler = new Cesium.ScreenSpaceEventHandler(viewer.canvas);
+  let dibujando = false;
+  let puntoInicio = null;
+  let circuloTemp = null;
 
 //=============================
 // ACTIVAR DIBUJO
@@ -307,9 +302,9 @@ handler.setInputAction(function() {
   
 //=========================================    
 // DATOS AERÓDROMOS 
-//===============================================
+//=========================================
   
-const aerodromos = [
+const datosAerodromos = [
   ["Chiquimula",14.830984, -89.520862],
   ["Coban",15.469216, -90.406632],
   ["Retalhuleu",14.521705, -91.696760],
@@ -338,7 +333,7 @@ const aerodromos = [
   ["Zacapa - MGZA -",14.960000, -89.538889]
 ]; 
 
-aerodromos.forEach(a => {
+datosAerodromos.forEach(a => {
   crearAnillosAerodromo(a[1], a[2]);
 });
 
@@ -381,10 +376,9 @@ pistas.forEach(p => {
   crearAproximaciones(p[1], p[2], p[3], p[5]);
 
 });
-  
-  
+    
 // ======================
-// AERÓDROMOS (FUNCION PARA CREAR ANILLOS 3D)
+// AERÓDROMOS FUNCION PARA CREAR ANILLOS 3D
 // ======================
 function crearAnillosAerodromo(lat, lon) {
 
@@ -455,7 +449,6 @@ function puntoEnPoligono(lat, lon, poligono) {
 
   return dentro;
 }
-
 
   
 // ======================
@@ -553,7 +546,7 @@ zonasAproximacion.push({coords: coords,altura: altura});
      `<b style="color:red;">PROHIBIDO VOLAR</b><br>
      Zona crítica de Aproximación y Despegue<br>
      NO SE PERMITEN OPERACIONES CON DRONES`
-  : `<b>Zona de aproximación y Despegue</b><br>
+  : `<b>ZONA DE APROXIMACION Y SALIDA DE AERONAVES</b><br>
      ALTURA MAXIMA PERMITIDA: ${altura} m`
   });
 
@@ -596,11 +589,10 @@ function crearAproximaciones(lat, lon, largo, rumbo) {
   });
 }
 
- 
 // ======================
 // PUERTOS
 // ======================
-const puertos = [
+const datosPuertos = [
 ["Champerico",14.3,-91.9167],
 ["San José",13.9167,-90.8333],
 ["Puerto Quetzal",13.9342,-90.7853],
@@ -608,7 +600,7 @@ const puertos = [
 ["Puerto Barrios",15.7375,-88.6019]
 ];
 
-puertos.forEach(p => {
+datosPuertos.forEach(p => {
   let entidad = viewer.entities.add({
     position: Cesium.Cartesian3.fromDegrees(p[2], p[1]),
     cylinder: {
@@ -626,7 +618,7 @@ puertos.forEach(p => {
 // ======================
 // PRISIONES
 // ======================
-const prisiones = [
+const datosPrisiones = [
 ["Zona 1",14.6403,-90.5005],
 ["Zona 17",14.6254,-90.4736],
 ["Zona 18",14.6658,-90.4765],
@@ -648,8 +640,8 @@ const prisiones = [
 ["Puerto Barrios",15.7161,-88.5906]
 ];
 
-prisiones.forEach(p => {
-  let entidad = viewer.entities.add({
+datosPrisiones.forEach(p => {
+ let entidad = viewer.entities.add({
     position: Cesium.Cartesian3.fromDegrees(p[2], p[1]),
     cylinder: {
       length: 1500,
