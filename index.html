@@ -107,7 +107,7 @@ const capas = {
   puertos: [],
   prisiones: []
 };
-
+const zonasAproximacion = [];
 // TOGGLE
 function toggleLayer(nombre) {
   capas[nombre].forEach(e => e.show = !e.show);
@@ -123,7 +123,42 @@ function validarOperacion(lat, lon, radio) {
   let estado = "PERMITIDO";
   let motivo = "Sin restricción";
 
+//========================
+// 🔴 PRIORIDAD MÁXIMA: APROXIMACIONES
+//============================
+for (let zona of zonasAproximacion) {
+
+  if (puntoEnPoligono(lat, lon, zona.coords)) {
+
+    if (zona.altura === 0) {
+      return `
+      <b>RESULTADO</b><br><br>
+      📍 ${lat.toFixed(6)}, ${lon.toFixed(6)}<br>
+      📏 Radio: ${radio.toFixed(0)} m<br><br>
+      ✈️ Altura máxima: <b>0 m</b><br><br>
+      <b style="color:red;">PROHIBIDO</b><br>
+      Trayectoria de aproximación/despegue
+      `;
+    }
+
+    return `
+    <b>RESULTADO</b><br><br>
+    📍 ${lat.toFixed(6)}, ${lon.toFixed(6)}<br>
+    📏 Radio: ${radio.toFixed(0)} m<br><br>
+    ✈️ Altura máxima: <b>${zona.altura} m</b><br><br>
+    <b style="color:red;">RESTRINGIDO</b><br>
+    Aproximación/despegue
+    `;
+  }
+}
+
+
+  
+
+
+  //==================
   // 🔴 PRISIONES
+  //==================
   prisiones.forEach(p => {
     const d = Cesium.Cartesian3.distance(
       Cesium.Cartesian3.fromDegrees(lon, lat),
@@ -380,35 +415,49 @@ function crearZonasAerodromo(nombre, lat, lon) {
 
     let hierarchy;
 
-    if (rInt === 0) {
-      hierarchy = new Cesium.PolygonHierarchy(crearCirculo(rExt));
-    } else {
-      hierarchy = new Cesium.PolygonHierarchy(
-        crearCirculo(rExt),
-        [new Cesium.PolygonHierarchy(crearCirculo(rInt))]
-      );
+    if (rInt === 0) {hierarchy = new Cesium.PolygonHierarchy(crearCirculo(rExt));} 
+    else {hierarchy = new Cesium.PolygonHierarchy(crearCirculo(rExt),[new Cesium.PolygonHierarchy(crearCirculo(rInt))]);
     }
 
-    const entidad = viewer.entities.add({
-      name: nombre,
-      polygon: {
-        hierarchy: hierarchy,
-        extrudedHeight: altura,
-        height: 0,
-        material: color.withAlpha(0.15)
-      },
+  const coordenadas = [
+  [p1[1], p1[0]],
+  [p2[1], p2[0]],
+  [p3[1], p3[0]],
+  [p4[1], p4[0]],
+  [p1[1], p1[0]] // cerrar polígono
+];
 
-      description: `
-      <b>${nombre}</b><br><br>
-      Zona Restringuida Por Proximidad a Aeródromo<br><br>
-      Altura máxima: ${altura} m<br>
-      Radio: ${rExt/1000} km
-      `
-    });
+zonasAproximacion.push({
+  coords: coordenadas,
+  altura: altura
+});
 
-    capas.aerodromos.push(entidad);
+const entidad = viewer.entities.add({
+  polygon: {
+    hierarchy: new Cesium.PolygonHierarchy([
+      Cesium.Cartesian3.fromDegrees(p1[1], p1[0]),
+      Cesium.Cartesian3.fromDegrees(p2[1], p2[0]),
+      Cesium.Cartesian3.fromDegrees(p3[1], p3[0]),
+      Cesium.Cartesian3.fromDegrees(p4[1], p4[0])
+    ]),
+    extrudedHeight: altura === 0 ? 1 : altura,
+    height: 0,
+    material: color.withAlpha(0.4),
+    outline: true,
+    outlineColor: color
+  },
+  description: altura === 0 ? 
+   `<b style="color:red;">PROHIBIDO VOLAR</b><br>
+   Zona crítica de Aproximación y Despegue`
+  : `<b>Zona de aproximación</b><br>
+   Altura máxima: ${altura} m`
+});
+  capas.aerodromos.push(entidad);  
 
-  } catch (e) {
+    //
+} 
+  //
+  catch (e) {
     console.error("Error creando anillo:", e);
   }
 }
@@ -418,6 +467,29 @@ function crearZonasAerodromo(nombre, lat, lon) {
   anillo(6000, 4000, 60, Cesium.Color.YELLOW.withAlpha(0.15));
   anillo(8000, 6000, 100, Cesium.Color.GREEN);
 }
+
+//=====================================
+// FUNCION DETECTA PUNTO EN POLIGONO
+//=====================================
+
+function puntoEnPoligono(lat, lon, poligono) {
+  let dentro = false;
+
+  for (let i = 0, j = poligono.length - 1; i < poligono.length; j = i++) {
+    const xi = poligono[i][1], yi = poligono[i][0];
+    const xj = poligono[j][1], yj = poligono[j][0];
+
+    const intersect =
+      ((yi > lat) !== (yj > lat)) &&
+      (lon < (xj - xi) * (lat - yi) / (yj - yi) + xi);
+
+    if (intersect) dentro = !dentro;
+  }
+
+  return dentro;
+}
+
+
   
 // ======================
 // FUNCION PARA CREAR  PISTAS
