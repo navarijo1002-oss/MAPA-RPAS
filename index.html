@@ -276,17 +276,28 @@ function ubicarOperacion() {
 // ACTIVAR DIBUJO
 //============================
 
+let radioActual = 0;
+let operacionFinal = null;
+let puntoDespegue = null;
+  
 function activarDibujo() {
   dibujando = true;
   puntoInicio = null;
 
+  // limpiar todo al iniciar nueva medición
+if (operacionFinal) {
+  viewer.entities.remove(operacionFinal);
+  operacionFinal = null;
+}
+
+if (puntoDespegue) {
+  viewer.entities.remove(puntoDespegue);
+  puntoDespegue = null;
+}
   viewer.scene.screenSpaceCameraController.enableRotate = false;
   viewer.scene.screenSpaceCameraController.enableTranslate = false;
   viewer.scene.screenSpaceCameraController.enableZoom = false;
 }
-
-let radioActual = 0;
-let operacionFinal = null;
 
 handler.setInputAction(function(move) {
 
@@ -354,8 +365,7 @@ handler.setInputAction(function() {
     }
   });
 
-  // limpiar temporal
-  if (circuloTemp) {
+    if (circuloTemp) {
     viewer.entities.remove(circuloTemp);
     circuloTemp = null;
   }
@@ -368,7 +378,7 @@ handler.setInputAction(function() {
    dibujando = false;
   puntoInicio = null;
 
-    viewer.scene.screenSpaceCameraController.enableRotate = true;
+  viewer.scene.screenSpaceCameraController.enableRotate = true;
   viewer.scene.screenSpaceCameraController.enableTranslate = true;
   viewer.scene.screenSpaceCameraController.enableZoom = true;
 
@@ -390,7 +400,12 @@ handler.setInputAction(function(click) {
     lon: Cesium.Math.toDegrees(carto.longitude)
   };
 
-viewer.entities.add({
+if (puntoDespegue) {
+  viewer.entities.remove(puntoDespegue);
+}
+
+// crear nuevo punto
+puntoDespegue = viewer.entities.add({
   position: cartesian,
   point: {
     pixelSize: 10,
