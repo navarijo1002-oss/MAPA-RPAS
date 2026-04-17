@@ -287,7 +287,7 @@ handler.setInputAction(function(move) {
 
   if (!dibujando || !puntoInicio) return;
 
-  const cartesian = viewer.camera.pickEllipsoid(move.endPosition);
+  const cartesian = viewer.scene.pickPosition(move.endPosition);
   if (!cartesian) return;
 
   const carto1 = Cesium.Cartographic.fromCartesian(puntoInicio.cartesian);
@@ -324,6 +324,9 @@ handler.setInputAction(function() {
   dibujando = false;
   puntoInicio = null;
 
+  if (circuloTemp) {
+  circuloTemp = null;
+}
 }, Cesium.ScreenSpaceEventType.LEFT_UP);  
 
 handler.setInputAction(function(click) {
