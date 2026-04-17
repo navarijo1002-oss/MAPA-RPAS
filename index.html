@@ -290,20 +290,36 @@ let lineaMedicion = null;
 function activarDibujo() {
   dibujando = true;
   puntoInicio = null;
-  
-const panel = document.getElementById("resultadoOperacion");
-panel.innerHTML = "";
-panel.style.display = "none";
-  
-if (operacionFinal) {
-  viewer.entities.remove(operacionFinal);
-  operacionFinal = null;
-}
 
-if (puntoDespegue) {
-  viewer.entities.remove(puntoDespegue);
-  puntoDespegue = null;
-}
+  const panel = document.getElementById("resultadoOperacion");
+  panel.innerHTML = "";
+  panel.style.display = "none";
+
+  // 🔴 BORRAR operación manual
+  if (operacionActual) {
+    viewer.entities.remove(operacionActual);
+    operacionActual = null;
+  }
+
+  // 🔴 BORRAR operación previa de mouse
+  if (operacionFinal) {
+    viewer.entities.remove(operacionFinal);
+    operacionFinal = null;
+  }
+
+  // 🔴 BORRAR punto de despegue
+  if (puntoDespegue) {
+    viewer.entities.remove(puntoDespegue);
+    puntoDespegue = null;
+  }
+
+  // 🔴 BORRAR línea
+  if (lineaMedicion) {
+    viewer.entities.remove(lineaMedicion);
+    lineaMedicion = null;
+  }
+
+  // 🔴 BLOQUEAR cámara SOLO durante dibujo
   viewer.scene.screenSpaceCameraController.enableRotate = false;
   viewer.scene.screenSpaceCameraController.enableTranslate = false;
   viewer.scene.screenSpaceCameraController.enableZoom = false;
@@ -385,6 +401,14 @@ handler.setInputAction(function() {
   const lon = puntoInicio.lon;
   const radio = radioActual;
 
+function activarCamara() {
+  viewer.scene.screenSpaceCameraController.enableRotate = true;
+  viewer.scene.screenSpaceCameraController.enableTranslate = true;
+  viewer.scene.screenSpaceCameraController.enableZoom = true;
+}
+
+  
+  
   // 🔹 Mostrar resultado
   const panel = document.getElementById("resultadoOperacion");
   panel.style.display = "block";
