@@ -340,46 +340,41 @@ handler.setInputAction(function() {
   document.getElementById("resultadoOperacion").innerHTML =
     validarOperacion(puntoInicio.lat, puntoInicio.lon, radioActual);
 
-  dibujando = false;
-  puntoInicio = null;
+   if (operacionFinal) {
+    viewer.entities.remove(operacionFinal);
+  }
 
+   operacionFinal = viewer.entities.add({
+    position: puntoInicio.cartesian,
+    ellipse: {
+      semiMajorAxis: radioActual,
+      semiMinorAxis: radioActual,
+      material: Cesium.Color.CYAN.withAlpha(0.3),
+      outline: true
+    }
+  });
+
+  // limpiar temporal
   if (circuloTemp) {
-     circuloTemp = null;
+    viewer.entities.remove(circuloTemp);
+    circuloTemp = null;
   }
 
   if (etiquetaRadio) {
-     viewer.entities.remove(etiquetaRadio);
-     etiquetaRadio = null;
+    viewer.entities.remove(etiquetaRadio);
+    etiquetaRadio = null;
   }
 
-// borrar anterior
-if (operacionFinal) {
-  viewer.entities.remove(operacionFinal);
-}
+   dibujando = false;
+  puntoInicio = null;
 
-// guardar nuevo
-  operacionFinal = viewer.entities.add({
-  position: puntoInicio.cartesian,
-  ellipse: {
-    semiMajorAxis: radioActual,
-    semiMinorAxis: radioActual,
-    material: Cesium.Color.CYAN.withAlpha(0.3),
-    outline: true
-  }
+    viewer.scene.screenSpaceCameraController.enableRotate = true;
+  viewer.scene.screenSpaceCameraController.enableTranslate = true;
+  viewer.scene.screenSpaceCameraController.enableZoom = true;
 
-if (circuloTemp) {
-  viewer.entities.remove(circuloTemp);
-  circuloTemp = null;
-}
-});
-  
-viewer.scene.screenSpaceCameraController.enableRotate = true;
-viewer.scene.screenSpaceCameraController.enableTranslate = true;
-viewer.scene.screenSpaceCameraController.enableZoom = true;
+}, Cesium.ScreenSpaceEventType.LEFT_UP); 
 
   
-}, Cesium.ScreenSpaceEventType.LEFT_UP);  
-
 handler.setInputAction(function(click) {
 
   if (!dibujando) return;
