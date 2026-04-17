@@ -124,26 +124,7 @@ function validarOperacion(lat, lon, radio) {
 
     if (dentro || distancia < radio) {
 
-  function distanciaPuntoAPoligono(lat, lon, poligono) {
-
-    let minDist = Infinity;
-
-    for (let i = 0; i < poligono.length; i++) {
-
-      const p1 = poligono[i];
-      const p2 = poligono[(i + 1) % poligono.length];
-
-      const d1 = distanciaSuperficie(lat, lon, p1[0], p1[1]);
-      const d2 = distanciaSuperficie(lat, lon, p2[0], p2[1]);
-
-      const d = Math.min(d1, d2);
-
-      if (d < minDist) minDist = d;
-  }
-
-  return minDist;
-}
-     
+    
       if (zona.altura === 0) {
         return `
         <b>RESULTADO</b><br><br>
@@ -164,6 +145,8 @@ function validarOperacion(lat, lon, radio) {
     }
   }
 
+
+  
   // 🔴 PRISIONES
 datosPrisiones.forEach(p => {
   const d = distanciaSuperficie(lat, lon, p[1], p[2]);
@@ -221,7 +204,27 @@ datosPrisiones.forEach(p => {
   `;
 }
 let operacionActual = null;
-  
+
+  function distanciaPuntoAPoligono(lat, lon, poligono) {
+
+    let minDist = Infinity;
+
+    for (let i = 0; i < poligono.length; i++) {
+
+      const p1 = poligono[i];
+      const p2 = poligono[(i + 1) % poligono.length];
+
+      const d1 = distanciaSuperficie(lat, lon, p1[0], p1[1]);
+      const d2 = distanciaSuperficie(lat, lon, p2[0], p2[1]);
+
+      const d = Math.min(d1, d2);
+
+      if (d < minDist) minDist = d;
+  }
+
+  return minDist;
+}
+
 //==================
 // DISTANCIA SUPERFICIE
 //========================
