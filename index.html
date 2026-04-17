@@ -322,6 +322,14 @@ handler.setInputAction(function(move) {
   const geodesic = new Cesium.EllipsoidGeodesic(carto1, carto2);
   const radio = geodesic.surfaceDistance;
 
+
+
+const panel = document.getElementById("resultadoOperacion");
+panel.style.display = "block";
+panel.innerHTML = `<i>Midiendo radio: ${radio.toFixed(0)} m...</i>`;
+
+  
+  
   radioActual = radio; 
 
   if (!radio || isNaN(radio)) return;
@@ -372,28 +380,33 @@ handler.setInputAction(function() {
 
   if (!dibujando || !puntoInicio) return;
 
-const panel = document.getElementById("resultadoOperacion");
-panel.style.display = "block";
-panel.innerHTML = validarOperacion(
-  puntoInicio.lat,
-  puntoInicio.lon,
-  radioActual
-);
-   if (operacionFinal) {
+  // 🔹 Guardar valores antes de limpiar
+  const lat = puntoInicio.lat;
+  const lon = puntoInicio.lon;
+  const radio = radioActual;
+
+  // 🔹 Mostrar resultado
+  const panel = document.getElementById("resultadoOperacion");
+  panel.style.display = "block";
+  panel.innerHTML = validarOperacion(lat, lon, radio);
+
+  // 🔹 Dibujar operación final
+  if (operacionFinal) {
     viewer.entities.remove(operacionFinal);
   }
 
-   operacionFinal = viewer.entities.add({
+  operacionFinal = viewer.entities.add({
     position: puntoInicio.cartesian,
     ellipse: {
-      semiMajorAxis: radioActual,
-      semiMinorAxis: radioActual,
+      semiMajorAxis: radio,
+      semiMinorAxis: radio,
       material: Cesium.Color.CYAN.withAlpha(0.3),
       outline: true
     }
   });
 
-    if (circuloTemp) {
+  // 🔹 Limpiar temporales
+  if (circuloTemp) {
     viewer.entities.remove(circuloTemp);
     circuloTemp = null;
   }
@@ -403,20 +416,21 @@ panel.innerHTML = validarOperacion(
     etiquetaRadio = null;
   }
 
-   dibujando = false;
-   puntoInicio = null;
+  if (lineaMedicion) {
+    viewer.entities.remove(lineaMedicion);
+    lineaMedicion = null;
+  }
 
-if (lineaMedicion) {
-  viewer.entities.remove(lineaMedicion);
-  lineaMedicion = null;
-}
+  // 🔹 Finalizar dibujo
+  dibujando = false;
+  puntoInicio = null;
 
+  // 🔹 Reactivar controles del mapa
   viewer.scene.screenSpaceCameraController.enableRotate = true;
   viewer.scene.screenSpaceCameraController.enableTranslate = true;
   viewer.scene.screenSpaceCameraController.enableZoom = true;
 
-}, Cesium.ScreenSpaceEventType.LEFT_UP); 
-
+}, Cesium.ScreenSpaceEventType.LEFT_UP);
   
 handler.setInputAction(function(click) {
 
