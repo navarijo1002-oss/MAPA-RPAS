@@ -296,7 +296,7 @@ handler.setInputAction(function(move) {
   const geodesic = new Cesium.EllipsoidGeodesic(carto1, carto2);
   const radio = geodesic.surfaceDistance;
 
-  radioActual = radio; // ✅ CLAVE
+  radioActual = radio; 
 
   if (!radio || isNaN(radio)) return;
 
@@ -314,7 +314,6 @@ handler.setInputAction(function(move) {
 
 }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
 
-
 handler.setInputAction(function() {
 
   if (!dibujando || !puntoInicio) return;
@@ -326,6 +325,23 @@ handler.setInputAction(function() {
   puntoInicio = null;
 
 }, Cesium.ScreenSpaceEventType.LEFT_UP);  
+
+handler.setInputAction(function(click) {
+
+  if (!dibujando) return;
+
+  const cartesian = viewer.camera.pickEllipsoid(click.position);
+  if (!cartesian) return;
+
+  const carto = Cesium.Cartographic.fromCartesian(cartesian);
+
+  puntoInicio = {
+    cartesian: cartesian,
+    lat: Cesium.Math.toDegrees(carto.latitude),
+    lon: Cesium.Math.toDegrees(carto.longitude)
+  };
+
+}, Cesium.ScreenSpaceEventType.LEFT_DOWN);
   
 //=========================================    
 // DATOS AERÓDROMOS 
