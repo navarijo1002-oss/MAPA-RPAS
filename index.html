@@ -119,8 +119,31 @@ function validarOperacion(lat, lon, radio) {
 
   for (let zona of zonasAproximacion) {
 
-    if (puntoEnPoligono(lat, lon, zona.coords)) {
+    const dentro = puntoEnPoligono(lat, lon, zona.coords);
+    const distancia = distanciaPuntoAPoligono(lat, lon, zona.coords);
 
+    if (dentro || distancia < radio) {
+
+  function distanciaPuntoAPoligono(lat, lon, poligono) {
+
+    let minDist = Infinity;
+
+    for (let i = 0; i < poligono.length; i++) {
+
+      const p1 = poligono[i];
+      const p2 = poligono[(i + 1) % poligono.length];
+
+      const d1 = distanciaSuperficie(lat, lon, p1[0], p1[1]);
+      const d2 = distanciaSuperficie(lat, lon, p2[0], p2[1]);
+
+      const d = Math.min(d1, d2);
+
+      if (d < minDist) minDist = d;
+  }
+
+  return minDist;
+}
+     
       if (zona.altura === 0) {
         return `
         <b>RESULTADO</b><br><br>
