@@ -279,6 +279,10 @@ function ubicarOperacion() {
 function activarDibujo() {
   dibujando = true;
   puntoInicio = null;
+
+  viewer.scene.screenSpaceCameraController.enableRotate = false;
+  viewer.scene.screenSpaceCameraController.enableTranslate = false;
+  viewer.scene.screenSpaceCameraController.enableZoom = false;
 }
 
 let radioActual = 0;
@@ -287,7 +291,7 @@ handler.setInputAction(function(move) {
 
   if (!dibujando || !puntoInicio) return;
 
-  const cartesian = viewer.scene.pickPosition(move.endPosition);
+  const cartesian = viewer.camera.pickEllipsoid(move.endPosition);
   if (!cartesian) return;
 
   const carto1 = Cesium.Cartographic.fromCartesian(puntoInicio.cartesian);
@@ -327,6 +331,11 @@ handler.setInputAction(function() {
   if (circuloTemp) {
   circuloTemp = null;
 }
+viewer.scene.screenSpaceCameraController.enableRotate = true;
+viewer.scene.screenSpaceCameraController.enableTranslate = true;
+viewer.scene.screenSpaceCameraController.enableZoom = true;
+
+  
 }, Cesium.ScreenSpaceEventType.LEFT_UP);  
 
 handler.setInputAction(function(click) {
@@ -344,7 +353,15 @@ handler.setInputAction(function(click) {
     lon: Cesium.Math.toDegrees(carto.longitude)
   };
 
-}, Cesium.ScreenSpaceEventType.LEFT_DOWN);
+viewer.entities.add({
+  position: cartesian,
+  point: {
+    pixelSize: 10,
+    color: Cesium.Color.YELLOW
+  }
+});
+  
+}, Cesium.ScreenSpaceEventType.LEFT_CLICK);
   
 //=========================================    
 // DATOS AERÓDROMOS 
