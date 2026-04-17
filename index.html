@@ -265,10 +265,6 @@ panel.style.display = "none";
       outline: true
     }
   });
-  viewer.flyTo(operacionActual);
-const panel = document.getElementById("resultadoOperacion");
-panel.style.display = "block";
-panel.innerHTML = validarOperacion(...);
 }
 
   let handler = new Cesium.ScreenSpaceEventHandler(viewer.canvas);
@@ -373,8 +369,11 @@ handler.setInputAction(function() {
 
 const panel = document.getElementById("resultadoOperacion");
 panel.style.display = "block";
-panel.innerHTML = validarOperacion(...);
-
+panel.innerHTML = validarOperacion(
+  puntoInicio.lat,
+  puntoInicio.lon,
+  radioActual
+);
    if (operacionFinal) {
     viewer.entities.remove(operacionFinal);
   }
