@@ -265,6 +265,11 @@ panel.style.display = "none";
       outline: true
     }
   });
+  viewer.flyTo(operacionActual);
+
+// mostrar resultado
+panel.style.display = "block";
+panel.innerHTML = validarOperacion(lat, lon, radio);
 }
 
   let handler = new Cesium.ScreenSpaceEventHandler(viewer.canvas);
