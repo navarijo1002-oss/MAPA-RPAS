@@ -246,6 +246,8 @@ function ubicarOperacion() {
   const lon = parseFloat(document.getElementById("lonInput").value);
   const radio = parseFloat(document.getElementById("radioInput").value);
 
+document.getElementById("resultadoOperacion").innerHTML = "";
+  
   if (isNaN(lat) || isNaN(lon) || isNaN(radio)) {
     alert("Datos inválidos");
     return;
@@ -284,6 +286,7 @@ let lineaMedicion = null;
 function activarDibujo() {
   dibujando = true;
   puntoInicio = null;
+  
   document.getElementById("resultadoOperacion").innerHTML = "";
   
 if (operacionFinal) {
