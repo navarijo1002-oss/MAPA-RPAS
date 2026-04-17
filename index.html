@@ -284,8 +284,8 @@ let lineaMedicion = null;
 function activarDibujo() {
   dibujando = true;
   puntoInicio = null;
-
-  // limpiar todo al iniciar nueva medición
+  document.getElementById("resultadoOperacion").innerHTML = "";
+  
 if (operacionFinal) {
   viewer.entities.remove(operacionFinal);
   operacionFinal = null;
