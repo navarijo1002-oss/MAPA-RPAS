@@ -279,6 +279,7 @@ function ubicarOperacion() {
 let radioActual = 0;
 let operacionFinal = null;
 let puntoDespegue = null;
+let lineaMedicion = null;
   
 function activarDibujo() {
   dibujando = true;
@@ -342,6 +343,22 @@ handler.setInputAction(function(move) {
     }
   });
 
+
+  // borrar línea anterior
+if (lineaMedicion) {
+  viewer.entities.remove(lineaMedicion);
+}
+
+// crear nueva línea
+lineaMedicion = viewer.entities.add({
+  polyline: {
+    positions: [puntoInicio.cartesian, cartesian],
+    width: 2,
+    material: Cesium.Color.YELLOW
+  }
+});
+
+  
 }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
 
 handler.setInputAction(function() {
@@ -376,8 +393,14 @@ handler.setInputAction(function() {
   }
 
    dibujando = false;
-  puntoInicio = null;
+   puntoInicio = null;
 
+if (lineaMedicion) {
+  viewer.entities.remove(lineaMedicion);
+  lineaMedicion = null;
+}
+
+  
   viewer.scene.screenSpaceCameraController.enableRotate = true;
   viewer.scene.screenSpaceCameraController.enableTranslate = true;
   viewer.scene.screenSpaceCameraController.enableZoom = true;
