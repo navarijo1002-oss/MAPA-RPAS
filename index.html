@@ -145,8 +145,6 @@ function validarOperacion(lat, lon, radio) {
     }
   }
 
-
-  
   // 🔴 PRISIONES
 datosPrisiones.forEach(p => {
   const d = distanciaSuperficie(lat, lon, p[1], p[2]);
@@ -196,7 +194,8 @@ datosPrisiones.forEach(p => {
 
   return `
   <b>RESULTADO</b><br><br>
-  📍 PUNTO DE DESPEGUE: ${lat.toFixed(6)}, ${lon.toFixed(6)}<br>
+  📍 COORDENADAS DE DESPEGUE:   
+     ${lat.toFixed(6)}, ${lon.toFixed(6)}<br>
   📏 RADIO DE OPERACION: ${radio.toFixed(0)} m<br><br>
   ✈️ ALTURA MAXIMA PERMITIDA DE VUELO: <b>${altura} m</b><br><br>
   <b style="color:${estado==="PERMITIDO "?"green":"red"};">${estado}</b><br>
@@ -271,7 +270,8 @@ function ubicarOperacion() {
   let dibujando = false;
   let puntoInicio = null;
   let circuloTemp = null;
-
+  let etiquetaRadio = null;
+  
 //=============================
 // ACTIVAR DIBUJO
 //============================
@@ -286,6 +286,7 @@ function activarDibujo() {
 }
 
 let radioActual = 0;
+let operacionFinal = null;
 
 handler.setInputAction(function(move) {
 
@@ -306,6 +307,20 @@ handler.setInputAction(function(move) {
 
   if (circuloTemp) viewer.entities.remove(circuloTemp);
 
+  if (etiquetaRadio) viewer.entities.remove(etiquetaRadio);
+
+     etiquetaRadio = viewer.entities.add({
+     position: cartesian,
+     label: {
+     text: radio.toFixed(0) + " m",
+     font: "14px Arial",
+     fillColor: Cesium.Color.WHITE,
+     outlineColor: Cesium.Color.BLACK,
+     outlineWidth: 2,
+     style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+     pixelOffset: new Cesium.Cartesian2(10, -10)
+     } 
+});
   circuloTemp = viewer.entities.add({
     position: puntoInicio.cartesian,
     ellipse: {
@@ -329,8 +344,35 @@ handler.setInputAction(function() {
   puntoInicio = null;
 
   if (circuloTemp) {
+     circuloTemp = null;
+  }
+
+  if (etiquetaRadio) {
+     viewer.entities.remove(etiquetaRadio);
+     etiquetaRadio = null;
+  }
+
+// borrar anterior
+if (operacionFinal) {
+  viewer.entities.remove(operacionFinal);
+}
+
+// guardar nuevo
+  operacionFinal = viewer.entities.add({
+  position: puntoInicio.cartesian,
+  ellipse: {
+    semiMajorAxis: radioActual,
+    semiMinorAxis: radioActual,
+    material: Cesium.Color.CYAN.withAlpha(0.3),
+    outline: true
+  }
+
+if (circuloTemp) {
+  viewer.entities.remove(circuloTemp);
   circuloTemp = null;
 }
+});
+  
 viewer.scene.screenSpaceCameraController.enableRotate = true;
 viewer.scene.screenSpaceCameraController.enableTranslate = true;
 viewer.scene.screenSpaceCameraController.enableZoom = true;
