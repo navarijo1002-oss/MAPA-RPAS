@@ -152,7 +152,7 @@ datosPrisiones.forEach(p => {
   if (d < (300 + radio)) {
       altura = 0;
       estado = "PROHIBIDO POR";
-      motivo = "PROXIMIDAD A UNA PRISION";
+      motivo = "PROXIMIDAD A UNA PRISION   SOLICITE UN PERMISO ESPECIAL DE VUELO";
     }
   });
 
@@ -162,7 +162,7 @@ datosPrisiones.forEach(p => {
   const d = distanciaSuperficie(lat, lon, p[1], p[2]);
          if (d < (500 + radio) && estado !== "PROHIBIDO") {altura = Math.min(altura, 60);
             estado = "RESTRINGIDO POR";
-            motivo = "PROXIMIDAD A UN PUERTO MARITIMO";
+            motivo = "PROXIMIDAD A UN PUERTO MARITIMO   SOLICITE UN PERMISO ESPECIAL DE VUELO";
     }
   });
 
@@ -173,22 +173,22 @@ datosPrisiones.forEach(p => {
     if (d < (2000 + radio)) {
       altura = Math.min(altura, 20);
       estado = "RESTRINGIDO POR";
-      motivo = "AERODROMO PROXIMO ENTRE 0-2 km";
+      motivo = "AERODROMO PROXIMO ENTRE 0-2 km   SI DESEA VOLAR EN ESTA ZONA SOLICITE UN PERMISO ESPECIAL DE VUELO";
     } 
     else if (d < (4000 + radio)) {
       altura = Math.min(altura, 40);
       estado = "RESTRINGIDO POR";
-      motivo = "AERODROMO PROXIMO ENTRE 2-4 km";
+      motivo = "AERODROMO PROXIMO ENTRE 2-4 km   SI DESEA VOLAR EN ESTA ZONA SOLICITE UN PERMISO ESPECIAL DE VUELO";
     } 
     else if (d < (6000 + radio)) {
       altura = Math.min(altura, 60);
       estado = "RESTRINGIDO POR";
-      motivo = "AERODROMO PROXIMO ENTRE 4-6 km";
+      motivo = "AERODROMO PROXIMO ENTRE 4-6 km   SI DESEA VOLAR EN ESTA ZONA SOLICITE UN PERMISO ESPECIAL DE VUELO";
     } 
     else if (d < (8000 + radio)) {
       altura = Math.min(altura, 100);
       estado = "RESTRINGIDO POR";
-      motivo = "AERODROMO PROXIMO ENTRE 6-8 km";
+      motivo = "AERODROMO PROXIMO ENTRE 6-8 km   SI DESEA VOLAR EN ESTA ZONA SOLICITE UN PERMISO ESPECIAL DE VUELO";
     }
   });
 
