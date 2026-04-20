@@ -133,7 +133,7 @@ function validarOperacion(lat, lon, radio) {
         ✈️ ALTURA MAXIMA PERMITIDA: <b>0 m</b><br><br>
         <b style="color:red;">PROHIBIDO POR</b><br>
         Trayectoria de aproximación/despegue</b><br>
-        SI DESEA VOLAR A MAS ALTURA SOLICITE UN PERMISO ESPECIAL DE VUELO DE RPA`;
+        SI DESEA REALIZAR ESTA OPERACION SOLICITE UN PERMISO ESPECIAL DE VUELO`;
       }
 
       return `
@@ -142,7 +142,9 @@ function validarOperacion(lat, lon, radio) {
       📏 RADIO DE OPERACION: ${radio.toFixed(0)} m<br><br>
       ✈️ ALTURA MAXIMA PERMITIDA DE VUELO: <b>${zona.altura} m</b><br><br>
       <b style="color:red;">RESTRINGIDO POR</b><br>
-      Aproximación/despegue`;
+      Aproximación/despegue</b><br>
+      SI DESEA REALIZAR ESTA OPERACION SOLICITE UN PERMISO ESPECIAL DE VUELO`;
+
     }
   }
 
