@@ -239,30 +239,12 @@ function distanciaSuperficie(lat1, lon1, lat2, lon2) {
 //=============================
 // ubicar operacion
 //=============================
-
-let puntoManual = null;
   
 function ubicarOperacion() {
 
   const lat = parseFloat(document.getElementById("latInput").value);
   const lon = parseFloat(document.getElementById("lonInput").value);
   const radio = parseFloat(document.getElementById("radioInput").value);
-
-// 🔴 BORRAR OPERACIÓN DE MOUSE
-if (operacionFinal) {
-  viewer.entities.remove(operacionFinal);
-  operacionFinal = null;
-}
-
-if (puntoDespegue) {
-  viewer.entities.remove(puntoDespegue);
-  puntoDespegue = null;
-}
-
-if (lineaMedicion) {
-  viewer.entities.remove(lineaMedicion);
-  lineaMedicion = null;
-}
 
 const panel = document.getElementById("resultadoOperacion");
 panel.innerHTML = "";
@@ -273,34 +255,16 @@ panel.style.display = "none";
     return;
   }
 
- // 🔴 LIMPIAR ANTERIOR
-if (operacionActual) viewer.entities.remove(operacionActual);
-if (puntoManual) viewer.entities.remove(puntoManual);
-
-// 🔵 CREAR PUNTO DE DESPEGUE
-puntoManual = viewer.entities.add({
-  position: Cesium.Cartesian3.fromDegrees(lon, lat),
-  point: {
-    pixelSize: 12,
-    color: Cesium.Color.YELLOW,
-    outline: true,
-    outlineColor: Cesium.Color.BLACK,
-    outlineWidth: 2
-  }
-});
-
-// 🔵 CREAR CÍRCULO MEJORADO
-operacionActual = viewer.entities.add({
-  position: Cesium.Cartesian3.fromDegrees(lon, lat),
-  ellipse: {
-    semiMajorAxis: radio,
-    semiMinorAxis: radio,
-    material: Cesium.Color.CYAN.withAlpha(0.2),
-    outline: true,
-    outlineColor: Cesium.Color.CYAN,
-    outlineWidth: 5
-  }
-});
+  if (operacionActual) viewer.entities.remove(operacionActual);
+  operacionActual = viewer.entities.add({
+    position: Cesium.Cartesian3.fromDegrees(lon, lat),
+    ellipse: {
+      semiMajorAxis: radio,
+      semiMinorAxis: radio,
+      material: Cesium.Color.CYAN.withAlpha(0.3),
+      outline: true
+    }
+  });
   viewer.flyTo(operacionActual);
 
 // mostrar resultado
@@ -322,36 +286,26 @@ let radioActual = 0;
 let operacionFinal = null;
 let puntoDespegue = null;
 let lineaMedicion = null;
-
+  
 function activarDibujo() {
   dibujando = true;
   puntoInicio = null;
 
-// 🔴 SIEMPRE REACTIVAR ANTES DE EMPEZAR
-viewer.scene.screenSpaceCameraController.enableRotate = true;
-viewer.scene.screenSpaceCameraController.enableTranslate = true;
-viewer.scene.screenSpaceCameraController.enableZoom = true;
-  
   const panel = document.getElementById("resultadoOperacion");
   panel.innerHTML = "";
   panel.style.display = "none";
 
-  // borrar línea anterior
-if (lineaMedicion) {
-  viewer.entities.remove(lineaMedicion);
-}
- 
   // 🔴 BORRAR operación manual
   if (operacionActual) {
     viewer.entities.remove(operacionActual);
     operacionActual = null;
   }
 
-  // 🔴 BORRAR punto manual
-if (puntoManual) {
-  viewer.entities.remove(puntoManual);
-  puntoManual = null;
-}
+  // 🔴 BORRAR operación previa de mouse
+  if (operacionFinal) {
+    viewer.entities.remove(operacionFinal);
+    operacionFinal = null;
+  }
 
   // 🔴 BORRAR punto de despegue
   if (puntoDespegue) {
@@ -372,11 +326,7 @@ if (puntoManual) {
 }
 
 handler.setInputAction(function(move) {
- // 🔴 BORRAR operación previa de mouse
-  if (operacionFinal) {
-    viewer.entities.remove(operacionFinal);
-    operacionFinal = null;
-  }
+
   if (!dibujando || !puntoInicio) return;
 
   const cartesian = viewer.camera.pickEllipsoid(move.endPosition);
@@ -389,9 +339,12 @@ handler.setInputAction(function(move) {
   const radio = geodesic.surfaceDistance;
 
 
+
 const panel = document.getElementById("resultadoOperacion");
 panel.style.display = "block";
 panel.innerHTML = `<i>Midiendo radio: ${radio.toFixed(0)} m...</i>`;
+
+  
   
   radioActual = radio; 
 
@@ -405,25 +358,28 @@ panel.innerHTML = `<i>Midiendo radio: ${radio.toFixed(0)} m...</i>`;
      position: cartesian,
      label: {
      text: radio.toFixed(0) + " m",
-     font: "16px Arial",
-     fillColor: Cesium.Color.BLUE,
-     outlineColor: Cesium.Color.YELLOW,
+     font: "14px Arial",
+     fillColor: Cesium.Color.WHITE,
+     outlineColor: Cesium.Color.BLACK,
      outlineWidth: 2,
      style: Cesium.LabelStyle.FILL_AND_OUTLINE,
      pixelOffset: new Cesium.Cartesian2(10, -10)
      } 
 });
- circuloTemp = viewer.entities.add({
-  position: puntoInicio.cartesian,
-  ellipse: {
-    semiMajorAxis: radio,
-    semiMinorAxis: radio,
-    material: Cesium.Color.CYAN.withAlpha(0.2),
-    outline: true,
-    outlineColor: Cesium.Color.BLACK,
-    outlineWidth: 5
-  }
-});
+  circuloTemp = viewer.entities.add({
+    position: puntoInicio.cartesian,
+    ellipse: {
+      semiMajorAxis: radio,
+      semiMinorAxis: radio,
+      material: Cesium.Color.CYAN.withAlpha(0.3),
+      outline: true
+    }
+  });
+
+  // borrar línea anterior
+if (lineaMedicion) {
+  viewer.entities.remove(lineaMedicion);
+}
 
 // crear nueva línea
 lineaMedicion = viewer.entities.add({
@@ -451,6 +407,8 @@ function activarCamara() {
   viewer.scene.screenSpaceCameraController.enableZoom = true;
 }
 
+  
+  
   // 🔹 Mostrar resultado
   const panel = document.getElementById("resultadoOperacion");
   panel.style.display = "block";
@@ -461,17 +419,15 @@ function activarCamara() {
     viewer.entities.remove(operacionFinal);
   }
 
-operacionFinal = viewer.entities.add({
-  position: puntoInicio.cartesian,
-  ellipse: {
-    semiMajorAxis: radio,
-    semiMinorAxis: radio,
-    material: Cesium.Color.CYAN.withAlpha(0.2),
-    outline: true,
-    outlineColor: Cesium.Color.WHITE,
-    outlineWidth: 3
-  }
-});
+  operacionFinal = viewer.entities.add({
+    position: puntoInicio.cartesian,
+    ellipse: {
+      semiMajorAxis: radio,
+      semiMinorAxis: radio,
+      material: Cesium.Color.CYAN.withAlpha(0.3),
+      outline: true
+    }
+  });
 
   // 🔹 Limpiar temporales
   if (circuloTemp) {
@@ -522,24 +478,13 @@ if (puntoDespegue) {
 puntoDespegue = viewer.entities.add({
   position: cartesian,
   point: {
-  pixelSize: 12,
-  color: Cesium.Color.YELLOW,
-  outlineColor: Cesium.Color.BLACK,
-  outlineWidth: 2
-}
+    pixelSize: 10,
+    color: Cesium.Color.YELLOW
+  }
 });
   
 }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
-
-handler.setInputAction(function() {
-  dibujando = false;
-
-  viewer.scene.screenSpaceCameraController.enableRotate = true;
-  viewer.scene.screenSpaceCameraController.enableTranslate = true;
-  viewer.scene.screenSpaceCameraController.enableZoom = true;
-
-}, Cesium.ScreenSpaceEventType.RIGHT_CLICK);
-
+  
 //=========================================    
 // DATOS AERÓDROMOS 
 //=========================================
