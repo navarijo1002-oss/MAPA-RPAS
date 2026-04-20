@@ -264,6 +264,23 @@ panel.style.display = "none";
       material: Cesium.Color.CYAN.withAlpha(0.3),
       outline: true
     }
+
+// 🔴 BORRAR OPERACIÓN DE MOUSE
+if (operacionFinal) {
+  viewer.entities.remove(operacionFinal);
+  operacionFinal = null;
+}
+
+if (puntoDespegue) {
+  viewer.entities.remove(puntoDespegue);
+  puntoDespegue = null;
+}
+
+if (lineaMedicion) {
+  viewer.entities.remove(lineaMedicion);
+  lineaMedicion = null;
+}
+    
   });
   viewer.flyTo(operacionActual);
 
@@ -286,11 +303,16 @@ let radioActual = 0;
 let operacionFinal = null;
 let puntoDespegue = null;
 let lineaMedicion = null;
-  
+
 function activarDibujo() {
   dibujando = true;
   puntoInicio = null;
 
+// 🔴 SIEMPRE REACTIVAR ANTES DE EMPEZAR
+viewer.scene.screenSpaceCameraController.enableRotate = true;
+viewer.scene.screenSpaceCameraController.enableTranslate = true;
+viewer.scene.screenSpaceCameraController.enableZoom = true;
+  
   const panel = document.getElementById("resultadoOperacion");
   panel.innerHTML = "";
   panel.style.display = "none";
@@ -484,7 +506,17 @@ puntoDespegue = viewer.entities.add({
 });
   
 }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
+
   
+handler.setInputAction(function() {
+  dibujando = false;
+
+  viewer.scene.screenSpaceCameraController.enableRotate = true;
+  viewer.scene.screenSpaceCameraController.enableTranslate = true;
+  viewer.scene.screenSpaceCameraController.enableZoom = true;
+
+}, Cesium.ScreenSpaceEventType.RIGHT_CLICK);
+
 //=========================================    
 // DATOS AERÓDROMOS 
 //=========================================
