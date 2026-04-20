@@ -341,14 +341,11 @@ handler.setInputAction(function(move) {
   const geodesic = new Cesium.EllipsoidGeodesic(carto1, carto2);
   const radio = geodesic.surfaceDistance;
 
-
-
 const panel = document.getElementById("resultadoOperacion");
 panel.style.display = "block";
 panel.innerHTML = `<i>Midiendo radio: ${radio.toFixed(0)} m...</i>`;
 
-  
-  
+   
   radioActual = radio; 
 
   if (!radio || isNaN(radio)) return;
@@ -375,8 +372,9 @@ panel.innerHTML = `<i>Midiendo radio: ${radio.toFixed(0)} m...</i>`;
       semiMajorAxis: radio,
       semiMinorAxis: radio,
       material: Cesium.Color.CYAN.withAlpha(0.3),
-      outline: true
-    }
+outline: true,
+outlineColor: Cesium.Color.WHITE,
+outlineWidth: 3    }
   });
 
   // borrar línea anterior
