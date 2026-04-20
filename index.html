@@ -507,15 +507,7 @@ puntoDespegue = viewer.entities.add({
   
 }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
 
-  
-handler.setInputAction(function() {
-  dibujando = false;
 
-  viewer.scene.screenSpaceCameraController.enableRotate = true;
-  viewer.scene.screenSpaceCameraController.enableTranslate = true;
-  viewer.scene.screenSpaceCameraController.enableZoom = true;
-
-}, Cesium.ScreenSpaceEventType.RIGHT_CLICK);
 
 //=========================================    
 // DATOS AERÓDROMOS 
