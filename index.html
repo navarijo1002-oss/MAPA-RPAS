@@ -227,7 +227,7 @@ let operacionActual = null;
   return minDist;
 }
 
-//==================
+//========================
 // DISTANCIA SUPERFICIE
 //========================
 
@@ -254,11 +254,11 @@ function ubicarOperacion() {
   panel.style.display = "none";
 
   if (isNaN(lat) || isNaN(lon) || isNaN(radio)) {
-    alert("Datos inválidos");
+    alert("DATOS INVALIDOS");
     return;
   }
 
-  // 🔴 LIMPIAR TODO (ESTO ES CLAVE)
+  // 🔴 LIMPIAR TODO 
   limpiarMapa();
 
   // 🔵 PUNTO DE DESPEGUE
@@ -299,7 +299,6 @@ function ubicarOperacion() {
   let circuloTemp = null;
   let etiquetaRadio = null;
   let puntoManual = null;
-
 
 function limpiarMapa() {
 
@@ -370,27 +369,21 @@ function activarDibujo() {
 handler.setInputAction(function(move) {
 
   if (!dibujando || !puntoInicio) return;
-
   const cartesian = viewer.camera.pickEllipsoid(move.endPosition);
-  if (!cartesian) return;
 
+  if (!cartesian) return;
   const carto1 = Cesium.Cartographic.fromCartesian(puntoInicio.cartesian);
   const carto2 = Cesium.Cartographic.fromCartesian(cartesian);
-
   const geodesic = new Cesium.EllipsoidGeodesic(carto1, carto2);
   const radio = geodesic.surfaceDistance;
-
-const panel = document.getElementById("resultadoOperacion");
-panel.style.display = "block";
-panel.innerHTML = `<i>Midiendo radio: ${radio.toFixed(0)} m...</i>`;
-
+  const panel = document.getElementById("resultadoOperacion");
+  panel.style.display = "block";
+  panel.innerHTML = `<i>Midiendo radio: ${radio.toFixed(0)} m...</i>`;
    
   radioActual = radio; 
 
   if (!radio || isNaN(radio)) return;
-
   if (circuloTemp) viewer.entities.remove(circuloTemp);
-
   if (etiquetaRadio) viewer.entities.remove(etiquetaRadio);
 
      etiquetaRadio = viewer.entities.add({
@@ -405,6 +398,7 @@ panel.innerHTML = `<i>Midiendo radio: ${radio.toFixed(0)} m...</i>`;
      pixelOffset: new Cesium.Cartesian2(10, -10)
      } 
 });
+  
   circuloTemp = viewer.entities.add({
     position: puntoInicio.cartesian,
     ellipse: {
@@ -430,7 +424,6 @@ lineaMedicion = viewer.entities.add({
     material: Cesium.Color.YELLOW
   }
 });
-
   }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
 
 handler.setInputAction(function() {
@@ -447,8 +440,6 @@ function activarCamara() {
   viewer.scene.screenSpaceCameraController.enableTranslate = true;
   viewer.scene.screenSpaceCameraController.enableZoom = true;
 }
-
-  
   
   // 🔹 Mostrar resultado
   const panel = document.getElementById("resultadoOperacion");
@@ -596,13 +587,11 @@ const pistas = [
 ];
   
 pistas.forEach(p => {
-
   // CREAR PISTA
   crearPista(p[0], p[1], p[2], p[3], p[4], p[5]);
 
   // CREAR APROXIMACIONES AUTOMÁTICAS
   crearAproximaciones(p[1], p[2], p[3], p[5]);
-
 });
     
 // ======================
@@ -677,8 +666,7 @@ function puntoEnPoligono(lat, lon, poligono) {
 
   return dentro;
 }
-
-  
+ 
 // ======================
 // FUNCION PARA CREAR  PISTAS
 // ======================
