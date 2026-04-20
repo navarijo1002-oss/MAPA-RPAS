@@ -239,6 +239,8 @@ function distanciaSuperficie(lat1, lon1, lat2, lon2) {
 //=============================
 // ubicar operacion
 //=============================
+
+let puntoManual = null;
   
 function ubicarOperacion() {
 
@@ -273,18 +275,33 @@ panel.style.display = "none";
     return;
   }
 
-  if (operacionActual) viewer.entities.remove(operacionActual);
-  operacionActual = viewer.entities.add({
-    position: Cesium.Cartesian3.fromDegrees(lon, lat),
-    ellipse: {
-      semiMajorAxis: radio,
-      semiMinorAxis: radio,
-      material: Cesium.Color.CYAN.withAlpha(0.3),
-      outline: true
-    }
+ // 🔴 LIMPIAR ANTERIOR
+if (operacionActual) viewer.entities.remove(operacionActual);
+if (puntoManual) viewer.entities.remove(puntoManual);
 
-    
-  });
+// 🔵 CREAR PUNTO DE DESPEGUE
+puntoManual = viewer.entities.add({
+  position: Cesium.Cartesian3.fromDegrees(lon, lat),
+  point: {
+    pixelSize: 12,
+    color: Cesium.Color.LIME,
+    outlineColor: Cesium.Color.BLACK,
+    outlineWidth: 2
+  }
+});
+
+// 🔵 CREAR CÍRCULO MEJORADO
+operacionActual = viewer.entities.add({
+  position: Cesium.Cartesian3.fromDegrees(lon, lat),
+  ellipse: {
+    semiMajorAxis: radio,
+    semiMinorAxis: radio,
+    material: Cesium.Color.CYAN.withAlpha(0.2),
+    outline: true,
+    outlineColor: Cesium.Color.CYAN,
+    outlineWidth: 3
+  }
+});
   viewer.flyTo(operacionActual);
 
 // mostrar resultado
