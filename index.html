@@ -336,6 +336,11 @@ viewer.scene.screenSpaceCameraController.enableZoom = true;
   panel.innerHTML = "";
   panel.style.display = "none";
 
+  // borrar línea anterior
+if (lineaMedicion) {
+  viewer.entities.remove(lineaMedicion);
+}
+ 
   // 🔴 BORRAR operación manual
   if (operacionActual) {
     viewer.entities.remove(operacionActual);
@@ -419,11 +424,6 @@ panel.innerHTML = `<i>Midiendo radio: ${radio.toFixed(0)} m...</i>`;
     outlineWidth: 5
   }
 });
-
-  // borrar línea anterior
-if (lineaMedicion) {
-  viewer.entities.remove(lineaMedicion);
-}
 
 // crear nueva línea
 lineaMedicion = viewer.entities.add({
