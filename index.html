@@ -385,28 +385,6 @@ handler.setInputAction(function(move) {
   const geodesic = new Cesium.EllipsoidGeodesic(carto1, carto2);
   const radio = geodesic.surfaceDistance;
 
-function crearBordeCirculo(lon, lat, radio, color) {
-  const posiciones = [];
-
-  for (let i = 0; i <= 360; i += 2) {
-    const ang = Cesium.Math.toRadians(i);
-
-    const latOffset = (radio / 111320) * Math.sin(ang);
-    const lonOffset = (radio / (111320 * Math.cos(Cesium.Math.toRadians(lat)))) * Math.cos(ang);
-
-    posiciones.push(
-      Cesium.Cartesian3.fromDegrees(lon + lonOffset, lat + latOffset)
-    );
-  }
-
-  return viewer.entities.add({
-    polyline: {
-      positions: posiciones,
-      width: 3,
-      material: color
-    }
-  });
-}
 
 const panel = document.getElementById("resultadoOperacion");
 panel.style.display = "block";
