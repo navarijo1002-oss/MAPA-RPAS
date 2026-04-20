@@ -246,6 +246,24 @@ function ubicarOperacion() {
   const lon = parseFloat(document.getElementById("lonInput").value);
   const radio = parseFloat(document.getElementById("radioInput").value);
 
+// 🔴 BORRAR OPERACIÓN DE MOUSE
+if (operacionFinal) {
+  viewer.entities.remove(operacionFinal);
+  operacionFinal = null;
+}
+
+if (puntoDespegue) {
+  viewer.entities.remove(puntoDespegue);
+  puntoDespegue = null;
+}
+
+if (lineaMedicion) {
+  viewer.entities.remove(lineaMedicion);
+  lineaMedicion = null;
+}
+
+
+  
 const panel = document.getElementById("resultadoOperacion");
 panel.innerHTML = "";
 panel.style.display = "none";
