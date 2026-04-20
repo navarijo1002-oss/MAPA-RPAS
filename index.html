@@ -408,15 +408,17 @@ panel.innerHTML = `<i>Midiendo radio: ${radio.toFixed(0)} m...</i>`;
      pixelOffset: new Cesium.Cartesian2(10, -10)
      } 
 });
-  circuloTemp = viewer.entities.add({
-    position: puntoInicio.cartesian,
-    ellipse: {
-      semiMajorAxis: radio,
-      semiMinorAxis: radio,
-      material: Cesium.Color.CYAN.withAlpha(0.3),
-      outline: true
-    }
-  });
+ circuloTemp = viewer.entities.add({
+  position: puntoInicio.cartesian,
+  ellipse: {
+    semiMajorAxis: radio,
+    semiMinorAxis: radio,
+    material: Cesium.Color.YELLOW.withAlpha(0.2),
+    outline: true,
+    outlineColor: Cesium.Color.YELLOW,
+    outlineWidth: 2
+  }
+});
 
   // borrar línea anterior
 if (lineaMedicion) {
@@ -461,15 +463,17 @@ function activarCamara() {
     viewer.entities.remove(operacionFinal);
   }
 
-  operacionFinal = viewer.entities.add({
-    position: puntoInicio.cartesian,
-    ellipse: {
-      semiMajorAxis: radio,
-      semiMinorAxis: radio,
-      material: Cesium.Color.CYAN.withAlpha(0.3),
-      outline: true
-    }
-  });
+operacionFinal = viewer.entities.add({
+  position: puntoInicio.cartesian,
+  ellipse: {
+    semiMajorAxis: radio,
+    semiMinorAxis: radio,
+    material: Cesium.Color.CYAN.withAlpha(0.25),
+    outline: true,
+    outlineColor: Cesium.Color.WHITE,
+    outlineWidth: 3
+  }
+});
 
   // 🔹 Limpiar temporales
   if (circuloTemp) {
@@ -520,8 +524,10 @@ if (puntoDespegue) {
 puntoDespegue = viewer.entities.add({
   position: cartesian,
   point: {
-    pixelSize: 10,
-    color: Cesium.Color.YELLOW
+   pixelSize: 12,
+   color: Cesium.Color.YELLOW,
+   outlineColor: Cesium.Color.BLACK,
+   outlineWidth: 2
   }
 });
   
