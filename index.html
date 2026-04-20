@@ -284,9 +284,10 @@ puntoManual = viewer.entities.add({
   position: Cesium.Cartesian3.fromDegrees(lon, lat),
   point: {
     pixelSize: 12,
-    color: Cesium.Color.LIME,
-    outlineColor: Cesium.Color.BLACK,
-    outlineWidth: 2
+    color: Cesium.Color.YELLOW,
+    outline: true;
+    outlineColor: Cesium.Color.YELLOW,
+    outlineWidth: 5
   }
 });
 
@@ -299,7 +300,7 @@ operacionActual = viewer.entities.add({
     material: Cesium.Color.CYAN.withAlpha(0.2),
     outline: true,
     outlineColor: Cesium.Color.CYAN,
-    outlineWidth: 3
+    outlineWidth: 5
   }
 });
   viewer.flyTo(operacionActual);
@@ -526,8 +527,9 @@ puntoDespegue = viewer.entities.add({
   point: {
    pixelSize: 12,
    color: Cesium.Color.YELLOW,
-   outlineColor: Cesium.Color.BLACK,
-   outlineWidth: 2
+    outline: True;
+   outlineColor: Cesium.Color.YELLOW,
+   outlineWidth: 5
   }
 });
   
