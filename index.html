@@ -348,12 +348,6 @@ if (puntoManual) {
   puntoManual = null;
 }
 
-  // 🔴 BORRAR operación previa de mouse
-  if (operacionFinal) {
-    viewer.entities.remove(operacionFinal);
-    operacionFinal = null;
-  }
-
   // 🔴 BORRAR punto de despegue
   if (puntoDespegue) {
     viewer.entities.remove(puntoDespegue);
@@ -373,7 +367,11 @@ if (puntoManual) {
 }
 
 handler.setInputAction(function(move) {
-
+ // 🔴 BORRAR operación previa de mouse
+  if (operacionFinal) {
+    viewer.entities.remove(operacionFinal);
+    operacionFinal = null;
+  }
   if (!dibujando || !puntoInicio) return;
 
   const cartesian = viewer.camera.pickEllipsoid(move.endPosition);
@@ -529,7 +527,6 @@ puntoDespegue = viewer.entities.add({
   outlineColor: Cesium.Color.BLUE,
   outlineWidth: 3
 }
-  }
 });
   
 }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
