@@ -414,9 +414,9 @@ panel.innerHTML = `<i>Midiendo radio: ${radio.toFixed(0)} m...</i>`;
   ellipse: {
     semiMajorAxis: radio,
     semiMinorAxis: radio,
-    material: Cesium.Color.LIME.withAlpha(0.2),
+    material: Cesium.Color.YELLOW.withAlpha(0.2),
     outline: true,
-    outlineColor: Cesium.Color.LIME,
+    outlineColor: Cesium.Color.BLACK,
     outlineWidth: 2
   }
 });
@@ -430,7 +430,7 @@ if (lineaMedicion) {
 lineaMedicion = viewer.entities.add({
   polyline: {
     positions: [puntoInicio.cartesian, cartesian],
-    width: 3,
+    width: 2,
     material: Cesium.Color.YELLOW
   }
 });
@@ -529,7 +529,7 @@ puntoDespegue = viewer.entities.add({
    color: Cesium.Color.YELLOW,
     outline: True,
    outlineColor: Cesium.Color.BLACK,
-   outlineWidth: 3
+   outlineWidth: 2
   }
 });
   
