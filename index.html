@@ -883,7 +883,7 @@ function ubicarUsuario() {
 
     viewer.entities.add({
       position: Cesium.Cartesian3.fromDegrees(lon, lat),
-      point: { pixelSize: 10, color: Cesium.Color.LIME },
+      point: { pixelSize: 12, color: Cesium.Color.LIME },
       description: "Tu ubicación"
     });
 
@@ -895,7 +895,7 @@ function ubicarUsuario() {
 viewer.zoomTo(viewer.entities);
 
 viewer.camera.flyTo({
-destination: Cesium.Cartesian3.fromDegrees(-90.5, 14.5, 350000)
+destination: Cesium.Cartesian3.fromDegrees(-90.5, 14.5, 35000)
 });
 </script>
 
