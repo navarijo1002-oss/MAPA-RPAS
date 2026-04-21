@@ -631,7 +631,7 @@ function crearAnillosAerodromo(lat, lon) {
         hierarchy: hierarchy,
         extrudedHeight: altura,
         height: 0,
-        material: color.withAlpha(0.2),
+        material: color.withAlpha(0.15),
         outline: true,
         outlineColor: color
       },
@@ -679,7 +679,7 @@ function puntoEnPoligono(lat, lon, poligono) {
 
   box: {
     dimensions: new Cesium.Cartesian3(ancho, largo, 120),
-    material: Cesium.Color.RED.withAlpha(0.15)
+    material: Cesium.Color.RED.withAlpha(0.2)
   },
 
   orientation: Cesium.Transforms.headingPitchRollQuaternion(
