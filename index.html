@@ -107,7 +107,13 @@ const capas = {
   prisiones: []
 };
 const zonasAproximacion = [];
+function toggleLayer(nombre) {
 
+  capas[nombre].forEach(entidad => {
+    entidad.show = !entidad.show;
+  });
+
+}
 //========================
 // 🔴VALIDAR OPERACION  
 //============================
@@ -253,10 +259,12 @@ function ubicarOperacion() {
   panel.innerHTML = "";
   panel.style.display = "none";
 
-  if (isNaN(lat) || isNaN(lon) || isNaN(radio)) {
-    alert("DATOS INVALIDOS");
-    return;
-  }
+ if (
+  isNaN(lat) ||
+  isNaN(lon) ||
+  isNaN(radio) ||
+  radio <= 0
+) {
 
   // 🔴 LIMPIAR TODO 
   limpiarMapa();
@@ -471,6 +479,11 @@ handler.setInputAction(function(click) {
   const lon = puntoInicio.lon;
   const radio = radioActual;
 
+  if (!radioActual || radioActual < 5) {
+  alert("Debe definir un radio válido");
+  return;
+}
+  
   const panel = document.getElementById("resultadoOperacion");
 
   panel.style.display = "block";
