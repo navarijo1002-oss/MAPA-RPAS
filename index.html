@@ -478,6 +478,11 @@ handler.setInputAction(function(click) {
   const lat = puntoInicio.lat;
   const lon = puntoInicio.lon;
   const radio = radioActual; 
+
+  if (!radioActual || radioActual < 5) {
+  alert("Debe definir un radio válido");
+  return;
+}
   const panel = document.getElementById("resultadoOperacion");
 
   panel.style.display = "block";
