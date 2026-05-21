@@ -360,8 +360,6 @@ function convertirCoordenada(coord) {
 
   return decimal;
 }
-
-
   
 function ubicarOperacion() {
 
@@ -461,9 +459,6 @@ function limpiarMapa() {
     lineaMedicion = null;
   }
 }
-
-
-
   
 //=============================
 // ACTIVAR DIBUJO
@@ -549,7 +544,6 @@ lineaMedicion = viewer.entities.add({
   }
 });
   }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
-
   
 handler.setInputAction(function(click) {
 
@@ -583,7 +577,6 @@ handler.setInputAction(function(click) {
         color: Cesium.Color.YELLOW
       }
     });
-
     return;
   }
 
@@ -955,11 +948,11 @@ zonasAproximacion.push({coords: coords,altura: altura});
         Cesium.Cartesian3.fromDegrees(p3[1], p3[0]),
         Cesium.Cartesian3.fromDegrees(p4[1], p4[0])
       ]),
-      extrudedHeight: altura === 0 ? 1 : altura,
-      height: 0,
-      material: color.withAlpha(0.15),
+      extrudedHeight: altura === 0 ? 30 : altura + 30,
+      height: 5,
+      material: color.withAlpha(0.35),
       outline: true,
-      outlineColor: color
+      outlineColor: Cesium.Color.BLACK,
     },
 
    description: altura === 0 ? 
@@ -981,13 +974,13 @@ function crearAproximaciones(lat, lon, largo, rumbo) {
   const e2 = moverPunto(lat, lon, mitad, (rumbo + 180) % 360);
 
   const zonas = [
-    [60, 1080, 280, 0, Cesium.Color.RED],
-    [1080, 2100, 586, 20, Cesium.Color.ORANGE],
-    [2100, 3060, 892, 40, Cesium.Color.YELLOW],
-    [3060, 3860, 1180, 60, Cesium.Color.BURLYWOOD],
-    [3860, 4660, 1420, 80, Cesium.Color.KHAKI],
-    [4660, 5460, 1660, 100, Cesium.Color.GREEN]
-  ];
+  [60, 1080, 280, 0, Cesium.Color.RED],
+  [1080, 2100, 586, 20, Cesium.Color.ORANGERED],
+  [2100, 3060, 892, 40, Cesium.Color.ORANGE],
+  [3060, 3860, 1180, 60, Cesium.Color.GOLD],
+  [3860, 4660, 1420, 80, Cesium.Color.YELLOWGREEN],
+  [4660, 5460, 1660, 100, Cesium.Color.LIME]
+];
 
   zonas.forEach(z => {
 
