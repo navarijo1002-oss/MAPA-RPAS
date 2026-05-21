@@ -98,22 +98,25 @@
 Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJmNmRiN2M4Mi05NDkzLTQzZjctOTU2ZS1iNjJkMmNkOTM4OGYiLCJpZCI6NDE0NjA3LCJpYXQiOjE3NzU1MTUzMTB9.ZjCd0PlYQOc6EbzpBV9jLuSxyZSAbQz1D8qnJjEuhoo';
 
 const viewer = new Cesium.Viewer('cesiumContainer');
+
 //===============================
 // CAPAS
 //==============================
-const capas = {
+
+  const capas = {
   aerodromos: [],
   puertos: [],
   prisiones: []
 };
-const zonasAproximacion = [];
-function toggleLayer(nombre) {
+  const zonasAproximacion = [];
+  const zonasPista = [];
+  function toggleLayer(nombre) {
 
   capas[nombre].forEach(entidad => {
     entidad.show = !entidad.show;
   });
 
-}
+  }  
 //========================
 // 🔴VALIDAR OPERACION  
 //============================
@@ -151,6 +154,48 @@ function validarOperacion(lat, lon, radio) {
   let altura = 120;
   let estado = "PERMITIDO";
   let motivo = "Sin restricción";
+
+// =========================
+// VALIDAR PISTA
+// PRIORIDAD MAXIMA
+// =========================
+
+for (let pista of zonasPista) {
+
+  const dentro =
+    puntoEnPoligono(
+      lat,
+      lon,
+      pista.coords
+    );
+
+  if (dentro) {
+
+    return `
+    <b>RESULTADO</b><br><br>
+
+    📍 PUNTO DE DESPEGUE:
+    ${lat.toFixed(6)},
+    ${lon.toFixed(6)}<br>
+
+    📏 RADIO DE OPERACION:
+    ${radio.toFixed(0)} m<br><br>
+
+    ✈️ ALTURA MAXIMA PERMITIDA:
+    <b>0 m</b><br><br>
+
+    <b style="color:red;">
+    PROHIBIDO
+    </b><br>
+
+    OPERACION DENTRO DE PISTA
+    DE AERÓDROMO<br><br>
+
+    Solicite permiso especial.
+    `;
+  }
+}
+  
   
   for (let zona of zonasAproximacion) {
 
@@ -235,7 +280,7 @@ datosPrisiones.forEach(p => {
   📍 COORDENADAS DECIMALES:<br>
    ${lat.toFixed(6)}, ${lon.toFixed(6)}<br><br>
   📍 COORDENADAS GEOGRÁFICAS:<br>
-   ${latDMS}, ${lonDMS}
+   ${latDMS}, ${lonDMS} m<br><br>
   📏 RADIO DE OPERACION: ${radio.toFixed(0)} m<br><br>
   ✈️ ALTURA MAXIMA PERMITIDA DE VUELO: <b>${altura} m</b><br><br>
   <b style="color:${estado==="PERMITIDO"?"green":"red"};">${estado}</b><br>
@@ -759,33 +804,104 @@ function puntoEnPoligono(lat, lon, poligono) {
 // FUNCION PARA CREAR  PISTAS
 // ======================
     
- function crearPista(nombre, lat, lon, largo, ancho, rumbo) {
+function crearPista(nombre, lat, lon, largo, ancho, rumbo) {
+
   const posicion = Cesium.Cartesian3.fromDegrees(lon, lat);
+
+  // =========================
+  // VISUAL DE PISTA
+  // =========================
+
   const entidad = viewer.entities.add({
-  name: nombre,
-  position: posicion,
+    name: nombre,
+    position: posicion,
 
-  box: {
-    dimensions: new Cesium.Cartesian3(ancho, largo, 120),
-    material: Cesium.Color.RED.withAlpha(0.15)
-  },
+    box: {
+      dimensions: new Cesium.Cartesian3(ancho, largo, 120),
+      material: Cesium.Color.RED.withAlpha(0.25)
+    },
 
-  orientation: Cesium.Transforms.headingPitchRollQuaternion(
-    posicion,
-    new Cesium.HeadingPitchRoll(Cesium.Math.toRadians(rumbo), 0, 0)
-  ),
+    orientation: Cesium.Transforms.headingPitchRollQuaternion(
+      posicion,
+      new Cesium.HeadingPitchRoll(
+        Cesium.Math.toRadians(rumbo),
+        0,
+        0
+      )
+    ),
 
-  description: `
-  <b>${nombre}</b><br>
-  Zona: Aeródromo<br>
-  Restricción según distancia:<br>
-  0–2 km → 20 m<br>
-  2–4 km → 40 m<br>
-  4–6 km → 60 m<br>
-  6–8 km → 100 m
-  `
-});
+    description: `
+    <b>${nombre}</b><br>
+    PISTA DE AERÓDROMO<br><br>
+
+    <b style="color:red;">
+    PROHIBIDO OPERAR DRONES
+    </b>
+    `
+  });
+
   capas.aerodromos.push(entidad);
+
+  // =========================
+  // CREAR POLÍGONO VALIDABLE
+  // =========================
+
+  const mitadLargo = largo / 2;
+  const mitadAncho = ancho / 2;
+
+  function mover(distancia, angulo) {
+
+    const rad = Cesium.Math.toRadians(angulo);
+
+    const dLat =
+      (distancia * Math.cos(rad)) / 111320;
+
+    const dLon =
+      (distancia * Math.sin(rad)) /
+      (111320 * Math.cos(
+        Cesium.Math.toRadians(lat)
+      ));
+
+    return [
+      lat + dLat,
+      lon + dLon
+    ];
+  }
+
+  const centro1 = mover(mitadLargo, rumbo);
+  const centro2 = mover(mitadLargo, rumbo + 180);
+
+  function offset(punto, angulo, distancia) {
+
+    const rad = Cesium.Math.toRadians(angulo);
+
+    const dLat =
+      (distancia * Math.cos(rad)) / 111320;
+
+    const dLon =
+      (distancia * Math.sin(rad)) /
+      (111320 * Math.cos(
+        Cesium.Math.toRadians(punto[0])
+      ));
+
+    return [
+      punto[0] + dLat,
+      punto[1] + dLon
+    ];
+  }
+
+  const izquierda = rumbo - 90;
+  const derecha = rumbo + 90;
+
+  const p1 = offset(centro1, izquierda, mitadAncho);
+  const p2 = offset(centro1, derecha, mitadAncho);
+  const p3 = offset(centro2, derecha, mitadAncho);
+  const p4 = offset(centro2, izquierda, mitadAncho);
+
+  zonasPista.push({
+    nombre: nombre,
+    coords: [p1, p2, p3, p4]
+  });
 }
  
 //=====================
