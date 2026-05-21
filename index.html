@@ -248,23 +248,63 @@ function distanciaSuperficie(lat1, lon1, lat2, lon2) {
 //=============================
 // ubicar operacion
 //=============================
+
+  // ==============================
+// CONVERTIR COORDENADAS A DECIMAL
+// ==============================
+
+function convertirCoordenada(coord) {
+
+  // Si ya viene decimal
+  if (!isNaN(parseFloat(coord)) && !coord.includes("°")) {
+    return parseFloat(coord);
+  }
+
+  // Limpiar espacios
+  coord = coord.trim();
+
+  // Expresión regular DMS
+  const regex = /(\d+)[°\s]+(\d+)[´'\s]+([\d.]+)["\s]*([NSEWO])/i;
+
+  const match = coord.match(regex);
+
+  if (!match) return NaN;
+
+  const grados = parseFloat(match[1]);
+  const minutos = parseFloat(match[2]);
+  const segundos = parseFloat(match[3]);
+  const direccion = match[4].toUpperCase();
+
+  let decimal = grados + (minutos / 60) + (segundos / 3600);
+
+  // Sur y Oeste negativos
+  if (direccion === "S" || direccion === "W" || direccion === "O") {
+    decimal *= -1;
+  }
+
+  return decimal;
+}
+
+
   
 function ubicarOperacion() {
 
-  const lat = parseFloat(document.getElementById("latInput").value);
-  const lon = parseFloat(document.getElementById("lonInput").value);
+  const lat = convertirCoordenada(document.getElementById("latInput").value);
+  const lon = convertirCoordenada(document.getElementById("lonInput").value);
   const radio = parseFloat(document.getElementById("radioInput").value);
-
   const panel = document.getElementById("resultadoOperacion");
   panel.innerHTML = "";
   panel.style.display = "none";
 
- if (
+if (
   isNaN(lat) ||
   isNaN(lon) ||
   isNaN(radio) ||
   radio <= 0
-) 
+) {
+  alert("Ingrese coordenadas y radio válidos");
+  return;
+}
 
   // 🔴 LIMPIAR TODO 
   limpiarMapa();
