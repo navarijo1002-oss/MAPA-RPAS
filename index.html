@@ -117,12 +117,41 @@ function toggleLayer(nombre) {
 //========================
 // 🔴VALIDAR OPERACION  
 //============================
+
+// ==============================
+// CONVERTIR DECIMAL A DMS
+// ==============================
+
+function decimalADMS(valor, tipo) {
+
+  const abs = Math.abs(valor);
+
+  const grados = Math.floor(abs);
+  const minutosFloat = (abs - grados) * 60;
+  const minutos = Math.floor(minutosFloat);
+  const segundos = ((minutosFloat - minutos) * 60).toFixed(2);
+
+  let direccion = "";
+
+  if (tipo === "lat") {
+    direccion = valor >= 0 ? "N" : "S";
+  } else {
+    direccion = valor >= 0 ? "E" : "W";
+  }
+
+  return `${grados}°${minutos}'${segundos}"${direccion}`;
+}
+
+  
 function validarOperacion(lat, lon, radio) {
 
+  const latDMS = decimalADMS(lat, "lat");
+  const lonDMS = decimalADMS(lon, "lon");
+  
   let altura = 120;
   let estado = "PERMITIDO";
   let motivo = "Sin restricción";
-
+  
   for (let zona of zonasAproximacion) {
 
     const dentro = puntoEnPoligono(lat, lon, zona.coords);
@@ -203,8 +232,10 @@ datosPrisiones.forEach(p => {
 
   return `
   <b>RESULTADO</b><br><br>
-  📍 COORDENADAS DE DESPEGUE:   
-     ${lat.toFixed(6)}, ${lon.toFixed(6)}<br>
+  📍 COORDENADAS DECIMALES:<br>
+   ${lat.toFixed(6)}, ${lon.toFixed(6)}<br><br>
+  📍 COORDENADAS GEOGRÁFICAS:<br>
+   ${latDMS}, ${lonDMS}
   📏 RADIO DE OPERACION: ${radio.toFixed(0)} m<br><br>
   ✈️ ALTURA MAXIMA PERMITIDA DE VUELO: <b>${altura} m</b><br><br>
   <b style="color:${estado==="PERMITIDO"?"green":"red"};">${estado}</b><br>
