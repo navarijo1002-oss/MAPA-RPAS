@@ -148,9 +148,8 @@ function decimalADMS(valor, tipo) {
   
 function validarOperacion(lat, lon, radio) {
 
-  const latDMS = decimalADMS(lat, "lat");
-  const lonDMS = decimalADMS(lon, "lon");
-  
+  const puntosOperacion =generarPuntosCirculo(lat, lon, radio);
+
   let altura = 120;
   let estado = "PERMITIDO";
   let motivo = "Sin restricción";
@@ -162,12 +161,33 @@ function validarOperacion(lat, lon, radio) {
 
 for (let pista of zonasPista) {
 
-  const dentro =
+  let dentro = false;
+
+// validar centro
+if (
+  puntoEnPoligono(
+    lat,
+    lon,
+    pista.coords
+  )
+) {
+  dentro = true;
+}
+
+// validar borde del círculo
+puntosOperacion.forEach(p => {
+
+  if (
     puntoEnPoligono(
-      lat,
-      lon,
+      p[0],
+      p[1],
       pista.coords
-    );
+    )
+  ) {
+    dentro = true;
+  }
+
+});
 
   if (dentro) {
 
@@ -195,8 +215,7 @@ for (let pista of zonasPista) {
     `;
   }
 }
-  
-  
+    
   for (let zona of zonasAproximacion) {
 
     const dentro = puntoEnPoligono(lat, lon, zona.coords);
@@ -319,7 +338,35 @@ function distanciaSuperficie(lat1, lon1, lat2, lon2) {
   const geodesic = new Cesium.EllipsoidGeodesic(c1, c2);
   return geodesic.surfaceDistance;
 }
+//=====================================
+// GENERAR PUNTOS DEL CIRCULO
+//=====================================
 
+function generarPuntosCirculo(lat, lon, radio) {
+
+  const puntos = [];
+
+  for (let angulo = 0; angulo < 360; angulo += 10) {
+
+    const rad = Cesium.Math.toRadians(angulo);
+
+    const dLat =
+      (radio * Math.cos(rad)) / 111320;
+
+    const dLon =
+      (radio * Math.sin(rad)) /
+      (111320 * Math.cos(
+        Cesium.Math.toRadians(lat)
+      ));
+
+    puntos.push([
+      lat + dLat,
+      lon + dLon
+    ]);
+  }
+
+  return puntos;
+}
   
 //=============================
 // ubicar operacion
@@ -680,10 +727,10 @@ datosAerodromos.forEach(a => {
 
   
 const pistas = [
-["La Aurora", 14.582398, -90.527972, 2810, 300, 17.5],
-["Mundo Maya",16.913534,-89.866057, 3200, 500, 110.47],
-["Puerto Barrios", 15.731089, -88.583805, 2800, 150, 126],
-["Cobán", 15.469216, -90.406632, 1000, 100, 32],
+["Aeropuerto Internacional La Aurora - MGGT -", 14.582398, -90.527972, 2810, 300, 17.5],
+["Aeropuerto Internacional Mundo Maya - MGMM -",16.913534,-89.866057, 3200, 500, 110.47],
+["Puerto Barrios - MGPB -", 15.731089, -88.583805, 2800, 150, 126],
+["Cobán - MGCB -", 15.469216, -90.406632, 1000, 100, 32],
 ["Retalhuleu",14.521705, -91.696760,  1600, 150, 50],
 ["Chiquimula",14.830984, -89.520862,1000,100,22],
 ["Huehuetenango",15.316565,-91.505101,900,100,70],
