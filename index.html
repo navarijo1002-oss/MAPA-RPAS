@@ -97,9 +97,7 @@
 
 Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJmNmRiN2M4Mi05NDkzLTQzZjctOTU2ZS1iNjJkMmNkOTM4OGYiLCJpZCI6NDE0NjA3LCJpYXQiOjE3NzU1MTUzMTB9.ZjCd0PlYQOc6EbzpBV9jLuSxyZSAbQz1D8qnJjEuhoo';
 
-const viewer = new Cesium.Viewer('cesiumContainer', {
-  terrain: Cesium.Terrain.fromWorldTerrain()
-});
+const viewer = new Cesium.Viewer('cesiumContainer');
 
 //===============================
 // CAPAS
@@ -352,7 +350,7 @@ function generarPuntosCirculo(lat, lon, radio) {
 
   const puntos = [];
 
-  for (let angulo = 0; angulo < 360; angulo += 20) {
+  for (let angulo = 0; angulo < 360; angulo += 10) {
 
     const rad = Cesium.Math.toRadians(angulo);
     const dLat =
@@ -451,12 +449,13 @@ if (
     ellipse: {
     semiMajorAxis: radio,
     semiMinorAxis: radio,
-    material: Cesium.Color.CYAN.withAlpha(0.2), 
+    material: Cesium.Color.CYAN.withAlpha(0.2), // más transparente
     outline: true,
-    outlineColor: Cesium.Color.YELLOW.withAlpha(0.7),    
+    outlineColor: Cesium.Color.YELLOW, 
     outlineWidth: 10 
   }
   });
+
   viewer.flyTo(operacionActual);
 
   // 🔵 RESULTADO
@@ -551,25 +550,9 @@ function activarDibujo() {
   panel.innerHTML = `<i>Midiendo radio: ${radio.toFixed(0)} m...</i>`;
    
   radioActual = radio; 
-  viewer.scene.requestRender();
 
   if (!radio || isNaN(radio)) return;
-  if (!circuloTemp) {
-
-  circuloTemp = viewer.entities.add({
-  position: puntoInicio.cartesian,
-  ellipse: {
-    heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
-    semiMajorAxis: radio,
-    semiMinorAxis: radio,
-    material: Cesium.Color.CYAN.withAlpha(0.2), 
-    outline: true,
-    outlineColor: Cesium.Color.YELLOW, 
-    outlineWidth: 10 
-    }
-});
-
-}
+  if (circuloTemp) viewer.entities.remove(circuloTemp);
   if (etiquetaRadio) viewer.entities.remove(etiquetaRadio);
 
      etiquetaRadio = viewer.entities.add({
@@ -588,13 +571,12 @@ function activarDibujo() {
   circuloTemp = viewer.entities.add({
     position: puntoInicio.cartesian,
     ellipse: {
-    heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
     semiMajorAxis: radio,
     semiMinorAxis: radio,
     material: Cesium.Color.CYAN.withAlpha(0.2), 
     outline: true,
     outlineColor: Cesium.Color.YELLOW, 
-    outlineWidth: 10 
+    outlineWidth: 8 
     }
   });
 
@@ -681,13 +663,12 @@ if (operacionFinal) {
   operacionFinal = viewer.entities.add({
   position: puntoInicio.cartesian,
   ellipse: {
-    heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
     semiMajorAxis: radio,
     semiMinorAxis: radio,
     material: Cesium.Color.CYAN.withAlpha(0.2),
     outline: true,
     outlineColor: Cesium.Color.YELLOW,
-    outlineWidth: 1
+    outlineWidth: 8
   }
 });
 
@@ -810,7 +791,7 @@ function crearAnillosAerodromo(lat, lon) {
 
   function crearCirculo(radio) {
     const posiciones = [];
-    for (let i = 0; i < 360; i += 20) {
+    for (let i = 0; i < 360; i += 10) {
       const angulo = Cesium.Math.toRadians(i);
       const latOffset = (radio / 111320) * Math.sin(angulo);
       const lonOffset = (radio / (111320 * Math.cos(Cesium.Math.toRadians(lat)))) * Math.cos(angulo);
@@ -835,14 +816,16 @@ function crearAnillosAerodromo(lat, lon) {
 
     const entidad = viewer.entities.add({
       polygon: {
-       hierarchy: hierarchy,
-       height: 30,
-       material: color.withAlpha(0.15),
-       outline: true,
-       outlineColor: color,
-       classificationType: Cesium.ClassificationType.TERRAIN
-    }});
-      
+        hierarchy: hierarchy,
+        extrudedHeight: altura,
+        height: 0,
+        material: color.withAlpha(0.15),
+        outline: true,
+        outlineColor: color
+      },
+      description: `Altura máxima: ${altura} m`
+    });
+
     capas.aerodromos.push(entidad);
   }
 
@@ -882,13 +865,14 @@ function crearPista(nombre, lat, lon, largo, ancho, rumbo) {
   const entidad = viewer.entities.add({
     name: nombre,
     position: posicion,
-   box: {
-    dimensions: new Cesium.Cartesian3(ancho, largo, 5),
-     position: Cesium.Cartesian3.fromDegrees(lon, lat, 3)   
-}
+    box: {
+      dimensions: new Cesium.Cartesian3(ancho, largo, 120),
+      material: Cesium.Color.RED.withAlpha(0.25)
+    },
 
     orientation: Cesium.Transforms.headingPitchRollQuaternion(
-      posicion, new Cesium.HeadingPitchRoll(Cesium.Math.toRadians(rumbo),0,0)
+      posicion,
+      new Cesium.HeadingPitchRoll(Cesium.Math.toRadians(rumbo),0,0)
     ),
 
     description: `
@@ -1007,16 +991,18 @@ const coords = [p1, p2, p3, p4];
 zonasAproximacion.push({coords: coords,altura: altura});
   const entidad = viewer.entities.add({
     polygon: {
-    hierarchy: new Cesium.PolygonHierarchy([
-       Cesium.Cartesian3.fromDegrees(p1[1], p1[0]),
-       Cesium.Cartesian3.fromDegrees(p2[1], p2[0]),
-       Cesium.Cartesian3.fromDegrees(p3[1], p3[0]),
-       Cesium.Cartesian3.fromDegrees(p4[1], p4[0])
-    ]),
-    height: 20,    
-    material: color.withAlpha(0.35),
-    outline: true,
-    outlineColor: Cesium.Color.WHITE
+      hierarchy: new Cesium.PolygonHierarchy([
+        Cesium.Cartesian3.fromDegrees(p1[1], p1[0]),
+        Cesium.Cartesian3.fromDegrees(p2[1], p2[0]),
+        Cesium.Cartesian3.fromDegrees(p3[1], p3[0]),
+        Cesium.Cartesian3.fromDegrees(p4[1], p4[0])
+      ]),
+      extrudedHeight: altura === 0 ? 30 : altura + 30,
+      height: 5,
+      material: color.withAlpha(0.40),
+      outline: true,
+      outlineColor: Cesium.Color.BLACK,
+      zIndex: 100
     },
 
    description: altura === 0 ? 
@@ -1038,13 +1024,13 @@ function crearAproximaciones(lat, lon, largo, rumbo) {
   const e2 = moverPunto(lat, lon, mitad, (rumbo + 180) % 360);
 
   const zonas = [
-    [60, 1080, 280, 0, Cesium.Color.DARKRED],
-    [1080, 2100, 586, 20, Cesium.Color.RED],
-    [2100, 3060, 892, 40, Cesium.Color.ORANGERED],
-    [3060, 3860, 1180, 60, Cesium.Color.ORANGE],
-    [3860, 4660, 1420, 80, Cesium.Color.GOLD],
-    [4660, 5460, 1660, 100, Cesium.Color.YELLOW]
-  ];
+  [60, 1080, 280, 0, Cesium.Color.RED],
+  [1080, 2100, 586, 20, Cesium.Color.ORANGERED],
+  [2100, 3060, 892, 40, Cesium.Color.ORANGE],
+  [3060, 3860, 1180, 60, Cesium.Color.GOLD],
+  [3860, 4660, 1420, 80, Cesium.Color.YELLOWGREEN],
+  [4660, 5460, 1660, 100, Cesium.Color.LIME]
+];
 
   zonas.forEach(z => {
 
@@ -1065,6 +1051,7 @@ function crearAproximaciones(lat, lon, largo, rumbo) {
 
   });
 }
+
 
 // ======================
 // PUERTOS
