@@ -145,7 +145,10 @@ function decimalADMS(valor, tipo) {
   
   function validarOperacion(lat, lon, radio) {
 
-  const puntosOperacion =generarPuntosCirculo(lat, lon, radio);
+  const latDMS = decimalADMS(lat, "lat");
+  const lonDMS = decimalADMS(lon, "lon");
+
+  const puntosOperacion = generarPuntosCirculo(lat, lon, radio);
 
   let altura = 120;
   let estado = "PERMITIDO";
@@ -209,7 +212,6 @@ puntosOperacion.forEach(p => {
       dentro = true;
      }
    
-
 // validar borde del círculo
  
     puntosOperacion.forEach(p => {
@@ -297,9 +299,6 @@ datosPrisiones.forEach(p => {
     }
   });
 
-  const latDMS = decimalADMS(lat, "lat");
-  const lonDMS = decimalADMS(lon, "lon");
-  
   return `
   <b>RESULTADO</b><br><br>
   📍 COORDENADAS GEOGRÁFICAS:<br>
@@ -696,6 +695,12 @@ dibujando = false;
 viewer.scene.screenSpaceCameraController.enableRotate = true;
 viewer.scene.screenSpaceCameraController.enableTranslate = true;
 viewer.scene.screenSpaceCameraController.enableZoom = true;
+
+}, Cesium.ScreenSpaceEventType.LEFT_CLICK);
+
+//=========================================    
+// DATOS AERÓDROMOS
+//=========================================
 
 //=========================================    
 // DATOS AERÓDROMOS 
