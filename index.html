@@ -557,17 +557,17 @@ function activarDibujo() {
   if (!circuloTemp) {
 
   circuloTemp = viewer.entities.add({
-    position: puntoInicio.cartesian,
-      polygon: {
-      height: 10,
-      semiMajorAxis: new Cesium.CallbackProperty(() => radioActual, false),
-      semiMinorAxis: new Cesium.CallbackProperty(() => radioActual, false),
-      material: Cesium.Color.CYAN.withAlpha(0.2),
-      outline: true,
-      outlineColor: Cesium.Color.YELLOW,
-      outlineWidth: 3
+  position: puntoInicio.cartesian,
+  ellipse: {
+    heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+    semiMajorAxis: radio,
+    semiMinorAxis: radio,
+    material: Cesium.Color.CYAN.withAlpha(0.2), 
+    outline: true,
+    outlineColor: Cesium.Color.YELLOW, 
+    outlineWidth: 10 
     }
-  });
+});
 
 }
   if (etiquetaRadio) viewer.entities.remove(etiquetaRadio);
@@ -882,13 +882,10 @@ function crearPista(nombre, lat, lon, largo, ancho, rumbo) {
   const entidad = viewer.entities.add({
     name: nombre,
     position: posicion,
-    box: {
-    dimensions: new Cesium.Cartesian3(ancho, largo, 20),
-    material: Cesium.Color.RED.withAlpha(0.55),
-    outline: true,
-    outlineColor: Cesium.Color.WHITE,
-    heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
-  },
+   box: {
+    dimensions: new Cesium.Cartesian3(ancho, largo, 5),
+     position: Cesium.Cartesian3.fromDegrees(lon, lat, 3)   
+}
 
     orientation: Cesium.Transforms.headingPitchRollQuaternion(
       posicion, new Cesium.HeadingPitchRoll(Cesium.Math.toRadians(rumbo),0,0)
