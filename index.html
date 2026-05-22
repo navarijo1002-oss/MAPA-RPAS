@@ -210,15 +210,17 @@ puntosOperacion.forEach(p => {
     let dentro = false;
 
     // validar centro
-    
-    if (puntoEnPoligono(lat,lon,pista.coords)) 
-    {dentro = true;}
+    if (puntoEnPoligono(lat, lon, zona.coords))
+    {
+      dentro = true;
+     }
+   
 
 // validar borde del círculo
  
     puntosOperacion.forEach(p => {
 
-         if (puntoEnPoligono(p[0],p[1],pista.coords)) 
+         if (puntoEnPoligono(p[0],p[1],coords)) 
         {dentro = true;}
     });
    
