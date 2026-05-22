@@ -115,7 +115,6 @@ const viewer = new Cesium.Viewer('cesiumContainer');
   capas[nombre].forEach(entidad => {
     entidad.show = !entidad.show;
   });
-
   }  
 //========================
 // 🔴VALIDAR OPERACION  
@@ -144,7 +143,6 @@ function decimalADMS(valor, tipo) {
 
   return `${grados}°${minutos}'${segundos}"${direccion}`;
 }
-
   
 function validarOperacion(lat, lon, radio) {
 
@@ -164,8 +162,7 @@ for (let pista of zonasPista) {
   let dentro = false;
 
 // validar centro
-if (
-  puntoEnPoligono(
+if (puntoEnPoligono(
     lat,
     lon,
     pista.coords
@@ -177,16 +174,8 @@ if (
 // validar borde del círculo
 puntosOperacion.forEach(p => {
 
-  if (
-    puntoEnPoligono(
-      p[0],
-      p[1],
-      pista.coords
-    )
-  ) {
-    dentro = true;
-  }
-
+  if (puntoEnPoligono(p[0],p[1],pista.coords))
+  {dentro = true;}
 });
 
   if (dentro) {
@@ -218,11 +207,24 @@ puntosOperacion.forEach(p => {
     
   for (let zona of zonasAproximacion) {
 
-    const dentro = puntoEnPoligono(lat, lon, zona.coords);
+    let dentro = false;
+
+    // validar centro
+    
+    if (puntoEnPoligono(lat,lon,pista.coords)) 
+    {dentro = true;}
+
+// validar borde del círculo
+ 
+    puntosOperacion.forEach(p => {
+
+         if (puntoEnPoligono(p[0],p[1],pista.coords)) 
+        {dentro = true;}
+    });
+   
     const distancia = distanciaPuntoAPoligono(lat, lon, zona.coords);
 
     if (dentro || distancia < radio) {
-
     
       if (zona.altura === 0) {
         return `
@@ -324,7 +326,6 @@ let operacionActual = null;
 
       if (d < minDist) minDist = d;
   }
-
   return minDist;
 }
 
@@ -349,10 +350,8 @@ function generarPuntosCirculo(lat, lon, radio) {
   for (let angulo = 0; angulo < 360; angulo += 10) {
 
     const rad = Cesium.Math.toRadians(angulo);
-
     const dLat =
       (radio * Math.cos(rad)) / 111320;
-
     const dLon =
       (radio * Math.sin(rad)) /
       (111320 * Math.cos(
@@ -364,15 +363,14 @@ function generarPuntosCirculo(lat, lon, radio) {
       lon + dLon
     ]);
   }
-
   return puntos;
 }
   
-//=============================
-// ubicar operacion
-//=============================
+                               //=============================
+                              // UBICAR OPERACION
+                             //=============================
 
-  // ==============================
+// ==============================
 // CONVERTIR COORDENADAS A DECIMAL
 // ==============================
 
@@ -532,7 +530,7 @@ function activarDibujo() {
   viewer.scene.screenSpaceCameraController.enableZoom = false;
 }
 
-handler.setInputAction(function(move) {
+  handler.setInputAction(function(move) {
 
   if (!dibujando || !puntoInicio) return;
   const cartesian = viewer.camera.pickEllipsoid(move.endPosition);
@@ -603,6 +601,7 @@ handler.setInputAction(function(click) {
   // =========================
   // PRIMER CLICK
   // =========================
+  
   if (!puntoInicio) {
 
     const carto = Cesium.Cartographic.fromCartesian(cartesian);
@@ -724,7 +723,6 @@ const datosAerodromos = [
 datosAerodromos.forEach(a => {
   crearAnillosAerodromo(a[1], a[2]);
 });
-
   
 const pistas = [
 ["Aeropuerto Internacional La Aurora - MGGT -", 14.582398, -90.527972, 2810, 300, 17.5],
@@ -761,9 +759,11 @@ const pistas = [
   
 pistas.forEach(p => {
   // CREAR PISTA
+  
   crearPista(p[0], p[1], p[2], p[3], p[4], p[5]);
 
   // CREAR APROXIMACIONES AUTOMÁTICAS
+  
   crearAproximaciones(p[1], p[2], p[3], p[5]);
 });
     
@@ -779,9 +779,7 @@ function crearAnillosAerodromo(lat, lon) {
       const latOffset = (radio / 111320) * Math.sin(angulo);
       const lonOffset = (radio / (111320 * Math.cos(Cesium.Math.toRadians(lat)))) * Math.cos(angulo);
 
-      posiciones.push(
-        Cesium.Cartesian3.fromDegrees(lon + lonOffset, lat + latOffset)
-      );
+      posiciones.push(Cesium.Cartesian3.fromDegrees(lon + lonOffset, lat + latOffset));
     }
     return posiciones;
   }
@@ -836,7 +834,6 @@ function puntoEnPoligono(lat, lon, poligono) {
 
     if (intersect) dentro = !dentro;
   }
-
   return dentro;
 }
  
@@ -855,7 +852,6 @@ function crearPista(nombre, lat, lon, largo, ancho, rumbo) {
   const entidad = viewer.entities.add({
     name: nombre,
     position: posicion,
-
     box: {
       dimensions: new Cesium.Cartesian3(ancho, largo, 120),
       material: Cesium.Color.RED.withAlpha(0.25)
@@ -863,11 +859,7 @@ function crearPista(nombre, lat, lon, largo, ancho, rumbo) {
 
     orientation: Cesium.Transforms.headingPitchRollQuaternion(
       posicion,
-      new Cesium.HeadingPitchRoll(
-        Cesium.Math.toRadians(rumbo),
-        0,
-        0
-      )
+      new Cesium.HeadingPitchRoll(Cesium.Math.toRadians(rumbo),0,0)
     ),
 
     description: `
@@ -938,10 +930,7 @@ function crearPista(nombre, lat, lon, largo, ancho, rumbo) {
   const p3 = offset(centro2, derecha, mitadAncho);
   const p4 = offset(centro2, izquierda, mitadAncho);
 
-  zonasPista.push({
-    nombre: nombre,
-    coords: [p1, p2, p3, p4]
-  });
+  zonasPista.push({nombre: nombre,coords: [p1, p2, p3, p4]});
 }
  
 //=====================
