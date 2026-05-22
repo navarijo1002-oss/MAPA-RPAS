@@ -98,9 +98,7 @@
 Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJmNmRiN2M4Mi05NDkzLTQzZjctOTU2ZS1iNjJkMmNkOTM4OGYiLCJpZCI6NDE0NjA3LCJpYXQiOjE3NzU1MTUzMTB9.ZjCd0PlYQOc6EbzpBV9jLuSxyZSAbQz1D8qnJjEuhoo';
 
 const viewer = new Cesium.Viewer('cesiumContainer', {
-  terrain: Cesium.Terrain.fromWorldTerrain(),
-  requestRenderMode: true,
-  maximumRenderTimeChange: Infinity
+  terrain: Cesium.Terrain.fromWorldTerrain()
 });
 
 //===============================
@@ -553,9 +551,24 @@ function activarDibujo() {
   panel.innerHTML = `<i>Midiendo radio: ${radio.toFixed(0)} m...</i>`;
    
   radioActual = radio; 
+  viewer.scene.requestRender();
 
   if (!radio || isNaN(radio)) return;
-  if (circuloTemp) viewer.entities.remove(circuloTemp);
+  if (!circuloTemp) {
+
+  circuloTemp = viewer.entities.add({
+    position: puntoInicio.cartesian,
+    ellipse: {
+      semiMajorAxis: new Cesium.CallbackProperty(() => radioActual, false),
+      semiMinorAxis: new Cesium.CallbackProperty(() => radioActual, false),
+      material: Cesium.Color.CYAN.withAlpha(0.2),
+      outline: true,
+      outlineColor: Cesium.Color.YELLOW,
+      outlineWidth: 3
+    }
+  });
+
+}
   if (etiquetaRadio) viewer.entities.remove(etiquetaRadio);
 
      etiquetaRadio = viewer.entities.add({
