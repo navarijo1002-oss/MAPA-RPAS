@@ -576,7 +576,7 @@ function activarDibujo() {
     material: Cesium.Color.CYAN.withAlpha(0.2), 
     outline: true,
     outlineColor: Cesium.Color.YELLOW, 
-    outlineWidth: 8 
+    outlineWidth: 10 
     }
   });
 
@@ -668,7 +668,7 @@ if (operacionFinal) {
     material: Cesium.Color.CYAN.withAlpha(0.2),
     outline: true,
     outlineColor: Cesium.Color.YELLOW,
-    outlineWidth: 8
+    outlineWidth: 10
   }
 });
 
@@ -868,7 +868,7 @@ function crearPista(nombre, lat, lon, largo, ancho, rumbo) {
     box: {
       dimensions: new Cesium.Cartesian3(ancho, largo, 120),
       material: Cesium.Color.RED.withAlpha(0.25),
-      outlineWidth: 3
+      outlineWidth: 10
     },
 
     orientation: Cesium.Transforms.headingPitchRollQuaternion(
