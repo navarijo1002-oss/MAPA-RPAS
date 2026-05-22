@@ -559,6 +559,7 @@ function activarDibujo() {
   circuloTemp = viewer.entities.add({
     position: puntoInicio.cartesian,
     ellipse: {
+      heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
       semiMajorAxis: new Cesium.CallbackProperty(() => radioActual, false),
       semiMinorAxis: new Cesium.CallbackProperty(() => radioActual, false),
       material: Cesium.Color.CYAN.withAlpha(0.2),
@@ -587,6 +588,7 @@ function activarDibujo() {
   circuloTemp = viewer.entities.add({
     position: puntoInicio.cartesian,
     ellipse: {
+    heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
     semiMajorAxis: radio,
     semiMinorAxis: radio,
     material: Cesium.Color.CYAN.withAlpha(0.2), 
@@ -679,6 +681,7 @@ if (operacionFinal) {
   operacionFinal = viewer.entities.add({
   position: puntoInicio.cartesian,
   ellipse: {
+    heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
     semiMajorAxis: radio,
     semiMinorAxis: radio,
     material: Cesium.Color.CYAN.withAlpha(0.2),
@@ -832,15 +835,9 @@ function crearAnillosAerodromo(lat, lon) {
 
     const entidad = viewer.entities.add({
       polygon: {
-        hierarchy: hierarchy,
-        extrudedHeight: altura,
-        height: 0,
-        material: color.withAlpha(0.07),
-        outline: true,
-        outlineColor: color
-      },
-      description: `Altura máxima: ${altura} m`
-    });
+         heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+         description: `Altura máxima: ${altura} m`
+      });
 
     capas.aerodromos.push(entidad);
   }
@@ -1009,20 +1006,16 @@ const coords = [p1, p2, p3, p4];
 zonasAproximacion.push({coords: coords,altura: altura});
   const entidad = viewer.entities.add({
     polygon: {
-      hierarchy: new Cesium.PolygonHierarchy([
-        Cesium.Cartesian3.fromDegrees(p1[1], p1[0]),
-        Cesium.Cartesian3.fromDegrees(p2[1], p2[0]),
-        Cesium.Cartesian3.fromDegrees(p3[1], p3[0]),
-        Cesium.Cartesian3.fromDegrees(p4[1], p4[0])
-      ]),
-      extrudedHeight: altura === 0 ? 50 : altura + 50,
-      height: 0,
-      perPositionHeight: false,
-      classificationType: Cesium.ClassificationType.BOTH,
-      material: color.withAlpha(0.60),
-      outline: true,
-      outlineColor: Cesium.Color.WHITE.withAlpha(0.7),      
-      zIndex: 100
+    hierarchy: new Cesium.PolygonHierarchy([
+       Cesium.Cartesian3.fromDegrees(p1[1], p1[0]),
+       Cesium.Cartesian3.fromDegrees(p2[1], p2[0]),
+       Cesium.Cartesian3.fromDegrees(p3[1], p3[0]),
+       Cesium.Cartesian3.fromDegrees(p4[1], p4[0])
+    ]),
+    heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+    material: color.withAlpha(0.35),
+    outline: true,
+    outlineColor: Cesium.Color.WHITE
     },
 
    description: altura === 0 ? 
