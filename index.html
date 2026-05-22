@@ -313,25 +313,61 @@ datosPrisiones.forEach(p => {
 }
 let operacionActual = null;
 
-  function distanciaPuntoAPoligono(lat, lon, poligono) {
+function distanciaPuntoAPoligono(lat, lon, poligono) {
 
-    let minDist = Infinity;
+  let minDist = Infinity;
 
-    for (let i = 0; i < poligono.length; i++) {
+  for (let i = 0; i < poligono.length; i++) {
 
-      const p1 = poligono[i];
-      const p2 = poligono[(i + 1) % poligono.length];
+    const p1 = poligono[i];
+    const p2 = poligono[(i + 1) % poligono.length];
 
-      const d1 = distanciaSuperficie(lat, lon, p1[0], p1[1]);
-      const d2 = distanciaSuperficie(lat, lon, p2[0], p2[1]);
+    const d = distanciaPuntoASegmento(
+      lat,
+      lon,
+      p1[0],
+      p1[1],
+      p2[0],
+      p2[1]
+    );
 
-      const d = Math.min(d1, d2);
-
-      if (d < minDist) minDist = d;
+    if (d < minDist) {
+      minDist = d;
+    }
   }
+
   return minDist;
 }
 
+function distanciaPuntoASegmento(lat, lon, lat1, lon1, lat2, lon2) {
+
+  const A = {x: lon, y: lat};
+  const B = {x: lon1, y: lat1};
+  const C = {x: lon2, y: lat2};
+
+  const ABx = C.x - B.x;
+  const ABy = C.y - B.y;
+
+  const t = (
+    ((A.x - B.x) * ABx) +
+    ((A.y - B.y) * ABy)
+  ) / (
+    ABx * ABx + ABy * ABy
+  );
+
+  const tClamped = Math.max(0, Math.min(1, t));
+
+  const Px = B.x + tClamped * ABx;
+  const Py = B.y + tClamped * ABy;
+
+  return distanciaSuperficie(
+    lat,
+    lon,
+    Py,
+    Px
+  );
+}
+  
 //========================
 // DISTANCIA SUPERFICIE
 //========================
