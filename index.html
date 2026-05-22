@@ -127,7 +127,6 @@ const viewer = new Cesium.Viewer('cesiumContainer');
 function decimalADMS(valor, tipo) {
 
   const abs = Math.abs(valor);
-
   const grados = Math.floor(abs);
   const minutosFloat = (abs - grados) * 60;
   const minutos = Math.floor(minutosFloat);
@@ -144,7 +143,7 @@ function decimalADMS(valor, tipo) {
   return `${grados}°${minutos}'${segundos}"${direccion}`;
 }
   
-function validarOperacion(lat, lon, radio) {
+  function validarOperacion(lat, lon, radio) {
 
   const puntosOperacion =generarPuntosCirculo(lat, lon, radio);
 
@@ -182,8 +181,6 @@ puntosOperacion.forEach(p => {
 
     return `
     <b>RESULTADO</b><br><br>
-
-
     📍 COORDENADAS GEOGRÁFICAS:<br>
         ${latDMS}, ${lonDMS} m<br><br>
     📍 COORDENADAS DECIMALES:<br>
@@ -522,16 +519,18 @@ let puntoDespegue = null;
 let lineaMedicion = null;
   
 function activarDibujo() {
+
   dibujando = true;
   puntoInicio = null;
+  radioActual = 0;
 
   const panel = document.getElementById("resultadoOperacion");
+
   panel.innerHTML = "";
   panel.style.display = "none";
 
- limpiarMapa();
+  limpiarMapa();
 
-  // 🔴 BLOQUEAR cámara SOLO durante dibujo
   viewer.scene.screenSpaceCameraController.enableRotate = false;
   viewer.scene.screenSpaceCameraController.enableTranslate = false;
   viewer.scene.screenSpaceCameraController.enableZoom = false;
@@ -633,63 +632,71 @@ handler.setInputAction(function(click) {
     return;
   }
 
-  // =========================
-  // SEGUNDO CLICK
-  // =========================
+// =========================
+// SEGUNDO CLICK
+// =========================
 
-  const lat = puntoInicio.lat;
-  const lon = puntoInicio.lon;
-  const radio = radioActual; 
+const carto1 = Cesium.Cartographic.fromCartesian(puntoInicio.cartesian);
+const carto2 = Cesium.Cartographic.fromCartesian(cartesian);
+const geodesic = new Cesium.EllipsoidGeodesic(carto1,carto2);
+const radio = geodesic.surfaceDistance;
 
-  if (!radioActual || radioActual < 5) {
+  if (!radio || radio < 5) {
   alert("Debe definir un radio válido");
   return;
 }
-  const panel = document.getElementById("resultadoOperacion");
 
-  panel.style.display = "block";
-  panel.innerHTML = validarOperacion(lat, lon, radio);
+const lat = puntoInicio.lat;
+const lon = puntoInicio.lon;
+const panel = document.getElementById("resultadoOperacion");
 
-  if (operacionFinal) {
-    viewer.entities.remove(operacionFinal);
-  }
+panel.style.display = "block";
+panel.innerHTML = validarOperacion(lat, lon, radio);
+
+// borrar operación anterior
+
+if (operacionFinal) {
+  viewer.entities.remove(operacionFinal);
+}
+
+// crear círculo final
 
   operacionFinal = viewer.entities.add({
-    position: puntoInicio.cartesian,
-    ellipse: {
-      semiMajorAxis: radio,
-      semiMinorAxis: radio,
-      material: Cesium.Color.CYAN.withAlpha(0.2),
-      outline: true,
-      outlineColor: Cesium.Color.YELLOW,
-      outlineWidth: 8
-    }
-  });
-
-  // limpiar temporales
-  if (circuloTemp) {
-    viewer.entities.remove(circuloTemp);
-    circuloTemp = null;
+  position: puntoInicio.cartesian,
+  ellipse: {
+    semiMajorAxis: radio,
+    semiMinorAxis: radio,
+    material: Cesium.Color.CYAN.withAlpha(0.2),
+    outline: true,
+    outlineColor: Cesium.Color.YELLOW,
+    outlineWidth: 8
   }
+});
 
-  if (etiquetaRadio) {
-    viewer.entities.remove(etiquetaRadio);
-    etiquetaRadio = null;
-  }
+// limpiar temporales
+if (circuloTemp) {
+  viewer.entities.remove(circuloTemp);
+  circuloTemp = null;
+}
 
-  if (lineaMedicion) {
-    viewer.entities.remove(lineaMedicion);
-    lineaMedicion = null;
-  }
+if (etiquetaRadio) {
+  viewer.entities.remove(etiquetaRadio);
+  etiquetaRadio = null;
+}
 
-  dibujando = false;
+if (lineaMedicion) {
+  viewer.entities.remove(lineaMedicion);
+  lineaMedicion = null;
+}
 
-  viewer.scene.screenSpaceCameraController.enableRotate = true;
-  viewer.scene.screenSpaceCameraController.enableTranslate = true;
-  viewer.scene.screenSpaceCameraController.enableZoom = true;
+// finalizar dibujo
+dibujando = false;
 
-}, Cesium.ScreenSpaceEventType.LEFT_CLICK);
-  
+// restaurar navegación
+viewer.scene.screenSpaceCameraController.enableRotate = true;
+viewer.scene.screenSpaceCameraController.enableTranslate = true;
+viewer.scene.screenSpaceCameraController.enableZoom = true;
+
 //=========================================    
 // DATOS AERÓDROMOS 
 //=========================================
