@@ -98,7 +98,9 @@
 Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJmNmRiN2M4Mi05NDkzLTQzZjctOTU2ZS1iNjJkMmNkOTM4OGYiLCJpZCI6NDE0NjA3LCJpYXQiOjE3NzU1MTUzMTB9.ZjCd0PlYQOc6EbzpBV9jLuSxyZSAbQz1D8qnJjEuhoo';
 
 const viewer = new Cesium.Viewer('cesiumContainer', {
-  terrain: Cesium.Terrain.fromWorldTerrain()
+  terrain: Cesium.Terrain.fromWorldTerrain(),
+  requestRenderMode: true,
+  maximumRenderTimeChange: Infinity
 });
 
 //===============================
@@ -352,7 +354,7 @@ function generarPuntosCirculo(lat, lon, radio) {
 
   const puntos = [];
 
-  for (let angulo = 0; angulo < 360; angulo += 10) {
+  for (let angulo = 0; angulo < 360; angulo += 20) {
 
     const rad = Cesium.Math.toRadians(angulo);
     const dLat =
@@ -457,7 +459,6 @@ if (
     outlineWidth: 10 
   }
   });
-
   viewer.flyTo(operacionActual);
 
   // 🔵 RESULTADO
@@ -670,7 +671,7 @@ if (operacionFinal) {
     material: Cesium.Color.CYAN.withAlpha(0.2),
     outline: true,
     outlineColor: Cesium.Color.YELLOW,
-    outlineWidth: 10
+    outlineWidth: 1
   }
 });
 
@@ -793,7 +794,7 @@ function crearAnillosAerodromo(lat, lon) {
 
   function crearCirculo(radio) {
     const posiciones = [];
-    for (let i = 0; i < 360; i += 10) {
+    for (let i = 0; i < 360; i += 20) {
       const angulo = Cesium.Math.toRadians(i);
       const latOffset = (radio / 111320) * Math.sin(angulo);
       const lonOffset = (radio / (111320 * Math.cos(Cesium.Math.toRadians(lat)))) * Math.cos(angulo);
@@ -868,10 +869,12 @@ function crearPista(nombre, lat, lon, largo, ancho, rumbo) {
     name: nombre,
     position: posicion,
     box: {
-      dimensions: new Cesium.Cartesian3(ancho, largo, 120),
-      material: Cesium.Color.RED.withAlpha(0.25),
-      outlineWidth: 10
-    },
+    dimensions: new Cesium.Cartesian3(ancho, largo, 20),
+    material: Cesium.Color.RED.withAlpha(0.55),
+    outline: true,
+    outlineColor: Cesium.Color.WHITE,
+    heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+  },
 
     orientation: Cesium.Transforms.headingPitchRollQuaternion(
       posicion, new Cesium.HeadingPitchRoll(Cesium.Math.toRadians(rumbo),0,0)
@@ -999,8 +1002,10 @@ zonasAproximacion.push({coords: coords,altura: altura});
         Cesium.Cartesian3.fromDegrees(p3[1], p3[0]),
         Cesium.Cartesian3.fromDegrees(p4[1], p4[0])
       ]),
-      extrudedHeight: altura === 0 ? 80 : altura + 80,
-      height: 20,
+      extrudedHeight: altura === 0 ? 50 : altura + 50,
+      height: 0,
+      perPositionHeight: false,
+      classificationType: Cesium.ClassificationType.BOTH,
       material: color.withAlpha(0.60),
       outline: true,
       outlineColor: Cesium.Color.WHITE.withAlpha(0.7),      
@@ -1026,13 +1031,13 @@ function crearAproximaciones(lat, lon, largo, rumbo) {
   const e2 = moverPunto(lat, lon, mitad, (rumbo + 180) % 360);
 
   const zonas = [
-  [60, 1080, 280, 0, Cesium.Color.DARKRED],
-[1080, 2100, 586, 20, Cesium.Color.RED],
-[2100, 3060, 892, 40, Cesium.Color.ORANGERED],
-[3060, 3860, 1180, 60, Cesium.Color.ORANGE],
-[3860, 4660, 1420, 80, Cesium.Color.GOLD],
-[4660, 5460, 1660, 100, Cesium.Color.YELLOW]
-];
+    [60, 1080, 280, 0, Cesium.Color.DARKRED],
+    [1080, 2100, 586, 20, Cesium.Color.RED],
+    [2100, 3060, 892, 40, Cesium.Color.ORANGERED],
+    [3060, 3860, 1180, 60, Cesium.Color.ORANGE],
+    [3860, 4660, 1420, 80, Cesium.Color.GOLD],
+    [4660, 5460, 1660, 100, Cesium.Color.YELLOW]
+  ];
 
   zonas.forEach(z => {
 
@@ -1151,8 +1156,6 @@ function ubicarUsuario() {
   });
 
 }
-
-viewer.zoomTo(viewer.entities);
 
 viewer.camera.flyTo({
 destination: Cesium.Cartesian3.fromDegrees(-90.5, 14.5, 350000)
