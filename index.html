@@ -449,9 +449,9 @@ if (
     ellipse: {
     semiMajorAxis: radio,
     semiMinorAxis: radio,
-    material: Cesium.Color.CYAN.withAlpha(0.2), // más transparente
+    material: Cesium.Color.CYAN.withAlpha(0.2), 
     outline: true,
-    outlineColor: Cesium.Color.YELLOW, 
+    outlineColor: Cesium.Color.YELLOW.withAlpha(0.7),    
     outlineWidth: 10 
   }
   });
@@ -576,7 +576,7 @@ function activarDibujo() {
     material: Cesium.Color.CYAN.withAlpha(0.2), 
     outline: true,
     outlineColor: Cesium.Color.YELLOW, 
-    outlineWidth: 8 
+    outlineWidth: 10 
     }
   });
 
@@ -668,7 +668,7 @@ if (operacionFinal) {
     material: Cesium.Color.CYAN.withAlpha(0.2),
     outline: true,
     outlineColor: Cesium.Color.YELLOW,
-    outlineWidth: 8
+    outlineWidth: 10
   }
 });
 
@@ -819,7 +819,7 @@ function crearAnillosAerodromo(lat, lon) {
         hierarchy: hierarchy,
         extrudedHeight: altura,
         height: 0,
-        material: color.withAlpha(0.15),
+        material: color.withAlpha(0.07),
         outline: true,
         outlineColor: color
       },
@@ -867,12 +867,12 @@ function crearPista(nombre, lat, lon, largo, ancho, rumbo) {
     position: posicion,
     box: {
       dimensions: new Cesium.Cartesian3(ancho, largo, 120),
-      material: Cesium.Color.RED.withAlpha(0.25)
+      material: Cesium.Color.RED.withAlpha(0.25),
+      outlineWidth: 10
     },
 
     orientation: Cesium.Transforms.headingPitchRollQuaternion(
-      posicion,
-      new Cesium.HeadingPitchRoll(Cesium.Math.toRadians(rumbo),0,0)
+      posicion, new Cesium.HeadingPitchRoll(Cesium.Math.toRadians(rumbo),0,0)
     ),
 
     description: `
@@ -999,7 +999,7 @@ zonasAproximacion.push({coords: coords,altura: altura});
       ]),
       extrudedHeight: altura === 0 ? 30 : altura + 30,
       height: 5,
-      material: color.withAlpha(0.40),
+      material: color.withAlpha(0.60),
       outline: true,
       outlineColor: Cesium.Color.BLACK,
       zIndex: 100
@@ -1051,7 +1051,6 @@ function crearAproximaciones(lat, lon, largo, rumbo) {
 
   });
 }
-
 
 // ======================
 // PUERTOS
@@ -1150,6 +1149,8 @@ function ubicarUsuario() {
   });
 
 }
+
+viewer.zoomTo(viewer.entities);
 
 viewer.camera.flyTo({
 destination: Cesium.Cartesian3.fromDegrees(-90.5, 14.5, 350000)
