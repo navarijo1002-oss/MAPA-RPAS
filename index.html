@@ -97,7 +97,9 @@
 
 Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJmNmRiN2M4Mi05NDkzLTQzZjctOTU2ZS1iNjJkMmNkOTM4OGYiLCJpZCI6NDE0NjA3LCJpYXQiOjE3NzU1MTUzMTB9.ZjCd0PlYQOc6EbzpBV9jLuSxyZSAbQz1D8qnJjEuhoo';
 
-const viewer = new Cesium.Viewer('cesiumContainer');
+const viewer = new Cesium.Viewer('cesiumContainer', {
+  terrain: Cesium.Terrain.fromWorldTerrain()
+});
 
 //===============================
 // CAPAS
@@ -997,11 +999,11 @@ zonasAproximacion.push({coords: coords,altura: altura});
         Cesium.Cartesian3.fromDegrees(p3[1], p3[0]),
         Cesium.Cartesian3.fromDegrees(p4[1], p4[0])
       ]),
-      extrudedHeight: altura === 0 ? 30 : altura + 30,
-      height: 5,
+      extrudedHeight: altura === 0 ? 80 : altura + 80,
+      height: 20,
       material: color.withAlpha(0.60),
       outline: true,
-      outlineColor: Cesium.Color.BLACK,
+      outlineColor: Cesium.Color.WHITE.withAlpha(0.7),      
       zIndex: 100
     },
 
