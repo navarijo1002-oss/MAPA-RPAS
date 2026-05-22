@@ -558,8 +558,8 @@ function activarDibujo() {
 
   circuloTemp = viewer.entities.add({
     position: puntoInicio.cartesian,
-    ellipse: {
-      heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+      polygon: {
+      height: 10,
       semiMajorAxis: new Cesium.CallbackProperty(() => radioActual, false),
       semiMinorAxis: new Cesium.CallbackProperty(() => radioActual, false),
       material: Cesium.Color.CYAN.withAlpha(0.2),
@@ -835,10 +835,14 @@ function crearAnillosAerodromo(lat, lon) {
 
     const entidad = viewer.entities.add({
       polygon: {
-         heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
-         description: `Altura máxima: ${altura} m`
-      });
-
+       hierarchy: hierarchy,
+       height: 30,
+       material: color.withAlpha(0.15),
+       outline: true,
+       outlineColor: color,
+       classificationType: Cesium.ClassificationType.TERRAIN
+    }});
+      
     capas.aerodromos.push(entidad);
   }
 
@@ -1012,7 +1016,7 @@ zonasAproximacion.push({coords: coords,altura: altura});
        Cesium.Cartesian3.fromDegrees(p3[1], p3[0]),
        Cesium.Cartesian3.fromDegrees(p4[1], p4[0])
     ]),
-    heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+    height: 20,    
     material: color.withAlpha(0.35),
     outline: true,
     outlineColor: Cesium.Color.WHITE
