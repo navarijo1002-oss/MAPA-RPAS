@@ -1024,12 +1024,12 @@ function crearAproximaciones(lat, lon, largo, rumbo) {
   const e2 = moverPunto(lat, lon, mitad, (rumbo + 180) % 360);
 
   const zonas = [
-  [60, 1080, 280, 0, Cesium.Color.RED],
-  [1080, 2100, 586, 20, Cesium.Color.ORANGERED],
-  [2100, 3060, 892, 40, Cesium.Color.ORANGE],
-  [3060, 3860, 1180, 60, Cesium.Color.GOLD],
-  [3860, 4660, 1420, 80, Cesium.Color.YELLOWGREEN],
-  [4660, 5460, 1660, 100, Cesium.Color.LIME]
+  [60, 1080, 280, 0, Cesium.Color.DARKRED],
+[1080, 2100, 586, 20, Cesium.Color.RED],
+[2100, 3060, 892, 40, Cesium.Color.ORANGERED],
+[3060, 3860, 1180, 60, Cesium.Color.ORANGE],
+[3860, 4660, 1420, 80, Cesium.Color.GOLD],
+[4660, 5460, 1660, 100, Cesium.Color.YELLOW]
 ];
 
   zonas.forEach(z => {
