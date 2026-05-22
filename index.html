@@ -379,7 +379,7 @@ function generarPuntosCirculo(lat, lon, radio) {
 
 function convertirCoordenada(coord) {
 
-  // Si ya viene decimal
+  // Si viene decimal
   if (!isNaN(parseFloat(coord)) && !coord.includes("°")) {
     return parseFloat(coord);
   }
@@ -447,13 +447,13 @@ if (
   operacionActual = viewer.entities.add({
     position: Cesium.Cartesian3.fromDegrees(lon, lat),
     ellipse: {
-  semiMajorAxis: radio,
-  semiMinorAxis: radio,
-  material: Cesium.Color.CYAN.withAlpha(0.2), // más transparente
-  outline: true,
-  outlineColor: Cesium.Color.YELLOW, // 🔥 color que resalta
-  outlineWidth: 10 // 🔥 más grueso
-}
+    semiMajorAxis: radio,
+    semiMinorAxis: radio,
+    material: Cesium.Color.CYAN.withAlpha(0.2), // más transparente
+    outline: true,
+    outlineColor: Cesium.Color.YELLOW, 
+    outlineWidth: 10 
+  }
   });
 
   viewer.flyTo(operacionActual);
@@ -571,13 +571,13 @@ function activarDibujo() {
   circuloTemp = viewer.entities.add({
     position: puntoInicio.cartesian,
     ellipse: {
-  semiMajorAxis: radio,
-  semiMinorAxis: radio,
-  material: Cesium.Color.CYAN.withAlpha(0.2), // más transparente
-  outline: true,
-  outlineColor: Cesium.Color.YELLOW, // 🔥 color que resalta
-  outlineWidth: 8 // 🔥 más grueso
-}
+    semiMajorAxis: radio,
+    semiMinorAxis: radio,
+    material: Cesium.Color.CYAN.withAlpha(0.2), // más transparente
+    outline: true,
+    outlineColor: Cesium.Color.YELLOW, // 🔥 color que resalta
+    outlineWidth: 8 // 🔥 más grueso
+    }
   });
 
   // borrar línea anterior
@@ -698,13 +698,10 @@ viewer.scene.screenSpaceCameraController.enableZoom = true;
 
 }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
 
-//=========================================    
-// DATOS AERÓDROMOS
-//=========================================
 
-//=========================================    
-// DATOS AERÓDROMOS 
-//=========================================
+                                                  //=========================================    
+                                                  // DATOS AERÓDROMOS 
+                                                  //=========================================
   
 const datosAerodromos = [
   ["Chiquimula",14.830984, -89.520862],
@@ -864,10 +861,6 @@ function crearPista(nombre, lat, lon, largo, ancho, rumbo) {
 
   const posicion = Cesium.Cartesian3.fromDegrees(lon, lat);
 
-  // =========================
-  // VISUAL DE PISTA
-  // =========================
-
   const entidad = viewer.entities.add({
     name: nombre,
     position: posicion,
@@ -894,7 +887,7 @@ function crearPista(nombre, lat, lon, largo, ancho, rumbo) {
   capas.aerodromos.push(entidad);
 
   // =========================
-  // CREAR POLÍGONO VALIDABLE
+  // CREAR PISTA VALIDA
   // =========================
 
   const mitadLargo = largo / 2;
@@ -1005,9 +998,10 @@ zonasAproximacion.push({coords: coords,altura: altura});
       ]),
       extrudedHeight: altura === 0 ? 30 : altura + 30,
       height: 5,
-      material: color.withAlpha(0.35),
+      material: color.withAlpha(0.40),
       outline: true,
       outlineColor: Cesium.Color.BLACK,
+      zIndex: 100
     },
 
    description: altura === 0 ? 
@@ -1062,7 +1056,6 @@ function crearAproximaciones(lat, lon, largo, rumbo) {
 // ======================
 const datosPuertos = [
 ["Champerico",14.3,-91.9167],
-["San José",13.9167,-90.8333],
 ["Puerto Quetzal",13.9342,-90.7853],
 ["Santo Tomás de Castilla",15.6961,-88.6153],
 ["Puerto Barrios",15.7375,-88.6019]
