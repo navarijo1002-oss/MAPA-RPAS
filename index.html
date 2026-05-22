@@ -449,9 +449,9 @@ if (
     ellipse: {
     semiMajorAxis: radio,
     semiMinorAxis: radio,
-    material: Cesium.Color.CYAN.withAlpha(0.2), // más transparente
+    material: Cesium.Color.CYAN.withAlpha(0.2), 
     outline: true,
-    outlineColor: Cesium.Color.YELLOW, 
+    outlineColor: Cesium.Color.YELLOW.withAlpha(0.7)    
     outlineWidth: 10 
   }
   });
@@ -867,7 +867,7 @@ function crearPista(nombre, lat, lon, largo, ancho, rumbo) {
     position: posicion,
     box: {
       dimensions: new Cesium.Cartesian3(ancho, largo, 120),
-      material: Cesium.Color.RED.withAlpha(0.25)
+      material: Cesium.Color.ORANGERED.withAlpha(0.25)
     },
 
     orientation: Cesium.Transforms.headingPitchRollQuaternion(
