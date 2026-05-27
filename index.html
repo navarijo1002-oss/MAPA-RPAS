@@ -1479,7 +1479,8 @@ handlerCoords.setInputAction(function(movement) {
     const altura =
 
     viewer.camera.positionCartographic.height / 1000;
-    const latDMS = decimalADMS(lat, "lat");
+   const latDMS = decimalADMS(lat, "lat");
+   const lonDMS = decimalADMS(lon, "lon");
 
   coordsBox.innerHTML = `
       <b>COORDENADAS</b><br><br>
