@@ -212,24 +212,12 @@ function decimalADMS(valor, tipo) {
 
 for (let pista of zonasPista) {
 
-  let dentro = false;
-
-// validar centro
-if (puntoEnPoligono(
-    lat,
-    lon,
-    pista.coords
-  )
-) {
-  dentro = true;
-}
-
-// validar borde del círculo
-puntosOperacion.forEach(p => {
-
-  if (puntoEnPoligono(p[0],p[1],pista.coords))
-  {dentro = true;}
-});
+const dentro = circuloIntersecaPoligono(
+  lat,
+  lon,
+  radio,
+  pista.coords
+);
 
   if (dentro) {
 
@@ -253,27 +241,23 @@ puntosOperacion.forEach(p => {
   }
 }
     
-  for (let zona of zonasAproximacion) {
+for (let zona of zonasAproximacion) {
 
-    let dentro = false;
+  const dentro = circuloIntersecaPoligono(
+    lat,
+    lon,
+    radio,
+    zona.coords
+  );
 
-    // validar centro
-    if (puntoEnPoligono(lat, lon, zona.coords))
-    {
-      dentro = true;
-     }
-   
-// validar borde del círculo
- 
-    puntosOperacion.forEach(p => {
+  const distancia =
+    distanciaPuntoAPoligono(
+      lat,
+      lon,
+      zona.coords
+    );
 
-         if (puntoEnPoligono(p[0],p[1],zona.coords)) 
-        {dentro = true;}
-    });
-   
-    const distancia = distanciaPuntoAPoligono(lat, lon, zona.coords);
-
-    if (dentro || distancia < radio) {
+if (dentro) {
     
       if (zona.altura === 0) {
         return `
@@ -1001,6 +985,81 @@ function puntoEnPoligono(lat, lon, poligono) {
     if (intersect) dentro = !dentro;
   }
   return dentro;
+}
+
+  // =====================================
+// DETECTAR INTERSECCIÓN CÍRCULO-POLÍGONO
+// =====================================
+
+function circuloIntersecaPoligono(
+  lat,
+  lon,
+  radio,
+  poligono
+) {
+
+  // =========================
+  // 1. CENTRO DENTRO POLÍGONO
+  // =========================
+
+  if (puntoEnPoligono(lat, lon, poligono)) {
+    return true;
+  }
+
+  // =========================
+  // 2. BORDE DEL CÍRCULO
+  // =========================
+
+  const puntosCirculo =
+    generarPuntosCirculo(lat, lon, radio);
+
+  for (let p of puntosCirculo) {
+
+    if (
+      puntoEnPoligono(
+        p[0],
+        p[1],
+        poligono
+      )
+    ) {
+      return true;
+    }
+  }
+
+  // =========================
+  // 3. POLÍGONO DENTRO CÍRCULO
+  // =========================
+
+  for (let punto of poligono) {
+
+    const d = distanciaSuperficie(
+      lat,
+      lon,
+      punto[0],
+      punto[1]
+    );
+
+    if (d <= radio) {
+      return true;
+    }
+  }
+
+  // =========================
+  // 4. DISTANCIA A BORDES
+  // =========================
+
+  const distancia =
+    distanciaPuntoAPoligono(
+      lat,
+      lon,
+      poligono
+    );
+
+  if (distancia <= radio) {
+    return true;
+  }
+
+  return false;
 }
  
 // ======================
