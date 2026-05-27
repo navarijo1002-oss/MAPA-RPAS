@@ -595,9 +595,9 @@ function limpiarMapa() {
   }
 }
   
-//=============================
-// ACTIVAR DIBUJO
-//============================
+                                                              //=============================
+                                                              // ACTIVAR DIBUJO
+                                                              //============================
 
 let radioActual = 0;
 let operacionFinal = null;
@@ -609,7 +609,8 @@ function activarDibujo() {
   dibujando = true;
   puntoInicio = null;
   radioActual = 0;
-
+  
+  viewer.canvas.style.cursor = "crosshair";
   const panel = document.getElementById("resultadoOperacion");
 
   panel.innerHTML = "";
@@ -618,6 +619,10 @@ function activarDibujo() {
   limpiarMapa();
 
   viewer.scene.screenSpaceCameraController.enableRotate = false;
+  viewer.scene.screenSpaceCameraController.enableTranslate = false;
+  viewer.scene.screenSpaceCameraController.enableZoom = false;
+  viewer.scene.screenSpaceCameraController.enableTilt = false;
+  viewer.scene.screenSpaceCameraController.enableLook = false;
 }
 
   handler.setInputAction(function(move) {
@@ -653,16 +658,16 @@ function activarDibujo() {
      } 
 });
   
-  circuloTemp = viewer.entities.add({
-    position: puntoInicio.cartesian,
-    ellipse: {
-    semiMajorAxis: radio,
-    semiMinorAxis: radio,
-    material: Cesium.Color.CYAN.withAlpha(0.2), 
-    outline: true,
-    outlineColor: Cesium.Color.YELLOW, 
-    outlineWidth: 10 
-    }
+     circuloTemp = viewer.entities.add({
+     position: puntoInicio.cartesian,
+     ellipse: {
+     semiMajorAxis: radio,
+     semiMinorAxis: radio,
+     material: Cesium.Color.CYAN.withAlpha(0.2), 
+     outline: true,
+     outlineColor: Cesium.Color.YELLOW, 
+     outlineWidth: 10 
+     }
   });
 
   // borrar línea anterior
@@ -780,9 +785,54 @@ dibujando = false;
 viewer.scene.screenSpaceCameraController.enableRotate = true;
 viewer.scene.screenSpaceCameraController.enableTranslate = true;
 viewer.scene.screenSpaceCameraController.enableZoom = true;
+viewer.scene.screenSpaceCameraController.enableTilt = true;
+viewer.scene.screenSpaceCameraController.enableLook = true;
+
+viewer.canvas.style.cursor = "default";
 
 }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
 
+// ======================
+// CLICK DERECHO FINALIZA
+// ======================
+
+handler.setInputAction(function() {
+
+const lat = puntoInicio.lat;
+const lon = puntoInicio.lon;
+
+const panel = document.getElementById("resultadoOperacion");
+
+panel.style.display = "block";
+panel.innerHTML = validarOperacion(lat, lon, radioActual);
+  
+  if (!dibujando || !puntoInicio) return;
+  dibujando = false;
+
+  if (circuloTemp) {
+    operacionFinal = circuloTemp;
+    circuloTemp = null;
+  }
+
+  if (etiquetaRadio) {
+    viewer.entities.remove(etiquetaRadio);
+    etiquetaRadio = null;
+  }
+
+  if (lineaMedicion) {
+    viewer.entities.remove(lineaMedicion);
+    lineaMedicion = null;
+  }
+
+  viewer.scene.screenSpaceCameraController.enableRotate = true;
+  viewer.scene.screenSpaceCameraController.enableTranslate = true;
+  viewer.scene.screenSpaceCameraController.enableZoom = true;
+  viewer.scene.screenSpaceCameraController.enableTilt = true;
+  viewer.scene.screenSpaceCameraController.enableLook = true;
+
+  viewer.canvas.style.cursor = "default";
+
+}, Cesium.ScreenSpaceEventType.RIGHT_CLICK);
 
                                                   //=========================================    
                                                   // DATOS AERÓDROMOS 
@@ -1268,10 +1318,33 @@ handlerCoords.setInputAction(function(movement) {
 
 }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
 
-  
-viewer.camera.flyTo({
-destination: Cesium.Cartesian3.fromDegrees(-90.5, 14.5, 350000)
+  // ======================
+// CANCELAR DIBUJO CON ESC
+// ======================
+
+document.addEventListener("keydown", function(event) {
+
+  if (event.key === "Escape" && dibujando) {
+
+    dibujando = false;
+
+    limpiarMapa();
+
+    viewer.scene.screenSpaceCameraController.enableRotate = true;
+    viewer.scene.screenSpaceCameraController.enableTranslate = true;
+    viewer.scene.screenSpaceCameraController.enableZoom = true;
+    viewer.scene.screenSpaceCameraController.enableTilt = true;
+    viewer.scene.screenSpaceCameraController.enableLook = true;
+
+    viewer.canvas.style.cursor = "default";
+
+    const panel = document.getElementById("resultadoOperacion");
+
+    panel.innerHTML = "";
+    panel.style.display = "none";
+  }
 });
+  
 </script>
 
 </body>
