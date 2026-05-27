@@ -44,9 +44,26 @@
                }  
 
     #cesiumContainer {
-      flex: 1;
-      height: 100vh;
-    }
+                      flex: 1;
+                      height: 100vh;
+                     }
+
+    #coordsBox {
+            position: absolute;
+            bottom: 15px;
+            right: 20px;
+            background: rgba(15,15,30,0.85);
+            color: white;
+            padding: 10px 14px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-family: Arial;
+            z-index: 100;
+            backdrop-filter: blur(6px);
+            border: 1px solid rgba(255,255,255,0.1);
+            box-shadow: 0 0 15px rgba(0,0,0,0.35);
+            }
+    
   </style>
 </head>
 
@@ -110,6 +127,11 @@
 
 <div id="cesiumContainer"></div>
 
+<div id="coordsBox">
+  Lat: ---
+  Lon: ---
+</div>
+  
 <div id="resultadoOperacion" style="
   position:absolute;
   top:10px;
@@ -1215,6 +1237,38 @@ function ubicarUsuario() {
 
 viewer.zoomTo(viewer.entities);
 
+// ======================
+// COORDENADAS DEL MOUSE
+// ======================
+
+const coordsBox = document.getElementById("coordsBox");
+const handlerCoords = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
+
+handlerCoords.setInputAction(function(movement) {
+
+  const cartesian = viewer.camera.pickEllipsoid(
+    movement.endPosition,
+    viewer.scene.globe.ellipsoid
+  );
+
+  if (cartesian) {
+
+    const cartographic = Cesium.Cartographic.fromCartesian(cartesian);
+    const lat = Cesium.Math.toDegrees(cartographic.latitude);
+    const lon = Cesium.Math.toDegrees(cartographic.longitude);
+    const altura =
+
+    viewer.camera.positionCartographic.height / 1000;
+    coordsBox.innerHTML = `
+      Lat: ${lat.toFixed(6)}<br>
+      Lon: ${lon.toFixed(6)}<br>
+      Altura cámara: ${altura.toFixed(1)} km
+    `;
+  }
+
+}, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
+
+  
 viewer.camera.flyTo({
 destination: Cesium.Cartesian3.fromDegrees(-90.5, 14.5, 350000)
 });
