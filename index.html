@@ -100,6 +100,22 @@
   <button class="btn" onclick="toggleLayer('puertos')">Puertos</button>
   <button class="btn" onclick="toggleLayer('prisiones')">Prisiones</button>
 
+  <h2>Búsqueda</h2>
+  <input
+  id="busquedaInput"
+  placeholder="Buscar ubicación..."
+  style="
+    width:100%;
+    margin:5px 0;
+    padding:8px;
+    border-radius:5px;
+    border:none;
+  "
+  >
+  <button class="btn" onclick="buscarUbicacion()">
+  Buscar
+  </button>
+  
   <h2>Vista</h2>
   <button class="btn" onclick="viewer.zoomTo(viewer.entities)">Zoom general</button>
   <button class="btn" onclick="ubicarUsuario()">Mi ubicación</button>
@@ -288,7 +304,7 @@ if (dentro) {
   }
 
   // 🔴 PRISIONES
-datosPrisiones.forEach(p => {
+  datosPrisiones.forEach(p => {
   const d = distanciaSuperficie(lat, lon, p[1], p[2]);
 
   if (d < (300 + radio)) {
@@ -869,8 +885,15 @@ const datosAerodromos = [
   ["Zacapa - MGZA -",14.960000, -89.538889]
 ]; 
 
-datosAerodromos.forEach(a => {
+  datosAerodromos.forEach(a => {
   crearAnillosAerodromo(a[1], a[2]);
+
+  ubicacionesBusqueda.push({
+    nombre: a[0],
+    lat: a[1],
+    lon: a[2]
+  });
+
 });
   
 const pistas = [
@@ -1271,6 +1294,12 @@ const datosPuertos = [
 ];
 
 datosPuertos.forEach(p => {
+  ubicacionesBusqueda.push({
+    nombre: p[0],
+    lat: p[1],
+    lon: p[2]
+  });
+  
   let entidad = viewer.entities.add({
     position: Cesium.Cartesian3.fromDegrees(p[2], p[1]),
     cylinder: {
@@ -1284,6 +1313,12 @@ datosPuertos.forEach(p => {
 
   capas.puertos.push(entidad);
 });
+
+// ======================
+// LISTA GLOBAL BÚSQUEDA
+// ======================
+
+const ubicacionesBusqueda = [];
 
 // ======================
 // PRISIONES
@@ -1310,7 +1345,12 @@ const datosPrisiones = [
 ["Puerto Barrios",15.7161,-88.5906]
 ];
 
-datosPrisiones.forEach(p => {
+ datosPrisiones.forEach(p => {
+   ubicacionesBusqueda.push({
+  nombre: p[0],
+  lat: p[1],
+  lon: p[2]
+});
  let entidad = viewer.entities.add({
     position: Cesium.Cartesian3.fromDegrees(p[2], p[1]),
     cylinder: {
@@ -1358,6 +1398,44 @@ function ubicarUsuario() {
 
 }
 
+// ======================
+// BUSCAR UBICACIÓN
+// ======================
+
+function buscarUbicacion() {
+
+  const texto = document
+    .getElementById("busquedaInput")
+    .value
+    .toLowerCase()
+    .trim();
+
+  if (!texto) return;
+
+  const resultado = ubicacionesBusqueda.find(u =>
+    u.nombre.toLowerCase().includes(texto)
+  );
+
+  if (!resultado) {
+
+    alert("Ubicación no encontrada");
+
+    return;
+  }
+
+  viewer.camera.flyTo({
+
+    destination:
+      Cesium.Cartesian3.fromDegrees(
+        resultado.lon,
+        resultado.lat,
+        12000
+      )
+
+  });
+
+}
+  
 viewer.zoomTo(viewer.entities);
 
 // ======================
