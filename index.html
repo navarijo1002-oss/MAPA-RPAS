@@ -124,7 +124,9 @@
   <input id="latInput" placeholder="Latitud" style="width:100%; margin:5px 0;">
   <input id="lonInput" placeholder="Longitud" style="width:100%; margin:5px 0;">
   <input id="radioInput" placeholder="Radio (m)" style="width:100%; margin:5px 0;">
-
+  <input id="alturaInput"
+   placeholder="Altura solicitada (m)"
+   style="width:100%; margin:5px 0;">
   <button class="btn" onclick="ubicarOperacion()">Ubicar operación</button>
   <button class="btn" onclick="activarDibujo()">Dibujar con mouse</button>
 
@@ -211,158 +213,189 @@ function decimalADMS(valor, tipo) {
   return `${grados}°${minutos}'${segundos}"${direccion}`;
 }
   
-  function validarOperacion(lat, lon, radio) {
+  function validarOperacion(lat, lon, radio, alturaSolicitada = null) {
+        
+        const latDMS = decimalADMS(lat, "lat");
+        const lonDMS = decimalADMS(lon, "lon");
+        const puntosOperacion = generarPuntosCirculo(lat, lon, radio);
 
-  const latDMS = decimalADMS(lat, "lat");
-  const lonDMS = decimalADMS(lon, "lon");
+        let altura = 120;
+        let estado = "PERMITIDO";
+        let motivo = "Sin restricción";
+        let mensajeAltura = "";
 
-  const puntosOperacion = generarPuntosCirculo(lat, lon, radio);
+        if (alturaSolicitada !== null) {
+           if (alturaSolicitada > 120) {
+              mensajeAltura =
+              `<br><br>
+              <b style="color:red;">
+              LA ALTURA SOLICITADA EXCEDE EL MAXIMO GENERAL DE 120 m.<br>
+              DEBE SOLICITAR PERMISO ESPECIAL DE VUELO A LA DGAC.
+              </b>`;
+            }
+        }
 
-  let altura = 120;
-  let estado = "PERMITIDO";
-  let motivo = "Sin restricción";
+        // =========================
+        // VALIDAR PISTA
+        // PRIORIDAD UNO
+        // =========================
 
-// =========================
-// VALIDAR PISTA
-// PRIORIDAD UNO
-// =========================
+        for (let pista of zonasPista) {
 
-for (let pista of zonasPista) {
+           const dentro = circuloIntersecaPoligono(lat,lon,radio,pista.coords);
 
-const dentro = circuloIntersecaPoligono(
-  lat,
-  lon,
-  radio,
-  pista.coords
-);
-
-  if (dentro) {
-
-    return `
-    <b>RESULTADO</b><br><br>
-    📍 COORDENADAS GEOGRÁFICAS:<br>
-        ${latDMS}, ${lonDMS} <br><br>
-    📍 COORDENADAS DECIMALES:<br>
-        ${lat.toFixed(6)}, ${lon.toFixed(6)}<br><br>
-    📏 RADIO DE OPERACION:
-    ${radio.toFixed(0)} <br><br>
-    ✈️ ALTURA MAXIMA PERMITIDA:
-    <b>0 m</b><br><br>
-    <b style="color:red;">
-    PROHIBIDO
-    </b><br>
-    OPERACION DENTRO DE PISTA
-    DE AERÓDROMO<br><br>
-    SOLICITE PERMISO ESPECIAL DE VUELO A LA DGAC
-    `;
-  }
-}
-    
-for (let zona of zonasAproximacion) {
-
-  const dentro = circuloIntersecaPoligono(
-    lat,
-    lon,
-    radio,
-    zona.coords
-  );
-
-  const distancia =
-    distanciaPuntoAPoligono(
-      lat,
-      lon,
-      zona.coords
-    );
-
-if (dentro) {
-    
-      if (zona.altura === 0) {
-        return `
-        <b>RESULTADO</b><br><br>
-        📍 COORDENADAS GEOGRÁFICAS:<br>
-            ${latDMS}, ${lonDMS} <br><br>
-        📍 COORDENADAS DECIMALES:<br>
-            ${lat.toFixed(6)}, ${lon.toFixed(6)}<br><br>
-        📏 RADIO DE OPERACION ${radio.toFixed(0)} m<br><br>
-        ✈️ ALTURA MAXIMA PERMITIDA: <b>0 </b><br><br>
-        <b style="color:red;">PROHIBIDO POR</b><br>
-        TRAYECTORIA DE APROXIMACION/DESPEGUE  </b>
-        Si desea realizar esta operacion solicite un PERMISO ESPECIAL DE VUELO a la DGAC `;
+        if (dentro) {
+            return `
+            <b>RESULTADO</b><br><br>
+           📍 COORDENADAS GEOGRÁFICAS:<br>
+              ${latDMS}, ${lonDMS} <br><br>
+           📍 COORDENADAS DECIMALES:<br>
+              ${lat.toFixed(6)}, ${lon.toFixed(6)}<br><br>
+           📏 RADIO DE OPERACION:
+              ${radio.toFixed(0)} <br><br>
+           ✈️ ALTURA MAXIMA PERMITIDA:
+            <b>0 m</b><br><br>
+            <b style="color:red;">
+            PROHIBIDO
+            </b><br>
+            OPERACION DENTRO DE PISTA
+            DE AERÓDROMO<br><br>
+            SOLICITE PERMISO ESPECIAL DE VUELO A LA DGAC
+    `      ;
+       }
       }
+    
+      for (let zona of zonasAproximacion) {
 
-      return `
-      <b>RESULTADO</b><br><br>
-      📍 COORDENADAS GEOGRÁFICAS:<br>
-          ${latDMS}, ${lonDMS} m<br><br>
-      📍 COORDENADAS DECIMALES:<br>
-          ${lat.toFixed(6)}, ${lon.toFixed(6)}<br><br>
-      📏 RADIO DE OPERACION: ${radio.toFixed(0)} m<br><br>
-      ✈️ ALTURA MAXIMA PERMITIDA DE VUELO: <b>${zona.altura} m</b><br><br>
-      <b style="color:red;">RESTRINGIDO POR </b><br>
-      APROXIMACION/DESPEGUE</b>
-      Si desea realizar esta operacion solicite un PERMISO ESPECIAL DE VUELO a la DGAC`;
-    }
-  }
+          const dentro = circuloIntersecaPoligono(lat,lon,radio,zona.coords);
+          const distancia = distanciaPuntoAPoligono(lat,lon,zona.coords);
+
+          if (dentro) {
+    
+             if (zona.altura === 0) {
+                 return `
+                 <b>RESULTADO</b><br><br>
+                📍 COORDENADAS GEOGRÁFICAS:<br>
+                   ${latDMS}, ${lonDMS} <br><br>
+                📍 COORDENADAS DECIMALES:<br>
+                   ${lat.toFixed(6)}, ${lon.toFixed(6)}<br><br>
+                📏 RADIO DE OPERACION ${radio.toFixed(0)} m<br><br>
+                ✈️ ALTURA MAXIMA PERMITIDA: <b>0 </b><br><br>
+                <b style="color:red;">PROHIBIDO POR</b><br>
+                TRAYECTORIA DE APROXIMACION/DESPEGUE  </b>
+                Si desea realizar esta operacion solicite un PERMISO ESPECIAL DE VUELO a la DGAC `;
+             }
+           return `
+           <b>RESULTADO</b><br><br>
+          📍 COORDENADAS GEOGRÁFICAS:<br>
+              ${latDMS}, ${lonDMS} m<br><br>
+          📍 COORDENADAS DECIMALES:<br>
+             ${lat.toFixed(6)}, ${lon.toFixed(6)}<br><br>
+          📏 RADIO DE OPERACION: ${radio.toFixed(0)} m<br><br>
+          ✈️ ALTURA MAXIMA PERMITIDA DE VUELO: <b>${zona.altura} m</b><br><br>
+          <b style="color:red;">RESTRINGIDO POR </b><br>
+          TRAYECTORIA DE APROXIMACION Y DESPEGUE</b>
+          Si desea realizar esta operacion solicite un PERMISO ESPECIAL DE VUELO a la DGAC`;
+         }
+     }
 
   // 🔴 PRISIONES
-  datosPrisiones.forEach(p => {
-  const d = distanciaSuperficie(lat, lon, p[1], p[2]);
+    
+      datosPrisiones.forEach(p => {const d = distanciaSuperficie(lat, lon, p[1], p[2]);
 
-  if (d < (300 + radio)) {
-      altura = 0;
-      estado = "PROHIBIDO POR";
-      motivo = "PROXIMIDAD A UNA PRISION  PERMISO ESPECIAL DE VUELO a la DGAC";
-    }
-  });
+      if (d < (300 + radio)) {
+         altura = 0;
+         estado = "PROHIBIDO POR";
+         motivo = "PROXIMIDAD A UNA PRISION  PERMISO ESPECIAL DE VUELO a la DGAC";
+     }
+      });
 
   // 🔵 PUERTOS
   
-  datosPuertos.forEach(p => {
-  const d = distanciaSuperficie(lat, lon, p[1], p[2]);
-         if (d < (500 + radio) && estado !== "PROHIBIDO") {altura = Math.min(altura, 60);
+      datosPuertos.forEach(p => {
+      const d = distanciaSuperficie(lat, lon, p[1], p[2]);
+      if (d < (500 + radio) && estado !== "PROHIBIDO") {altura = Math.min(altura, 60);
             estado = "RESTRINGIDO POR";
             motivo = "PROXIMIDAD A UN PUERTO MARITIMO  PERMISO ESPECIAL DE VUELO a la DGAC";
-    }
-  });
+       }
+      });
 
   // 🟡 AERÓDROMOS
-  datosAerodromos.forEach(a => {
-  const d = distanciaSuperficie(lat, lon, a[1], a[2]);
+  
+      datosAerodromos.forEach(a => {
+      const d = distanciaSuperficie(lat, lon, a[1], a[2]);
 
-    if (d < (2000 + radio)) {
-      altura = Math.min(altura, 20);
-      estado = "RESTRINGIDO POR";
-      motivo = "AERODROMO PROXIMO ENTRE 0-2 km   SI DESEA VOLAR EN ESTA ZONA SOLICITE UN PERMISO ESPECIAL DE VUELO a la DGAC";
-    } 
-    else if (d < (4000 + radio)) {
-      altura = Math.min(altura, 40);
-      estado = "RESTRINGIDO POR";
-      motivo = "AERODROMO PROXIMO ENTRE 2-4 km   SI DESEA VOLAR EN ESTA ZONA SOLICITE UN PERMISO ESPECIAL DE VUELO a la DGAC";
-    } 
-    else if (d < (6000 + radio)) {
-      altura = Math.min(altura, 60);
-      estado = "RESTRINGIDO POR";
-      motivo = "AERODROMO PROXIMO ENTRE 4-6 km   SI DESEA VOLAR EN ESTA ZONA SOLICITE UN PERMISO ESPECIAL DE VUELO a la DGAC";
-    } 
-    else if (d < (8000 + radio)) {
-      altura = Math.min(altura, 100);
-      estado = "RESTRINGIDO POR";
-      motivo = "AERODROMO PROXIMO ENTRE 6-8 km   SI DESEA VOLAR EN ESTA ZONA SOLICITE UN PERMISO ESPECIAL DE VUELO a la DGAC";
-    }
-  });
+      if (d < (2000 + radio)) {
+         altura = Math.min(altura, 20);
+         estado = "RESTRINGIDO POR";
+         motivo = "AERODROMO PROXIMO ENTRE 0-2 km   SI DESEA VOLAR EN ESTA ZONA SOLICITE UN PERMISO ESPECIAL DE VUELO a la DGAC";
+      } 
+      else if (d < (4000 + radio)) {
+         altura = Math.min(altura, 40);
+         estado = "RESTRINGIDO POR";
+         motivo = "AERODROMO PROXIMO ENTRE 2-4 km   SI DESEA VOLAR EN ESTA ZONA SOLICITE UN PERMISO ESPECIAL DE VUELO a la DGAC";
+      } 
+      else if (d < (6000 + radio)) {
+         altura = Math.min(altura, 60);
+         estado = "RESTRINGIDO POR";
+         motivo = "AERODROMO PROXIMO ENTRE 4-6 km   SI DESEA VOLAR EN ESTA ZONA SOLICITE UN PERMISO ESPECIAL DE VUELO a la DGAC";
+      } 
+      else if (d < (8000 + radio)) {
+         altura = Math.min(altura, 100);
+         estado = "RESTRINGIDO POR";
+         motivo = "AERODROMO PROXIMO ENTRE 6-8 km   SI DESEA VOLAR EN ESTA ZONA SOLICITE UN PERMISO ESPECIAL DE VUELO a la DGAC";
+      }
+    });
+     
+// =========================
+// VALIDAR ALTURA SOLICITADA
+// =========================
 
-  return `
+let evaluacionAltura = "";
+
+if (alturaSolicitada !== null) {
+    if (alturaSolicitada > altura) {
+       evaluacionAltura =
+       `<br><br>
+       <b style="color:red;">
+       ALTURA SOLICITADA: ${alturaSolicitada} m<br>
+       EXCEDE LA ALTURA PERMITIDA EN ESTA ZONA.
+       </b>`;
+     }
+     else {
+       evaluacionAltura =
+       `<br><br>
+       <b style="color:green;">
+       ALTURA SOLICITADA: ${alturaSolicitada} m<br>
+       DENTRO DEL LIMITE PERMITIDO.
+       </b>`;
+     }
+  }
+
+// =========================
+// RESULTADO FINAL
+// =========================
+
+return `
   <b>RESULTADO</b><br><br>
   📍 COORDENADAS GEOGRÁFICAS:<br>
-      ${latDMS}, ${lonDMS} m<br><br>
+   ${latDMS}, ${lonDMS}<br><br>
   📍 COORDENADAS DECIMALES:<br>
-      ${lat.toFixed(6)}, ${lon.toFixed(6)}<br><br>
-  📏 RADIO DE OPERACION: ${radio.toFixed(0)} m<br><br>
-  ✈️ ALTURA MAXIMA PERMITIDA DE VUELO: <b>${altura} m</b><br><br>
-  <b style="color:${estado==="PERMITIDO"?"green":"red"};">${estado}</b><br>
-  ${motivo}
-  `;
+   ${lat.toFixed(6)}, ${lon.toFixed(6)}<br><br>
+   📏 RADIO DE OPERACION:
+   ${radio.toFixed(0)} m<br><br>
+   ✈️ ALTURA MAXIMA PERMITIDA:
+   <b>${altura} m</b><br><br>
+   <b style="color:${estado==="PERMITIDO"?"green":"red"};">
+   ${estado}
+   </b><br>
+   ${motivo}
+   ${evaluacionAltura}
+   ${mensajeAltura}
+   `;
 }
+
+  
 let operacionActual = null;
 
 function distanciaPuntoAPoligono(lat, lon, poligono) {
@@ -516,6 +549,7 @@ function ubicarOperacion() {
   const lat = convertirCoordenada(document.getElementById("latInput").value);
   const lon = convertirCoordenada(document.getElementById("lonInput").value);
   const radio = parseFloat(document.getElementById("radioInput").value);
+  const alturaSolicitada = parseFloat(document.getElementById("alturaInput").value);
   const panel = document.getElementById("resultadoOperacion");
   panel.innerHTML = "";
   panel.style.display = "none";
@@ -562,7 +596,8 @@ if (
 
   // 🔵 RESULTADO
   panel.style.display = "block";
-  panel.innerHTML = validarOperacion(lat, lon, radio);
+  panel.innerHTML =
+validarOperacion(lat,lon,radio,alturaSolicitada);
 }
 
   let handler = new Cesium.ScreenSpaceEventHandler(viewer.canvas);
