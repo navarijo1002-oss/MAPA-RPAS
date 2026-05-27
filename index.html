@@ -437,22 +437,36 @@ function generarPuntosCirculo(lat, lon, radio) {
 
   const puntos = [];
 
-  for (let angulo = 0; angulo < 360; angulo += 10) {
+  const centro = Cesium.Cartographic.fromDegrees(
+    lon,
+    lat
+  );
 
-    const rad = Cesium.Math.toRadians(angulo);
-    const dLat =
-      (radio * Math.cos(rad)) / 111320;
-    const dLon =
-      (radio * Math.sin(rad)) /
-      (111320 * Math.cos(
-        Cesium.Math.toRadians(lat)
-      ));
+  for (let angulo = 0; angulo < 360; angulo += 5) {
+
+    const heading = Cesium.Math.toRadians(angulo);
+
+    const geodesic = new Cesium.EllipsoidGeodesic();
+
+    geodesic.setEndPoints(
+      centro,
+      new Cesium.Cartographic(
+        centro.longitude +
+        Math.cos(heading) * 0.00001,
+
+        centro.latitude +
+        Math.sin(heading) * 0.00001
+      )
+    );
+
+    const destino = geodesic.interpolateUsingSurfaceDistance(radio);
 
     puntos.push([
-      lat + dLat,
-      lon + dLon
+      Cesium.Math.toDegrees(destino.latitude),
+      Cesium.Math.toDegrees(destino.longitude)
     ]);
   }
+
   return puntos;
 }
   
@@ -676,8 +690,8 @@ if (lineaMedicion) {
 }
 
 // crear nueva línea
-lineaMedicion = viewer.entities.add({
-  polyline: {
+    lineaMedicion = viewer.entities.add({
+    polyline: {
     positions: [puntoInicio.cartesian, cartesian],
     width: 2,
     material: Cesium.Color.YELLOW
