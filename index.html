@@ -1237,12 +1237,37 @@ zonasAproximacion.push({coords: coords,altura: altura});
       zIndex: 100
     },
 
-   description: altura === 0 ? 
-     `<b style="color:red;">PROHIBIDO VOLAR</b><br>
-     Zona crítica de Aproximación y Despegue<br>
-     NO SE PERMITEN OPERACIONES CON DRONES`
-  : `<b>ZONA DE APROXIMACION Y SALIDA DE AERONAVES</b><br>
-     ALTURA MAXIMA PERMITIDA: ${altura} m`
+description: altura === 0 ? 
+  `<b style="color:red;">PROHIBIDO VOLAR</b><br>
+   Zona crítica de Aproximación y Despegue<br>
+   NO SE PERMITEN OPERACIONES CON DRONES`
+:
+  `<b>ZONA DE APROXIMACION Y SALIDA DE AERONAVES</b><br>
+   ALTURA MAXIMA PERMITIDA: ${altura} m`,
+
+label: {
+  text:
+    altura === 0
+      ? "PROHIBIDO"
+      : altura + " m",
+
+  font: "16px Arial",
+  fillColor: Cesium.Color.WHITE,
+  outlineColor: Cesium.Color.BLACK,
+  outlineWidth: 4,
+  style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+
+  pixelOffset: new Cesium.Cartesian2(0, -10),
+
+  distanceDisplayCondition:
+    new Cesium.DistanceDisplayCondition(
+      0,
+      30000
+    ),
+
+  disableDepthTestDistance:
+    Number.POSITIVE_INFINITY
+}
   });
 
   capas.aerodromos.push(entidad);
@@ -1454,11 +1479,22 @@ handlerCoords.setInputAction(function(movement) {
     const altura =
 
     viewer.camera.positionCartographic.height / 1000;
-    coordsBox.innerHTML = `
-      Lat: ${lat.toFixed(6)}<br>
-      Lon: ${lon.toFixed(6)}<br>
-      Altura cámara: ${altura.toFixed(1)} km
-    `;
+    const latDMS = decimalADMS(lat, "lat");
+
+  coordsBox.innerHTML = `
+      <b>COORDENADAS</b><br><br>
+
+      DECIMAL:<br>
+      ${lat.toFixed(6)}<br>
+      ${lon.toFixed(6)}<br><br>
+
+      GEOGRÁFICAS:<br>
+      ${latDMS}<br>
+      ${lonDMS}<br><br>
+
+      ALTURA CÁMARA:<br>
+      ${altura.toFixed(1)} km
+`   ;
   }
 
 }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
