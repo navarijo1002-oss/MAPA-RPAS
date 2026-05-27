@@ -7,30 +7,41 @@
   <style>
     body { margin: 0; display: flex; font-family: Arial; }
 
-    #panel {
-      width: 280px;
-      background: #1e1e2f;
-      color: white;
-      padding: 15px;
-      font-size: 16px;
-    }
+   #panel {
+           width: 280px;
+           background: rgba(15, 15, 30, 0.88);
+           backdrop-filter: blur(10px);
+           -webkit-backdrop-filter: blur(10px);
+           color: white;
+           padding: 15px;
+           font-size: 16px;
+           border-right: 1px solid rgba(255,255,255,0.1);
+           box-shadow: 0 0 25px rgba(0,0,0,0.35);
+           z-index: 10;
+          }
 
     h1 { font-size: 24px; }
     h2 { font-size: 16px; margin-top: 20px; }
 
     .btn {
-      display: block;
-      width: 100%;
-      margin: 8px 0;
-      padding: 8px;
-      background: #2d2d44;
-      border: none;
-      color: white;
-      cursor: pointer;
-      border-radius: 5px;
-    }
+          display: block;
+          width: 100%;
+          margin: 8px 0;
+          padding: 10px;
+          background: rgba(255,255,255,0.08);
+          border: 1px solid rgba(255,255,255,0.08);
+          color: white;
+          cursor: pointer;
+          border-radius: 10px;
+          transition: all 0.25s ease;
+          font-weight: bold;
+          }       
 
-    .btn:hover { background: #3e3e5e; }
+    .btn:hover {
+                background: rgba(255,255,255,0.18);
+                transform: translateY(-2px);
+                box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+               }  
 
     #cesiumContainer {
       flex: 1;
