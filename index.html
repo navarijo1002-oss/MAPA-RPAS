@@ -397,6 +397,97 @@ return `
    `;
 }
 
+function poligonosIntersectan(poly1, poly2) {
+
+  // =========================
+  // 1. PUNTO DE POLY1 EN POLY2
+  // =========================
+
+  for (let p of poly1) {
+
+    if (
+      puntoEnPoligono(
+        p[0],
+        p[1],
+        poly2
+      )
+    ) {
+      return true;
+    }
+  }
+
+  // =========================
+  // 2. PUNTO DE POLY2 EN POLY1
+  // =========================
+
+  for (let p of poly2) {
+
+    if (
+      puntoEnPoligono(
+        p[0],
+        p[1],
+        poly1
+      )
+    ) {
+      return true;
+    }
+  }
+
+  // =========================
+  // 3. INTERSECCIÓN DE LÍNEAS
+  // =========================
+
+  for (let i = 0; i < poly1.length; i++) {
+
+    const a1 = poly1[i];
+    const a2 =
+      poly1[(i + 1) % poly1.length];
+
+    for (let j = 0; j < poly2.length; j++) {
+
+      const b1 = poly2[j];
+      const b2 =
+        poly2[(j + 1) % poly2.length];
+
+      if (
+        segmentosIntersectan(
+          a1,
+          a2,
+          b1,
+          b2
+        )
+      ) {
+        return true;
+      }
+    }
+  }
+
+  return false;
+}
+
+function segmentosIntersectan(p1,p2,p3,p4) {
+
+  function ccw(a,b,c) {
+
+    return (
+      (c[0]-a[0]) *
+      (b[1]-a[1]) >
+
+      (b[0]-a[0]) *
+      (c[1]-a[1])
+    );
+  }
+
+  return (
+    ccw(p1,p3,p4) !==
+    ccw(p2,p3,p4)
+  ) &&
+  (
+    ccw(p1,p2,p3) !==
+    ccw(p1,p2,p4)
+  );
+}
+  
 function validarPoligono(puntos) {
 
   let altura = 120;
@@ -455,29 +546,40 @@ function validarPoligono(puntos) {
     // VALIDAR APROXIMACIONES
     // =========================
 
-    for (let zona of zonasAproximacion) {
+for (let zona of zonasAproximacion) {
 
-      if (puntoEnPoligono(lat, lon, zona.coords)) {
+  if (
+    poligonosIntersectan(
+      puntos,
+      zona.coords
+    )
+  ) {
 
-        if (zona.altura === 0) {
+    if (zona.altura === 0) {
 
-          altura = 0;
-          estado = "PROHIBIDO";
-          motivo =
-          "AREA DENTRO DE TRAYECTORIA CRITICA DE APROXIMACION/DESPEGUE";
-        }
+      altura = 0;
 
-        else {
+      estado = "PROHIBIDO";
 
-          altura = Math.min(altura, zona.altura);
-
-          estado = "RESTRINGIDO";
-
-          motivo =
-          "AREA DENTRO DE ZONA DE APROXIMACION Y DESPEGUE";
-        }
-      }
+      motivo =
+      "AREA INTERSECTA TRAYECTORIA CRITICA DE APROXIMACION/DESPEGUE";
     }
+
+    else {
+
+      altura =
+        Math.min(
+          altura,
+          zona.altura
+        );
+
+      estado = "RESTRINGIDO";
+
+      motivo =
+      "AREA INTERSECTA ZONA DE APROXIMACION Y DESPEGUE";
+    }
+  }
+}
     
     // 🔴 PRISIONES
 
@@ -887,6 +989,10 @@ function activarPoligono() {
   });
 
   puntosVisuales = [];
+  if (entidadPoligono) {
+      viewer.entities.remove(entidadPoligono);
+      entidadPoligono = null;
+  }
 
   // borrar linea temporal
 
@@ -1170,6 +1276,7 @@ if (dibujandoPoligono) {
    if (!dibujando || !puntoInicio) return;
 
       dibujando = false;
+      puntosVisuales = [];
 
       if (circuloTemp) {
          operacionFinal = circuloTemp;
