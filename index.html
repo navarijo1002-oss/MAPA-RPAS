@@ -242,32 +242,16 @@ function decimalADMS(valor, tipo) {
         // PRIORIDAD UNO
         // =========================
 
-        for (let pista of zonasPista) {
+     for (let pista of zonasPista) {
 
-           const dentro = circuloIntersecaPoligono(lat,lon,radio,pista.coords);
-
-        if (dentro) {
-            return `
-            <b>RESULTADO</b><br><br>
-           📍 COORDENADAS GEOGRÁFICAS:<br>
-              ${latDMS}, ${lonDMS} <br><br>
-           📍 COORDENADAS DECIMALES:<br>
-              ${lat.toFixed(6)}, ${lon.toFixed(6)}<br><br>
-           📏 RADIO DE OPERACION:
-              ${radio.toFixed(0)} <br><br>
-           ✈️ ALTURA MAXIMA PERMITIDA:
-            <b>0 m</b><br><br>
-            <b style="color:red;">
-            PROHIBIDO
-            </b><br>
-            OPERACION DENTRO DE PISTA
-            DE AERÓDROMO<br><br>
-            SOLICITE PERMISO ESPECIAL DE VUELO A LA DGAC
-    `      ;
-       }
-      }
-    
-      for (let zona of zonasAproximacion) {
+          if (poligonosIntersectan(puntos,pista.coords))
+     {
+     altura = 0;
+     estado = "PROHIBIDO";
+     motivo = "AREA DE OPERACION EN PISTA DE AERODROMO";
+  }
+}
+     for (let zona of zonasAproximacion) {
 
           const dentro = circuloIntersecaPoligono(lat,lon,radio,zona.coords);
           const distancia = distanciaPuntoAPoligono(lat,lon,zona.coords);
@@ -796,6 +780,23 @@ if (
 }
 
   // 🔴 LIMPIAR TODO 
+  
+if (entidadPoligono) {
+  viewer.entities.remove(entidadPoligono);
+  entidadPoligono = null;
+}
+
+if (lineaTemporal) {
+  viewer.entities.remove(lineaTemporal);
+  lineaTemporal = null;
+}
+  puntosVisuales.forEach(p => {
+  viewer.entities.remove(p);
+});
+
+puntosVisuales = [];
+puntosPoligono = [];
+  
   limpiarMapa();
 
   // 🔵 PUNTO DE DESPEGUE
