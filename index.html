@@ -167,7 +167,8 @@
 Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJmNmRiN2M4Mi05NDkzLTQzZjctOTU2ZS1iNjJkMmNkOTM4OGYiLCJpZCI6NDE0NjA3LCJpYXQiOjE3NzU1MTUzMTB9.ZjCd0PlYQOc6EbzpBV9jLuSxyZSAbQz1D8qnJjEuhoo';
 
 const viewer = new Cesium.Viewer('cesiumContainer');
-
+viewer.cesiumWidget.screenSpaceEventHandler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_DOUBLE_CLICK);
+  
 //===============================
 // CAPAS
 //==============================
@@ -615,7 +616,7 @@ if (
 function limpiarMapa() {
 
   if (operacionActual) {
-    viewer.entities.remove(operacionActual);
+    operacionesGuardadas.push(operacionActual);
     operacionActual = null;
   }
 
@@ -658,6 +659,9 @@ let radioActual = 0;
 let operacionFinal = null;
 let puntoDespegue = null;
 let lineaMedicion = null;
+let operacionesGuardadas = [];
+let poligonosGuardados = [];
+
   
 function activarDibujo() {
 
@@ -751,8 +755,6 @@ function activarPoligono() {
   Click derecho: finalizar`;
 
   panel.style.display = "block";
-
-  // desactivar navegación
 
   viewer.scene.screenSpaceCameraController.enableRotate = false;
   viewer.scene.screenSpaceCameraController.enableTranslate = false;
@@ -969,44 +971,63 @@ handler.setInputAction(function() {
 // =========================
 
 if (dibujandoPoligono) {
+
     dibujandoPoligono = false;
     viewer.canvas.style.cursor = "default";
     const panel = document.getElementById("resultadoOperacion");
+
     panel.innerHTML =
     `<b>POLIGONO FINALIZADO</b><br><br>
     Total de puntos:
     ${puntosPoligono.length}`;
-  return;
-  }
-  const lat = puntoInicio.lat;
-  const lon = puntoInicio.lon;
-  const panel = document.getElementById("resultadoOperacion");
-  panel.style.display = "block";
-  panel.innerHTML = validarOperacion(lat, lon, radioActual);
-  
-  if (!dibujando || !puntoInicio) return;
-  dibujando = false;
 
-  if (circuloTemp) {
-    operacionFinal = circuloTemp;
-    circuloTemp = null;
-  }
+    // RESTAURAR NAVEGACION
 
-  if (etiquetaRadio) {
-    viewer.entities.remove(etiquetaRadio);
-    etiquetaRadio = null;
-  }
+    viewer.scene.screenSpaceCameraController.enableRotate = true;
+    viewer.scene.screenSpaceCameraController.enableTranslate = true;
+    viewer.scene.screenSpaceCameraController.enableZoom = true;
+    viewer.scene.screenSpaceCameraController.enableTilt = true;
+    viewer.scene.screenSpaceCameraController.enableLook = true;
+    poligonosGuardados.push(entidadPoligono);
+    return;
+}
 
-  if (lineaMedicion) {
-    viewer.entities.remove(lineaMedicion);
-    lineaMedicion = null;
-  }
-  viewer.scene.screenSpaceCameraController.enableRotate = true;
-  viewer.scene.screenSpaceCameraController.enableTranslate = true;
-  viewer.scene.screenSpaceCameraController.enableZoom = true;
-  viewer.scene.screenSpaceCameraController.enableTilt = true;
-  viewer.scene.screenSpaceCameraController.enableLook = true;
-  viewer.canvas.style.cursor = "default";
+// =========================
+// FINALIZAR CIRCULO
+// =========================
+
+   const lat = puntoInicio.lat;
+   const lon = puntoInicio.lon;
+   const panel = document.getElementById("resultadoOperacion");
+
+   panel.style.display = "block";
+   panel.innerHTML = validarOperacion(lat,lon,radioActual);
+
+   if (!dibujando || !puntoInicio) return;
+
+      dibujando = false;
+
+      if (circuloTemp) {
+         operacionFinal = circuloTemp;
+         circuloTemp = null;
+      }
+
+      if (etiquetaRadio) {
+         viewer.entities.remove(etiquetaRadio);
+         etiquetaRadio = null;
+      }
+
+      if (lineaMedicion) {
+         viewer.entities.remove(lineaMedicion);
+         lineaMedicion = null;
+      }
+
+   viewer.scene.screenSpaceCameraController.enableRotate = true;
+   viewer.scene.screenSpaceCameraController.enableTranslate = true;
+   viewer.scene.screenSpaceCameraController.enableZoom = true;
+   viewer.scene.screenSpaceCameraController.enableTilt = true;
+   viewer.scene.screenSpaceCameraController.enableLook = true;
+   viewer.canvas.style.cursor = "default";
 }, Cesium.ScreenSpaceEventType.RIGHT_CLICK);
 
                                                   //=========================================    
