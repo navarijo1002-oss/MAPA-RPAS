@@ -397,7 +397,129 @@ return `
    `;
 }
 
-  
+function validarPoligono(puntos) {
+
+  let altura = 120;
+  let estado = "PERMITIDO";
+  let motivo = "Sin restricción";
+  let listaPuntos = "";
+
+  // =========================
+  // LISTAR PUNTOS
+  // =========================
+
+  puntos.forEach((p, index) => {
+
+    const lat = p[0];
+    const lon = p[1];
+
+    const latDMS = decimalADMS(lat, "lat");
+    const lonDMS = decimalADMS(lon, "lon");
+
+    listaPuntos += `
+    <b>PUNTO ${index + 1}</b><br>
+    DECIMAL:
+    ${lat.toFixed(6)},
+    ${lon.toFixed(6)}<br>
+
+    GEOGRÁFICA:
+    ${latDMS},
+    ${lonDMS}<br><br>
+    `;
+  });
+
+  // =========================
+  // VALIDAR CADA PUNTO
+  // =========================
+
+  puntos.forEach(p => {
+
+    const lat = p[0];
+    const lon = p[1];
+
+    // 🔴 PRISIONES
+
+    datosPrisiones.forEach(prision => {
+
+      const d = distanciaSuperficie(lat,lon,prision[1],prision[2]);
+
+      if (d < 300) {
+
+        altura = 0;
+        estado = "PROHIBIDO";
+        motivo = "AREA DE OPERACION DENTRO DE UNA PRISION";
+      }
+    });
+
+    // 🔵 PUERTOS
+
+        datosPuertos.forEach(puerto => {
+
+        const d = distanciaSuperficie(lat,lon,puerto[1],puerto[2]);
+
+        if (d < 500 &&altura > 0) {
+
+          altura = Math.min(altura, 60);
+          estado = "RESTRINGIDO";
+          motivo = "AREA DE OPERACION SOBRE UN PUERTO MARITIMO";
+         }
+    });
+
+    // 🟡 AERODROMOS
+
+      datosAerodromos.forEach(a => {
+
+      const d = distanciaSuperficie(lat,lon,a[1],a[2]);
+
+      if (d < 2000) {
+
+        altura = Math.min(altura, 20);
+        estado = "RESTRINGIDO";
+        motivo = "AREA DE OPERACION PROXIMA A AERODROMO 0-2 km";
+      }
+
+      else if (d < 4000) {
+
+        altura = Math.min(altura, 40);
+        estado = "RESTRINGIDO";
+        motivo = "AREA DE OPERACION PROXIMA A AERODROMO 2-4 km";
+      }
+
+      else if (d < 6000) {
+
+        altura = Math.min(altura, 60);
+        estado = "RESTRINGIDO";
+        motivo = "AREA DE OPERACION PROXIMA A AERODROMO 4-6 km";
+      }
+
+      else if (d < 8000) {
+
+        altura = Math.min(altura, 100);
+        estado = "RESTRINGIDO";
+        motivo = "AREA DE OPERACION PROXIMA A AERODROMO 6-8 km";
+      }
+
+    });
+
+  });
+
+  // =========================
+  // RESULTADO FINAL
+  // =========================
+
+  return `
+  <b>RESULTADO POLIGONO</b><br><br>
+  <b style="color:${estado==="PERMITIDO"?"green":"red"};">
+  ${estado}</b><br><br>
+  ${motivo}<br><br>
+  ✈️ ALTURA MAXIMA:
+  <b>${altura} m</b><br><br>
+  <hr>
+  <b>COORDENADAS DEL AREA DE OPERACION</b><br><br>
+  ${listaPuntos}
+  `;
+}
+ 
 let operacionActual = null;
 
 function distanciaPuntoAPoligono(lat, lon, poligono) {
@@ -409,50 +531,27 @@ function distanciaPuntoAPoligono(lat, lon, poligono) {
     const p1 = poligono[i];
     const p2 = poligono[(i + 1) % poligono.length];
 
-    const d = distanciaPuntoASegmento(
-      lat,
-      lon,
-      p1[0],
-      p1[1],
-      p2[0],
-      p2[1]
-    );
+    const d = distanciaPuntoASegmento(lat,lon,p1[0],p1[1],p2[0],p2[1]);
 
     if (d < minDist) {
       minDist = d;
     }
   }
-
   return minDist;
 }
 
 function distanciaPuntoASegmento(lat, lon, lat1, lon1, lat2, lon2) {
-
   const A = {x: lon, y: lat};
   const B = {x: lon1, y: lat1};
   const C = {x: lon2, y: lat2};
-
   const ABx = C.x - B.x;
   const ABy = C.y - B.y;
-
-  const t = (
-    ((A.x - B.x) * ABx) +
-    ((A.y - B.y) * ABy)
-  ) / (
-    ABx * ABx + ABy * ABy
-  );
-
+  const t = (((A.x - B.x) * ABx) + ((A.y - B.y) * ABy)) / (ABx * ABx + ABy * ABy);
   const tClamped = Math.max(0, Math.min(1, t));
-
   const Px = B.x + tClamped * ABx;
   const Py = B.y + tClamped * ABy;
 
-  return distanciaSuperficie(
-    lat,
-    lon,
-    Py,
-    Px
-  );
+  return distanciaSuperficie(lat,lon,Py,Px);
 }
   
 //========================
@@ -472,27 +571,14 @@ function distanciaSuperficie(lat1, lon1, lat2, lon2) {
 function generarPuntosCirculo(lat, lon, radio) {
 
   const puntos = [];
-
-  const centro = Cesium.Cartographic.fromDegrees(
-    lon,
-    lat
-  );
+  const centro = Cesium.Cartographic.fromDegrees(lon,lat);
 
   for (let angulo = 0; angulo < 360; angulo += 5) {
 
     const heading = Cesium.Math.toRadians(angulo);
-
     const geodesic = new Cesium.EllipsoidGeodesic();
 
-    geodesic.setEndPoints(
-      centro,
-      new Cesium.Cartographic(
-        centro.longitude +
-        Math.cos(heading) * 0.00001,
-
-        centro.latitude +
-        Math.sin(heading) * 0.00001
-      )
+    geodesic.setEndPoints(centro,new Cesium.Cartographic(centro.longitude + Math.cos(heading) * 0.00001,centro.latitude + Math.sin(heading) * 0.00001)
     );
 
     const destino = geodesic.interpolateUsingSurfaceDistance(radio);
@@ -502,7 +588,6 @@ function generarPuntosCirculo(lat, lon, radio) {
       Cesium.Math.toDegrees(destino.longitude)
     ]);
   }
-
   return puntos;
 }
   
@@ -977,9 +1062,7 @@ if (dibujandoPoligono) {
     const panel = document.getElementById("resultadoOperacion");
 
     panel.innerHTML =
-    `<b>POLIGONO FINALIZADO</b><br><br>
-    Total de puntos:
-    ${puntosPoligono.length}`;
+    validarPoligono(puntosPoligono);
 
     // RESTAURAR NAVEGACION
 
