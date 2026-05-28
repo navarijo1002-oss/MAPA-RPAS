@@ -548,35 +548,22 @@ function validarPoligono(puntos) {
 
 for (let zona of zonasAproximacion) {
 
-  if (
-    poligonosIntersectan(
-      puntos,
-      zona.coords
-    )
-  ) {
+  if (poligonosIntersectan(puntos,zona.coords))
+  {
 
     if (zona.altura === 0) {
 
       altura = 0;
-
       estado = "PROHIBIDO";
-
-      motivo =
-      "AREA INTERSECTA TRAYECTORIA CRITICA DE APROXIMACION/DESPEGUE";
+      motivo = "AREA DE OPERACION EN TRAYECTORIA CRITICA DE APROXIMACION/DESPEGUE";
     }
 
     else {
 
-      altura =
-        Math.min(
-          altura,
-          zona.altura
-        );
+      altura = Math.min(altura,zona.altura);
 
       estado = "RESTRINGIDO";
-
-      motivo =
-      "AREA INTERSECTA ZONA DE APROXIMACION Y DESPEGUE";
+      motivo = "AREA DE OPERACION EN ZONA DE APROXIMACION Y DESPEGUE";
     }
   }
 }
@@ -878,6 +865,14 @@ function limpiarMapa() {
     viewer.entities.remove(lineaMedicion);
     lineaMedicion = null;
   }
+
+    puntosVisuales.forEach(p => {
+    viewer.entities.remove(p);
+});
+
+    puntosVisuales = [];
+    puntosPoligono = [];
+  
 }
   
                                                               //=============================
