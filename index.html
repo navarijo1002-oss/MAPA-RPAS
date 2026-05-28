@@ -242,13 +242,16 @@ function decimalADMS(valor, tipo) {
         // PRIORIDAD UNO
         // =========================
 
-     for (let pista of zonasPista) {
+const puntos = generarPuntosCirculo(lat, lon, radio);
 
-          if (poligonosIntersectan(puntos,pista.coords))
-     {
-     altura = 0;
-     estado = "PROHIBIDO";
-     motivo = "AREA DE OPERACION EN PISTA DE AERODROMO";
+for (let pista of zonasPista) {
+
+  if (poligonosIntersectan(puntos,pista.coords))
+  
+  {
+    altura = 0;
+    estado = "PROHIBIDO";
+    motivo = "AREA DE OPERACION INTERSECTA PISTA DE AERODROMO";
   }
 }
      for (let zona of zonasAproximacion) {
@@ -389,13 +392,8 @@ function poligonosIntersectan(poly1, poly2) {
 
   for (let p of poly1) {
 
-    if (
-      puntoEnPoligono(
-        p[0],
-        p[1],
-        poly2
-      )
-    ) {
+    if (puntoEnPoligono(p[0],p[1],poly2))
+    {
       return true;
     }
   }
@@ -406,13 +404,8 @@ function poligonosIntersectan(poly1, poly2) {
 
   for (let p of poly2) {
 
-    if (
-      puntoEnPoligono(
-        p[0],
-        p[1],
-        poly1
-      )
-    ) {
+    if (puntoEnPoligono(p[0],p[1],poly1)) 
+    {
       return true;
     }
   }
@@ -424,23 +417,15 @@ function poligonosIntersectan(poly1, poly2) {
   for (let i = 0; i < poly1.length; i++) {
 
     const a1 = poly1[i];
-    const a2 =
-      poly1[(i + 1) % poly1.length];
+    const a2 = poly1[(i + 1) % poly1.length];
 
     for (let j = 0; j < poly2.length; j++) {
 
       const b1 = poly2[j];
-      const b2 =
-        poly2[(j + 1) % poly2.length];
+      const b2 = poly2[(j + 1) % poly2.length];
 
-      if (
-        segmentosIntersectan(
-          a1,
-          a2,
-          b1,
-          b2
-        )
-      ) {
+      if (segmentosIntersectan(a1,a2,b1,b2)) 
+      {
         return true;
       }
     }
@@ -532,21 +517,14 @@ function validarPoligono(puntos) {
 
 for (let zona of zonasAproximacion) {
 
-  if (
-    poligonosIntersectan(
-      puntos,
-      zona.coords
-    )
-  ) {
+  if (poligonosIntersectan(puntos,zona.coords))
+  {
 
     if (zona.altura === 0) {
 
       altura = 0;
-
       estado = "PROHIBIDO";
-
-      motivo =
-      "AREA INTERSECTA TRAYECTORIA CRITICA DE APROXIMACION/DESPEGUE";
+      motivo = "AREA INTERSECTA TRAYECTORIA CRITICA DE APROXIMACION/DESPEGUE";
     }
 
     else {
@@ -558,9 +536,7 @@ for (let zona of zonasAproximacion) {
         );
 
       estado = "RESTRINGIDO";
-
-      motivo =
-      "AREA INTERSECTA ZONA DE APROXIMACION Y DESPEGUE";
+      motivo = "AREA INTERSECTA ZONA DE APROXIMACION Y DESPEGUE";
     }
   }
 }
@@ -626,9 +602,7 @@ for (let zona of zonasAproximacion) {
         estado = "RESTRINGIDO";
         motivo = "AREA DE OPERACION PROXIMA A AERODROMO 6-8 km";
       }
-
     });
-
   });
 
   // =========================
@@ -1214,75 +1188,86 @@ handler.setInputAction(function(click) {
 
 handler.setInputAction(function() {
 
-// =========================
-// FINALIZAR POLIGONO
-// =========================
+  // =========================
+  // FINALIZAR POLIGONO
+  // =========================
 
-if (dibujandoPoligono) {
+  if (dibujandoPoligono) {
 
     dibujandoPoligono = false;
+
     viewer.canvas.style.cursor = "default";
-    const panel = document.getElementById("resultadoOperacion");
+
+    const panel =
+      document.getElementById("resultadoOperacion");
 
     if (puntosPoligono.length < 3) {
 
-  panel.innerHTML =
-    "<b>Debe crear mínimo 3 puntos</b>";
+      panel.innerHTML =
+        "<b>Debe crear mínimo 3 puntos</b>";
 
-} else {
+    } else {
 
-  panel.innerHTML =
-    validarPoligono(puntosPoligono);
-}
-
-    // RESTAURAR NAVEGACION
+      panel.innerHTML =
+        validarPoligono(puntosPoligono);
+    }
 
     viewer.scene.screenSpaceCameraController.enableRotate = true;
     viewer.scene.screenSpaceCameraController.enableTranslate = true;
     viewer.scene.screenSpaceCameraController.enableZoom = true;
     viewer.scene.screenSpaceCameraController.enableTilt = true;
     viewer.scene.screenSpaceCameraController.enableLook = true;
-    poligonosGuardados.push(entidadPoligono);
+
     return;
-}
+  }
 
-// =========================
-// FINALIZAR CIRCULO
-// =========================
+  // =========================
+  // FINALIZAR CIRCULO
+  // =========================
 
-   const lat = puntoInicio.lat;
-   const lon = puntoInicio.lon;
-   const panel = document.getElementById("resultadoOperacion");
+  if (!dibujando || !puntoInicio) return;
 
-   panel.style.display = "block";
-   panel.innerHTML = validarOperacion(lat,lon,radioActual);
+  dibujando = false;
 
-   if (!dibujando || !puntoInicio) return;
+  const lat = puntoInicio.lat;
+  const lon = puntoInicio.lon;
 
-      dibujando = false;
-      puntosVisuales = [];
+  const panel =
+    document.getElementById("resultadoOperacion");
 
-      if (circuloTemp) {
-         operacionFinal = circuloTemp;
-         circuloTemp = null;
-      }
+  panel.style.display = "block";
 
-      if (etiquetaRadio) {
-         viewer.entities.remove(etiquetaRadio);
-         etiquetaRadio = null;
-      }
+  panel.innerHTML =
+    validarOperacion(lat, lon, radioActual);
 
-      if (lineaMedicion) {
-         viewer.entities.remove(lineaMedicion);
-         lineaMedicion = null;
-      }
+  puntosVisuales = [];
 
-   viewer.scene.screenSpaceCameraController.enableRotate = true;
-   viewer.scene.screenSpaceCameraController.enableTranslate = true;
-   viewer.scene.screenSpaceCameraController.enableZoom = true;
-   viewer.scene.screenSpaceCameraController.enableTilt = true;
-   viewer.scene.screenSpaceCameraController.enableLook = true;
-   viewer.canvas.style.cursor = "default";
+  if (circuloTemp) {
+
+    operacionFinal = circuloTemp;
+    circuloTemp = null;
+  }
+
+  if (etiquetaRadio) {
+
+    viewer.entities.remove(etiquetaRadio);
+    etiquetaRadio = null;
+  }
+
+  if (lineaMedicion) {
+
+    viewer.entities.remove(lineaMedicion);
+    lineaMedicion = null;
+  }
+
+  viewer.scene.screenSpaceCameraController.enableRotate = true;
+  viewer.scene.screenSpaceCameraController.enableTranslate = true;
+  viewer.scene.screenSpaceCameraController.enableZoom = true;
+  viewer.scene.screenSpaceCameraController.enableTilt = true;
+  viewer.scene.screenSpaceCameraController.enableLook = true;
+
+  viewer.canvas.style.cursor = "default";
+
 }, Cesium.ScreenSpaceEventType.RIGHT_CLICK);
 
                                                   //=========================================    
