@@ -397,6 +397,97 @@ return `
    `;
 }
 
+function poligonosIntersectan(poly1, poly2) {
+
+  // =========================
+  // 1. PUNTO DE POLY1 EN POLY2
+  // =========================
+
+  for (let p of poly1) {
+
+    if (
+      puntoEnPoligono(
+        p[0],
+        p[1],
+        poly2
+      )
+    ) {
+      return true;
+    }
+  }
+
+  // =========================
+  // 2. PUNTO DE POLY2 EN POLY1
+  // =========================
+
+  for (let p of poly2) {
+
+    if (
+      puntoEnPoligono(
+        p[0],
+        p[1],
+        poly1
+      )
+    ) {
+      return true;
+    }
+  }
+
+  // =========================
+  // 3. INTERSECCIÓN DE LÍNEAS
+  // =========================
+
+  for (let i = 0; i < poly1.length; i++) {
+
+    const a1 = poly1[i];
+    const a2 =
+      poly1[(i + 1) % poly1.length];
+
+    for (let j = 0; j < poly2.length; j++) {
+
+      const b1 = poly2[j];
+      const b2 =
+        poly2[(j + 1) % poly2.length];
+
+      if (
+        segmentosIntersectan(
+          a1,
+          a2,
+          b1,
+          b2
+        )
+      ) {
+        return true;
+      }
+    }
+  }
+
+  return false;
+}
+
+function segmentosIntersectan(p1,p2,p3,p4) {
+
+  function ccw(a,b,c) {
+
+    return (
+      (c[0]-a[0]) *
+      (b[1]-a[1]) >
+
+      (b[0]-a[0]) *
+      (c[1]-a[1])
+    );
+  }
+
+  return (
+    ccw(p1,p3,p4) !==
+    ccw(p2,p3,p4)
+  ) &&
+  (
+    ccw(p1,p2,p3) !==
+    ccw(p1,p2,p4)
+  );
+}
+  
 function validarPoligono(puntos) {
 
   let altura = 120;
@@ -437,6 +528,59 @@ function validarPoligono(puntos) {
     const lat = p[0];
     const lon = p[1];
 
+    // =========================
+    // VALIDAR PISTAS
+    // =========================
+
+    for (let pista of zonasPista) {
+
+      if (puntoEnPoligono(lat, lon, pista.coords)) {
+
+        altura = 0;
+        estado = "PROHIBIDO";
+        motivo = "AREA DE OPERACION DENTRO DE PISTA DE AERODROMO";
+      }
+    }
+
+    // =========================
+    // VALIDAR APROXIMACIONES
+    // =========================
+
+for (let zona of zonasAproximacion) {
+
+  if (
+    poligonosIntersectan(
+      puntos,
+      zona.coords
+    )
+  ) {
+
+    if (zona.altura === 0) {
+
+      altura = 0;
+
+      estado = "PROHIBIDO";
+
+      motivo =
+      "AREA INTERSECTA TRAYECTORIA CRITICA DE APROXIMACION/DESPEGUE";
+    }
+
+    else {
+
+      altura =
+        Math.min(
+          altura,
+          zona.altura
+        );
+
+      estado = "RESTRINGIDO";
+
+      motivo =
+      "AREA INTERSECTA ZONA DE APROXIMACION Y DESPEGUE";
+    }
+  }
+}
+    
     // 🔴 PRISIONES
 
     datosPrisiones.forEach(prision => {
@@ -769,30 +913,6 @@ function activarDibujo() {
   viewer.scene.screenSpaceCameraController.enableLook = false;
 }
 
-function actualizarPoligono() {
-
-  // borrar anterior
-
-  if (entidadPoligono) {
-    viewer.entities.remove(entidadPoligono);
-  }
-
-  if (puntosPoligono.length < 2) return;
-
-  const posiciones = puntosPoligono.map(
-    p => Cesium.Cartesian3.fromDegrees(p[1], p[0])
-  );
-
-  entidadPoligono = viewer.entities.add({
-    polygon: {
-      hierarchy: posiciones,
-      material: Cesium.Color.CYAN.withAlpha(0.3),
-      outline: true,
-      outlineColor: Cesium.Color.YELLOW
-    }
-  });
-}
-
 // =========================
 // ACTIVAR POLIGONO
 // =========================
@@ -828,11 +948,44 @@ function actualizarPoligono() {
 function activarPoligono() {
 
   limpiarMapa();
-  dibujandoPoligono = true;
+
+  // =========================
+  // BORRAR POLIGONO ANTERIOR
+  // =========================
+
+  if (entidadPoligono) {
+    viewer.entities.remove(entidadPoligono);
+    entidadPoligono = null;
+  }
+
+  // borrar puntos visuales
+
+  puntosVisuales.forEach(p => {
+    viewer.entities.remove(p);
+  });
+
+  puntosVisuales = [];
+  if (entidadPoligono) {
+      viewer.entities.remove(entidadPoligono);
+      entidadPoligono = null;
+  }
+
+  // borrar linea temporal
+
+  if (lineaTemporal) {
+    viewer.entities.remove(lineaTemporal);
+    lineaTemporal = null;
+  }
+
   puntosPoligono = [];
   puntosTemp = [];
+  puntosPoligono = [];
+  dibujandoPoligono = true;
+
   viewer.canvas.style.cursor = "crosshair";
-  const panel = document.getElementById("resultadoOperacion");
+
+  const panel =
+    document.getElementById("resultadoOperacion");
 
   panel.innerHTML =
   `<b>Modo polígono activado</b><br><br>
@@ -840,6 +993,8 @@ function activarPoligono() {
   Click derecho: finalizar`;
 
   panel.style.display = "block";
+
+  // BLOQUEAR NAVEGACION
 
   viewer.scene.screenSpaceCameraController.enableRotate = false;
   viewer.scene.screenSpaceCameraController.enableTranslate = false;
@@ -909,50 +1064,68 @@ function activarPoligono() {
   
 handler.setInputAction(function(click) {
 
-                                                            // =========================
-                                                            // DIBUJO POLIGONO
-                                                           // =========================
+  // =========================
+  // MODO POLIGONO
+  // =========================
 
-if (dibujandoPoligono) {
+  if (dibujandoPoligono) {
 
-  const cartesian = viewer.camera.pickEllipsoid(click.position);
+    const cartesian =
+      viewer.camera.pickEllipsoid(click.position);
 
-  if (!cartesian) return;
-     const carto = Cesium.Cartographic.fromCartesian(cartesian);
-     const lat = Cesium.Math.toDegrees(carto.latitude);
-     const lon = Cesium.Math.toDegrees(carto.longitude);
-     puntosPoligono.push([lat, lon]);
+    if (!cartesian) return;
 
-  // Punto visual
+    const carto =
+      Cesium.Cartographic.fromCartesian(cartesian);
 
-  const punto = viewer.entities.add({
-    position: cartesian,
-    point: {
-      pixelSize: 10,
-      color: Cesium.Color.YELLOW,
-      outlineColor: Cesium.Color.BLACK,
-      outlineWidth: 2
-    }
-  });
+    const lat =
+      Cesium.Math.toDegrees(carto.latitude);
 
-  puntosVisuales.push(punto);
-  actualizarPoligono();
-  return;
-}
-  
+    const lon =
+      Cesium.Math.toDegrees(carto.longitude);
+
+    // GUARDAR PUNTO
+
+    puntosPoligono.push([lat, lon]);
+
+    // CREAR PUNTO VISUAL
+
+    const punto = viewer.entities.add({
+      position: cartesian,
+      point: {
+        pixelSize: 10,
+        color: Cesium.Color.YELLOW,
+        outlineColor: Cesium.Color.BLACK,
+        outlineWidth: 2
+      }
+    });
+
+    puntosVisuales.push(punto);
+
+    // ACTUALIZAR POLIGONO
+
+    actualizarPoligono();
+
+    return;
+  }
+
+  // =========================
+  // MODO CIRCULO
+  // =========================
+
   if (!dibujando) return;
 
-  const cartesian = viewer.camera.pickEllipsoid(click.position);
+  const cartesian =
+    viewer.camera.pickEllipsoid(click.position);
 
   if (!cartesian) return;
 
-  // =========================
   // PRIMER CLICK
-  // =========================
-  
+
   if (!puntoInicio) {
 
-    const carto = Cesium.Cartographic.fromCartesian(cartesian);
+    const carto =
+      Cesium.Cartographic.fromCartesian(cartesian);
 
     puntoInicio = {
       cartesian: cartesian,
@@ -971,77 +1144,66 @@ if (dibujandoPoligono) {
         color: Cesium.Color.YELLOW
       }
     });
+
     return;
   }
 
-// =========================
-// SEGUNDO CLICK
-// =========================
+  // SEGUNDO CLICK
 
-const carto1 = Cesium.Cartographic.fromCartesian(puntoInicio.cartesian);
-const carto2 = Cesium.Cartographic.fromCartesian(cartesian);
-const geodesic = new Cesium.EllipsoidGeodesic(carto1,carto2);
-const radio = geodesic.surfaceDistance;
+  const carto1 =
+    Cesium.Cartographic.fromCartesian(
+      puntoInicio.cartesian
+    );
+
+  const carto2 =
+    Cesium.Cartographic.fromCartesian(cartesian);
+
+  const geodesic =
+    new Cesium.EllipsoidGeodesic(carto1, carto2);
+
+  const radio = geodesic.surfaceDistance;
 
   if (!radio || radio < 5) {
-  alert("Debe definir un radio válido");
-  return;
-}
+    alert("Debe definir un radio válido");
+    return;
+  }
 
-const lat = puntoInicio.lat;
-const lon = puntoInicio.lon;
-const panel = document.getElementById("resultadoOperacion");
+  const lat = puntoInicio.lat;
+  const lon = puntoInicio.lon;
 
-panel.style.display = "block";
-panel.innerHTML = validarOperacion(lat, lon, radio);
+  const panel =
+    document.getElementById("resultadoOperacion");
 
-// borrar operación anterior
+  panel.style.display = "block";
 
-if (operacionFinal) {
-  viewer.entities.remove(operacionFinal);
-}
+  panel.innerHTML =
+    validarOperacion(lat, lon, radio);
 
-// crear círculo final
+  if (operacionFinal) {
+    viewer.entities.remove(operacionFinal);
+  }
 
   operacionFinal = viewer.entities.add({
-  position: puntoInicio.cartesian,
-  ellipse: {
-    semiMajorAxis: radio,
-    semiMinorAxis: radio,
-    material: Cesium.Color.CYAN.withAlpha(0.2),
-    outline: true,
-    outlineColor: Cesium.Color.YELLOW,
-    outlineWidth: 10
-  }
-});
+    position: puntoInicio.cartesian,
+    ellipse: {
+      semiMajorAxis: radio,
+      semiMinorAxis: radio,
+      material: Cesium.Color.CYAN.withAlpha(0.2),
+      outline: true,
+      outlineColor: Cesium.Color.YELLOW,
+      outlineWidth: 10
+    }
+  });
 
-// limpiar temporalmente
-if (circuloTemp) {
-  viewer.entities.remove(circuloTemp);
-  circuloTemp = null;
-}
+  dibujando = false;
 
-if (etiquetaRadio) {
-  viewer.entities.remove(etiquetaRadio);
-  etiquetaRadio = null;
-}
+  viewer.scene.screenSpaceCameraController.enableRotate = true;
+  viewer.scene.screenSpaceCameraController.enableTranslate = true;
+  viewer.scene.screenSpaceCameraController.enableZoom = true;
+  viewer.scene.screenSpaceCameraController.enableTilt = true;
+  viewer.scene.screenSpaceCameraController.enableLook = true;
 
-if (lineaMedicion) {
-  viewer.entities.remove(lineaMedicion);
-  lineaMedicion = null;
-}
-
-// finalizar dibujo
-dibujando = false;
-
-// restaurar navegación
-viewer.scene.screenSpaceCameraController.enableRotate = true;
-viewer.scene.screenSpaceCameraController.enableTranslate = true;
-viewer.scene.screenSpaceCameraController.enableZoom = true;
-viewer.scene.screenSpaceCameraController.enableTilt = true;
-viewer.scene.screenSpaceCameraController.enableLook = true;
-
-viewer.canvas.style.cursor = "default";
+  viewer.canvas.style.cursor = "default";
 
 }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
 
@@ -1061,8 +1223,16 @@ if (dibujandoPoligono) {
     viewer.canvas.style.cursor = "default";
     const panel = document.getElementById("resultadoOperacion");
 
-    panel.innerHTML =
+    if (puntosPoligono.length < 3) {
+
+  panel.innerHTML =
+    "<b>Debe crear mínimo 3 puntos</b>";
+
+} else {
+
+  panel.innerHTML =
     validarPoligono(puntosPoligono);
+}
 
     // RESTAURAR NAVEGACION
 
@@ -1089,6 +1259,7 @@ if (dibujandoPoligono) {
    if (!dibujando || !puntoInicio) return;
 
       dibujando = false;
+      puntosVisuales = [];
 
       if (circuloTemp) {
          operacionFinal = circuloTemp;
@@ -1459,7 +1630,7 @@ function moverPunto(lat, lon, distancia, rumbo) {
 
 function crearZonaVuelo(lat, lon, distanciaInicio, distanciaFin, ancho, altura, rumbo, color) {
   function mover(dist, angulo) {
-    box(angulo);
+    const rad = Cesium.Math.toRadians(angulo);
     const dLat = (dist * Math.cos(rad)) / 111320;
     const dLon = (dist * Math.sin(rad)) / (111320 * Math.cos(Cesium.Math.toRadians(lat)));
     return [lat + dLat, lon + dLon];
