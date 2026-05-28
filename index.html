@@ -913,30 +913,6 @@ function activarDibujo() {
   viewer.scene.screenSpaceCameraController.enableLook = false;
 }
 
-function actualizarPoligono() {
-
-  // borrar anterior
-
-  if (entidadPoligono) {
-    viewer.entities.remove(entidadPoligono);
-  }
-
-  if (puntosPoligono.length < 2) return;
-
-  const posiciones = puntosPoligono.map(
-    p => Cesium.Cartesian3.fromDegrees(p[1], p[0])
-  );
-
-  entidadPoligono = viewer.entities.add({
-    polygon: {
-      hierarchy: posiciones,
-      material: Cesium.Color.CYAN.withAlpha(0.3),
-      outline: true,
-      outlineColor: Cesium.Color.YELLOW
-    }
-  });
-}
-
 // =========================
 // ACTIVAR POLIGONO
 // =========================
@@ -1003,7 +979,7 @@ function activarPoligono() {
 
   puntosPoligono = [];
   puntosTemp = [];
-
+  puntosPoligono = [];
   dibujandoPoligono = true;
 
   viewer.canvas.style.cursor = "crosshair";
@@ -1088,58 +1064,68 @@ function activarPoligono() {
   
 handler.setInputAction(function(click) {
 
-                                                            // =========================
-                                                            // DIBUJO POLIGONO
-                                                           // =========================
+  // =========================
+  // MODO POLIGONO
+  // =========================
 
-if (dibujandoPoligono) {
+  if (dibujandoPoligono) {
 
-    dibujandoPoligono = false;
+    const cartesian =
+      viewer.camera.pickEllipsoid(click.position);
 
-    viewer.canvas.style.cursor = "default";
+    if (!cartesian) return;
 
-    const panel =
-      document.getElementById("resultadoOperacion");
+    const carto =
+      Cesium.Cartographic.fromCartesian(cartesian);
 
-    // VALIDAR SOLO SI HAY 3 PUNTOS
+    const lat =
+      Cesium.Math.toDegrees(carto.latitude);
 
-    if (puntosPoligono.length < 3) {
+    const lon =
+      Cesium.Math.toDegrees(carto.longitude);
 
-      panel.innerHTML =
-      "<b>Debe crear al menos 3 puntos</b>";
+    // GUARDAR PUNTO
 
-    } else {
+    puntosPoligono.push([lat, lon]);
 
-      panel.innerHTML =
-      validarPoligono(puntosPoligono);
-    }
+    // CREAR PUNTO VISUAL
 
-    panel.style.display = "block";
+    const punto = viewer.entities.add({
+      position: cartesian,
+      point: {
+        pixelSize: 10,
+        color: Cesium.Color.YELLOW,
+        outlineColor: Cesium.Color.BLACK,
+        outlineWidth: 2
+      }
+    });
 
-    // RESTAURAR NAVEGACION
+    puntosVisuales.push(punto);
 
-    viewer.scene.screenSpaceCameraController.enableRotate = true;
-    viewer.scene.screenSpaceCameraController.enableTranslate = true;
-    viewer.scene.screenSpaceCameraController.enableZoom = true;
-    viewer.scene.screenSpaceCameraController.enableTilt = true;
-    viewer.scene.screenSpaceCameraController.enableLook = true;
+    // ACTUALIZAR POLIGONO
+
+    actualizarPoligono();
 
     return;
-}
-  
+  }
+
+  // =========================
+  // MODO CIRCULO
+  // =========================
+
   if (!dibujando) return;
 
-  const cartesian = viewer.camera.pickEllipsoid(click.position);
+  const cartesian =
+    viewer.camera.pickEllipsoid(click.position);
 
   if (!cartesian) return;
 
-  // =========================
   // PRIMER CLICK
-  // =========================
-  
+
   if (!puntoInicio) {
 
-    const carto = Cesium.Cartographic.fromCartesian(cartesian);
+    const carto =
+      Cesium.Cartographic.fromCartesian(cartesian);
 
     puntoInicio = {
       cartesian: cartesian,
@@ -1158,77 +1144,66 @@ if (dibujandoPoligono) {
         color: Cesium.Color.YELLOW
       }
     });
+
     return;
   }
 
-// =========================
-// SEGUNDO CLICK
-// =========================
+  // SEGUNDO CLICK
 
-const carto1 = Cesium.Cartographic.fromCartesian(puntoInicio.cartesian);
-const carto2 = Cesium.Cartographic.fromCartesian(cartesian);
-const geodesic = new Cesium.EllipsoidGeodesic(carto1,carto2);
-const radio = geodesic.surfaceDistance;
+  const carto1 =
+    Cesium.Cartographic.fromCartesian(
+      puntoInicio.cartesian
+    );
+
+  const carto2 =
+    Cesium.Cartographic.fromCartesian(cartesian);
+
+  const geodesic =
+    new Cesium.EllipsoidGeodesic(carto1, carto2);
+
+  const radio = geodesic.surfaceDistance;
 
   if (!radio || radio < 5) {
-  alert("Debe definir un radio válido");
-  return;
-}
+    alert("Debe definir un radio válido");
+    return;
+  }
 
-const lat = puntoInicio.lat;
-const lon = puntoInicio.lon;
-const panel = document.getElementById("resultadoOperacion");
+  const lat = puntoInicio.lat;
+  const lon = puntoInicio.lon;
 
-panel.style.display = "block";
-panel.innerHTML = validarOperacion(lat, lon, radio);
+  const panel =
+    document.getElementById("resultadoOperacion");
 
-// borrar operación anterior
+  panel.style.display = "block";
 
-if (operacionFinal) {
-  viewer.entities.remove(operacionFinal);
-}
+  panel.innerHTML =
+    validarOperacion(lat, lon, radio);
 
-// crear círculo final
+  if (operacionFinal) {
+    viewer.entities.remove(operacionFinal);
+  }
 
   operacionFinal = viewer.entities.add({
-  position: puntoInicio.cartesian,
-  ellipse: {
-    semiMajorAxis: radio,
-    semiMinorAxis: radio,
-    material: Cesium.Color.CYAN.withAlpha(0.2),
-    outline: true,
-    outlineColor: Cesium.Color.YELLOW,
-    outlineWidth: 10
-  }
-});
+    position: puntoInicio.cartesian,
+    ellipse: {
+      semiMajorAxis: radio,
+      semiMinorAxis: radio,
+      material: Cesium.Color.CYAN.withAlpha(0.2),
+      outline: true,
+      outlineColor: Cesium.Color.YELLOW,
+      outlineWidth: 10
+    }
+  });
 
-// limpiar temporalmente
-if (circuloTemp) {
-  viewer.entities.remove(circuloTemp);
-  circuloTemp = null;
-}
+  dibujando = false;
 
-if (etiquetaRadio) {
-  viewer.entities.remove(etiquetaRadio);
-  etiquetaRadio = null;
-}
+  viewer.scene.screenSpaceCameraController.enableRotate = true;
+  viewer.scene.screenSpaceCameraController.enableTranslate = true;
+  viewer.scene.screenSpaceCameraController.enableZoom = true;
+  viewer.scene.screenSpaceCameraController.enableTilt = true;
+  viewer.scene.screenSpaceCameraController.enableLook = true;
 
-if (lineaMedicion) {
-  viewer.entities.remove(lineaMedicion);
-  lineaMedicion = null;
-}
-
-// finalizar dibujo
-dibujando = false;
-
-// restaurar navegación
-viewer.scene.screenSpaceCameraController.enableRotate = true;
-viewer.scene.screenSpaceCameraController.enableTranslate = true;
-viewer.scene.screenSpaceCameraController.enableZoom = true;
-viewer.scene.screenSpaceCameraController.enableTilt = true;
-viewer.scene.screenSpaceCameraController.enableLook = true;
-
-viewer.canvas.style.cursor = "default";
+  viewer.canvas.style.cursor = "default";
 
 }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
 
@@ -1248,8 +1223,16 @@ if (dibujandoPoligono) {
     viewer.canvas.style.cursor = "default";
     const panel = document.getElementById("resultadoOperacion");
 
-    panel.innerHTML =
+    if (puntosPoligono.length < 3) {
+
+  panel.innerHTML =
+    "<b>Debe crear mínimo 3 puntos</b>";
+
+} else {
+
+  panel.innerHTML =
     validarPoligono(puntosPoligono);
+}
 
     // RESTAURAR NAVEGACION
 
