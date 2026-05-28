@@ -686,20 +686,57 @@ function actualizarPoligono() {
 
   if (entidadPoligono) {
     viewer.entities.remove(entidadPoligono);
-    } 
+  }
 
   if (puntosPoligono.length < 2) return;
-     const posiciones = puntosPoligono.map(p => Cesium.Cartesian3.fromDegrees(p[1],p[0]));
-     entidadPoligono = viewer.entities.add({
-     polygon: {
-     hierarchy: posiciones,
-     material:Cesium.Color.CYAN.withAlpha(0.3),
-     outline: true,
-     outlineColor:
-     Cesium.Color.YELLOW
+
+  const posiciones = puntosPoligono.map(
+    p => Cesium.Cartesian3.fromDegrees(p[1], p[0])
+  );
+
+  entidadPoligono = viewer.entities.add({
+    polygon: {
+      hierarchy: posiciones,
+      material: Cesium.Color.CYAN.withAlpha(0.3),
+      outline: true,
+      outlineColor: Cesium.Color.YELLOW
     }
   });
 }
+
+// =========================
+// ACTIVAR POLIGONO
+// =========================
+
+function actualizarPoligono() {
+
+  // borrar anterior
+
+  if (entidadPoligono) {
+    viewer.entities.remove(entidadPoligono);
+  }
+
+  if (puntosPoligono.length < 2) return;
+
+  const posiciones = puntosPoligono.map(
+    p => Cesium.Cartesian3.fromDegrees(p[1], p[0])
+  );
+
+  entidadPoligono = viewer.entities.add({
+    polygon: {
+      hierarchy: posiciones,
+      material: Cesium.Color.CYAN.withAlpha(0.3),
+      outline: true,
+      outlineColor: Cesium.Color.YELLOW
+    }
+  });
+}
+
+// =========================
+// ACTIVAR POLIGONO
+// =========================
+
+function activarPoligono() {
 
   limpiarMapa();
   dibujandoPoligono = true;
@@ -707,8 +744,21 @@ function actualizarPoligono() {
   puntosTemp = [];
   viewer.canvas.style.cursor = "crosshair";
   const panel = document.getElementById("resultadoOperacion");
-  panel.innerHTML = "<b>Modo polígono activado</b><br><br>Click izquierdo: agregar punto<br>Click derecho: finalizar";
+
+  panel.innerHTML =
+  `<b>Modo polígono activado</b><br><br>
+  Click izquierdo: agregar punto<br>
+  Click derecho: finalizar`;
+
   panel.style.display = "block";
+
+  // desactivar navegación
+
+  viewer.scene.screenSpaceCameraController.enableRotate = false;
+  viewer.scene.screenSpaceCameraController.enableTranslate = false;
+  viewer.scene.screenSpaceCameraController.enableZoom = false;
+  viewer.scene.screenSpaceCameraController.enableTilt = false;
+  viewer.scene.screenSpaceCameraController.enableLook = false;
 }
   
   handler.setInputAction(function(move) {
