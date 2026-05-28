@@ -270,7 +270,6 @@ function decimalADMS(valor, tipo) {
       for (let zona of zonasAproximacion) {
 
           const dentro = circuloIntersecaPoligono(lat,lon,radio,zona.coords);
-          const distancia = distanciaPuntoAPoligono(lat,lon,zona.coords);
 
           if (dentro) {
     
@@ -702,23 +701,19 @@ function distanciaSuperficie(lat1, lon1, lat2, lon2) {
 function generarPuntosCirculo(lat, lon, radio) {
 
   const puntos = [];
-  const centro = Cesium.Cartographic.fromDegrees(lon,lat);
+  const R = 6378137; // radio tierra
 
   for (let angulo = 0; angulo < 360; angulo += 5) {
 
-    const heading = Cesium.Math.toRadians(angulo);
-    const geodesic = new Cesium.EllipsoidGeodesic();
+    const bearing = Cesium.Math.toRadians(angulo);
+    const lat1 = Cesium.Math.toRadians(lat);
+    const lon1 = Cesium.Math.toRadians(lon);
+    const lat2 = Math.asin(Math.sin(lat1) * Math.cos(radio / R) + Math.cos(lat1) * Math.sin(radio / R) * Math.cos(bearing));
+    const lon2 = lon1 + Math.atan2(Math.sin(bearing) * Math.sin(radio / R) * Math.cos(lat1),Math.cos(radio / R) - Math.sin(lat1) * Math.sin(lat2));
 
-    geodesic.setEndPoints(centro,new Cesium.Cartographic(centro.longitude + Math.cos(heading) * 0.00001,centro.latitude + Math.sin(heading) * 0.00001)
-    );
-
-    const destino = geodesic.interpolateUsingSurfaceDistance(radio);
-
-    puntos.push([
-      Cesium.Math.toDegrees(destino.latitude),
-      Cesium.Math.toDegrees(destino.longitude)
-    ]);
+    puntos.push([esium.Math.toDegrees(lat2),Cesium.Math.toDegrees(lon2)]);
   }
+
   return puntos;
 }
   
