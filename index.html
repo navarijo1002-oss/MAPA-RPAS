@@ -437,6 +437,48 @@ function validarPoligono(puntos) {
     const lat = p[0];
     const lon = p[1];
 
+    // =========================
+    // VALIDAR PISTAS
+    // =========================
+
+    for (let pista of zonasPista) {
+
+      if (puntoEnPoligono(lat, lon, pista.coords)) {
+
+        altura = 0;
+        estado = "PROHIBIDO";
+        motivo = "AREA DE OPERACION DENTRO DE PISTA DE AERODROMO";
+      }
+    }
+
+    // =========================
+    // VALIDAR APROXIMACIONES
+    // =========================
+
+    for (let zona of zonasAproximacion) {
+
+      if (puntoEnPoligono(lat, lon, zona.coords)) {
+
+        if (zona.altura === 0) {
+
+          altura = 0;
+          estado = "PROHIBIDO";
+          motivo =
+          "AREA DENTRO DE TRAYECTORIA CRITICA DE APROXIMACION/DESPEGUE";
+        }
+
+        else {
+
+          altura = Math.min(altura, zona.altura);
+
+          estado = "RESTRINGIDO";
+
+          motivo =
+          "AREA DENTRO DE ZONA DE APROXIMACION Y DESPEGUE";
+        }
+      }
+    }
+    
     // 🔴 PRISIONES
 
     datosPrisiones.forEach(prision => {
@@ -828,11 +870,40 @@ function actualizarPoligono() {
 function activarPoligono() {
 
   limpiarMapa();
-  dibujandoPoligono = true;
+
+  // =========================
+  // BORRAR POLIGONO ANTERIOR
+  // =========================
+
+  if (entidadPoligono) {
+    viewer.entities.remove(entidadPoligono);
+    entidadPoligono = null;
+  }
+
+  // borrar puntos visuales
+
+  puntosVisuales.forEach(p => {
+    viewer.entities.remove(p);
+  });
+
+  puntosVisuales = [];
+
+  // borrar linea temporal
+
+  if (lineaTemporal) {
+    viewer.entities.remove(lineaTemporal);
+    lineaTemporal = null;
+  }
+
   puntosPoligono = [];
   puntosTemp = [];
+
+  dibujandoPoligono = true;
+
   viewer.canvas.style.cursor = "crosshair";
-  const panel = document.getElementById("resultadoOperacion");
+
+  const panel =
+    document.getElementById("resultadoOperacion");
 
   panel.innerHTML =
   `<b>Modo polígono activado</b><br><br>
@@ -840,6 +911,8 @@ function activarPoligono() {
   Click derecho: finalizar`;
 
   panel.style.display = "block";
+
+  // BLOQUEAR NAVEGACION
 
   viewer.scene.screenSpaceCameraController.enableRotate = false;
   viewer.scene.screenSpaceCameraController.enableTranslate = false;
@@ -915,29 +988,37 @@ handler.setInputAction(function(click) {
 
 if (dibujandoPoligono) {
 
-  const cartesian = viewer.camera.pickEllipsoid(click.position);
+    dibujandoPoligono = false;
 
-  if (!cartesian) return;
-     const carto = Cesium.Cartographic.fromCartesian(cartesian);
-     const lat = Cesium.Math.toDegrees(carto.latitude);
-     const lon = Cesium.Math.toDegrees(carto.longitude);
-     puntosPoligono.push([lat, lon]);
+    viewer.canvas.style.cursor = "default";
 
-  // Punto visual
+    const panel =
+      document.getElementById("resultadoOperacion");
 
-  const punto = viewer.entities.add({
-    position: cartesian,
-    point: {
-      pixelSize: 10,
-      color: Cesium.Color.YELLOW,
-      outlineColor: Cesium.Color.BLACK,
-      outlineWidth: 2
+    // VALIDAR SOLO SI HAY 3 PUNTOS
+
+    if (puntosPoligono.length < 3) {
+
+      panel.innerHTML =
+      "<b>Debe crear al menos 3 puntos</b>";
+
+    } else {
+
+      panel.innerHTML =
+      validarPoligono(puntosPoligono);
     }
-  });
 
-  puntosVisuales.push(punto);
-  actualizarPoligono();
-  return;
+    panel.style.display = "block";
+
+    // RESTAURAR NAVEGACION
+
+    viewer.scene.screenSpaceCameraController.enableRotate = true;
+    viewer.scene.screenSpaceCameraController.enableTranslate = true;
+    viewer.scene.screenSpaceCameraController.enableZoom = true;
+    viewer.scene.screenSpaceCameraController.enableTilt = true;
+    viewer.scene.screenSpaceCameraController.enableLook = true;
+
+    return;
 }
   
   if (!dibujando) return;
