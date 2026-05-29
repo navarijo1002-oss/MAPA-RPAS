@@ -503,12 +503,12 @@ function validarPoligono(puntos) {
 
     for (let pista of zonasPista) {
 
-      if (puntoEnPoligono(lat, lon, pista.coords)) {
+    if (poligonosIntersectan(puntos, pista.coords)) {
 
-        altura = 0;
-        estado = "PROHIBIDO";
-        motivo = "AREA DE OPERACION DENTRO DE PISTA DE AERODROMO";
-      }
+      altura = 0;
+      estado = "PROHIBIDO";
+      motivo = "AREA DE OPERACION INTERSECTA PISTA DE AERODROMO";
+     }
     }
 
     // =========================
@@ -543,31 +543,46 @@ for (let zona of zonasAproximacion) {
     
     // 🔴 PRISIONES
 
-    datosPrisiones.forEach(prision => {
+datosPrisiones.forEach(prision => {
 
-      const d = distanciaSuperficie(lat,lon,prision[1],prision[2]);
+    const puntoPrision = [
+        [prision[1], prision[2]]
+    ];
 
-      if (d < 300) {
+    if (
+        puntoEnPoligono(
+            prision[1],
+            prision[2],
+            puntos
+        )
+    ) {
 
         altura = 0;
         estado = "PROHIBIDO";
-        motivo = "AREA DE OPERACION DENTRO DE UNA PRISION";
-      }
-    });
+        motivo = "AREA DE OPERACION CONTIENE UNA PRISION";
+    }
+});
 
     // 🔵 PUERTOS
 
-        datosPuertos.forEach(puerto => {
+datosPuertos.forEach(puerto => {
 
-        const d = distanciaSuperficie(lat,lon,puerto[1],puerto[2]);
+    if (
+        puntoEnPoligono(
+            puerto[1],
+            puerto[2],
+            puntos
+        )
+    ) {
 
-        if (d < 500 &&altura > 0) {
+        altura = Math.min(altura,60);
 
-          altura = Math.min(altura, 60);
-          estado = "RESTRINGIDO";
-          motivo = "AREA DE OPERACION SOBRE UN PUERTO MARITIMO";
-         }
-    });
+        if (estado !== "PROHIBIDO") {
+            estado = "RESTRINGIDO";
+            motivo = "AREA DE OPERACION CONTIENE UN PUERTO";
+        }
+    }
+});
 
     // 🟡 AERODROMOS
 
