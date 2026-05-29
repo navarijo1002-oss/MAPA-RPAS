@@ -314,22 +314,22 @@ for (let pista of zonasPista) {
       datosAerodromos.forEach(a => {
       const d = distanciaSuperficie(lat, lon, a[1], a[2]);
 
-      if (d < (2000 + radio)) {
+      if (d < (2000 + radio)&& estado !== "PROHIBIDO") {
          altura = Math.min(altura, 20);
          estado = "RESTRINGIDO POR";
          motivo = "AERODROMO PROXIMO ENTRE 0-2 km   SI DESEA VOLAR EN ESTA ZONA SOLICITE UN PERMISO ESPECIAL DE VUELO a la DGAC";
       } 
-      else if (d < (4000 + radio)) {
+      else if (d < (4000 + radio)&& estado !== "PROHIBIDO") {
          altura = Math.min(altura, 40);
          estado = "RESTRINGIDO POR";
          motivo = "AERODROMO PROXIMO ENTRE 2-4 km   SI DESEA VOLAR EN ESTA ZONA SOLICITE UN PERMISO ESPECIAL DE VUELO a la DGAC";
       } 
-      else if (d < (6000 + radio)) {
+      else if (d < (6000 + radio)&& estado !== "PROHIBIDO") {
          altura = Math.min(altura, 60);
          estado = "RESTRINGIDO POR";
          motivo = "AERODROMO PROXIMO ENTRE 4-6 km   SI DESEA VOLAR EN ESTA ZONA SOLICITE UN PERMISO ESPECIAL DE VUELO a la DGAC";
       } 
-      else if (d < (8000 + radio)) {
+      else if (d < (8000 + radio)&& estado !== "PROHIBIDO") {
          altura = Math.min(altura, 100);
          estado = "RESTRINGIDO POR";
          motivo = "AERODROMO PROXIMO ENTRE 6-8 km   SI DESEA VOLAR EN ESTA ZONA SOLICITE UN PERMISO ESPECIAL DE VUELO a la DGAC";
@@ -575,28 +575,28 @@ for (let zona of zonasAproximacion) {
 
       const d = distanciaSuperficie(lat,lon,a[1],a[2]);
 
-      if (d < 2000) {
+      if (d < 2000 && estado !== "PROHIBIDO") {
 
         altura = Math.min(altura, 20);
         estado = "RESTRINGIDO";
         motivo = "AREA DE OPERACION PROXIMA A AERODROMO 0-2 km";
       }
 
-      else if (d < 4000) {
+      else if (d < 4000 && estado !== "PROHIBIDO") {
 
         altura = Math.min(altura, 40);
         estado = "RESTRINGIDO";
         motivo = "AREA DE OPERACION PROXIMA A AERODROMO 2-4 km";
       }
 
-      else if (d < 6000) {
+      else if (d < 6000 && estado !== "PROHIBIDO") {
 
         altura = Math.min(altura, 60);
         estado = "RESTRINGIDO";
         motivo = "AREA DE OPERACION PROXIMA A AERODROMO 4-6 km";
       }
 
-      else if (d < 8000) {
+      else if (d < 8000 && estado !== "PROHIBIDO") {
 
         altura = Math.min(altura, 100);
         estado = "RESTRINGIDO";
@@ -820,8 +820,8 @@ puntosPoligono = [];
 function limpiarMapa() {
 
   if (operacionActual) {
-    operacionesGuardadas.push(operacionActual);
-    operacionActual = null;
+  viewer.entities.remove(operacionActual);
+  operacionActual = null;
   }
 
   if (operacionFinal) {
