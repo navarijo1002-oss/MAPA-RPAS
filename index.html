@@ -881,6 +881,25 @@ function activarDibujo() {
 
   limpiarMapa();
 
+if (entidadPoligono) {
+
+  viewer.entities.remove(entidadPoligono);
+  entidadPoligono = null;
+}
+
+if (lineaTemporal) {
+
+  viewer.entities.remove(lineaTemporal);
+  lineaTemporal = null;
+}
+
+  puntosVisuales.forEach(p => {
+  viewer.entities.remove(p);
+});
+
+  puntosVisuales = [];
+  puntosPoligono = [];
+  
   viewer.scene.screenSpaceCameraController.enableRotate = false;
   viewer.scene.screenSpaceCameraController.enableTranslate = false;
   viewer.scene.screenSpaceCameraController.enableZoom = false;
@@ -893,8 +912,6 @@ function activarDibujo() {
 // =========================
 
 function actualizarPoligono() {
-
-  // borrar anterior
 
   if (entidadPoligono) {
     viewer.entities.remove(entidadPoligono);
@@ -945,8 +962,6 @@ function activarPoligono() {
       entidadPoligono = null;
   }
 
-  // borrar linea temporal
-
   if (lineaTemporal) {
     viewer.entities.remove(lineaTemporal);
     lineaTemporal = null;
@@ -959,8 +974,7 @@ function activarPoligono() {
 
   viewer.canvas.style.cursor = "crosshair";
 
-  const panel =
-    document.getElementById("resultadoOperacion");
+  const panel = document.getElementById("resultadoOperacion");
 
   panel.innerHTML =
   `<b>Modo polígono activado</b><br><br>
@@ -968,8 +982,6 @@ function activarPoligono() {
   Click derecho: finalizar`;
 
   panel.style.display = "block";
-
-  // BLOQUEAR NAVEGACION
 
   viewer.scene.screenSpaceCameraController.enableRotate = false;
   viewer.scene.screenSpaceCameraController.enableTranslate = false;
@@ -1059,11 +1071,7 @@ handler.setInputAction(function(click) {
     const lon =
       Cesium.Math.toDegrees(carto.longitude);
 
-    // GUARDAR PUNTO
-
-    puntosPoligono.push([lat, lon]);
-
-    // CREAR PUNTO VISUAL
+      puntosPoligono.push([lat, lon]);
 
     const punto = viewer.entities.add({
       position: cartesian,
@@ -1076,8 +1084,6 @@ handler.setInputAction(function(click) {
     });
 
     puntosVisuales.push(punto);
-
-    // ACTUALIZAR POLIGONO
 
     actualizarPoligono();
 
@@ -1188,28 +1194,21 @@ handler.setInputAction(function(click) {
 
 handler.setInputAction(function() {
 
-  // =========================
-  // FINALIZAR POLIGONO
-  // =========================
-
   if (dibujandoPoligono) {
 
     dibujandoPoligono = false;
 
     viewer.canvas.style.cursor = "default";
 
-    const panel =
-      document.getElementById("resultadoOperacion");
+    const panel = document.getElementById("resultadoOperacion");
 
     if (puntosPoligono.length < 3) {
 
-      panel.innerHTML =
-        "<b>Debe crear mínimo 3 puntos</b>";
+      panel.innerHTML = "<b>Debe crear mínimo 3 puntos</b>";
 
     } else {
 
-      panel.innerHTML =
-        validarPoligono(puntosPoligono);
+      panel.innerHTML = validarPoligono(puntosPoligono);
     }
 
     viewer.scene.screenSpaceCameraController.enableRotate = true;
@@ -1232,13 +1231,11 @@ handler.setInputAction(function() {
   const lat = puntoInicio.lat;
   const lon = puntoInicio.lon;
 
-  const panel =
-    document.getElementById("resultadoOperacion");
+  const panel = document.getElementById("resultadoOperacion");
 
   panel.style.display = "block";
 
-  panel.innerHTML =
-    validarOperacion(lat, lon, radioActual);
+  panel.innerHTML = validarOperacion(lat, lon, radioActual);
 
   puntosVisuales = [];
 
@@ -1921,31 +1918,73 @@ handlerCoords.setInputAction(function(movement) {
 
 }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
 
-  // ======================
+// ======================
 // CANCELAR DIBUJO CON ESC
 // ======================
 
 document.addEventListener("keydown", function(event) {
 
-  if (event.key === "Escape" && dibujando) {
+  if (event.key !== "Escape") return;
 
+  if (dibujando) {
     dibujando = false;
 
     limpiarMapa();
 
-    viewer.scene.screenSpaceCameraController.enableRotate = true;
-    viewer.scene.screenSpaceCameraController.enableTranslate = true;
-    viewer.scene.screenSpaceCameraController.enableZoom = true;
-    viewer.scene.screenSpaceCameraController.enableTilt = true;
-    viewer.scene.screenSpaceCameraController.enableLook = true;
+    if (circuloTemp) {
+      viewer.entities.remove(circuloTemp);
+      circuloTemp = null;
+    }
 
-    viewer.canvas.style.cursor = "default";
+    if (etiquetaRadio) {
+      viewer.entities.remove(etiquetaRadio);
+      etiquetaRadio = null;
+    }
 
-    const panel = document.getElementById("resultadoOperacion");
+    if (lineaMedicion) {
+      viewer.entities.remove(lineaMedicion);
+      lineaMedicion = null;
+    }
 
-    panel.innerHTML = "";
-    panel.style.display = "none";
+    if (puntoDespegue) {
+      viewer.entities.remove(puntoDespegue);
+      puntoDespegue = null;
+    }
   }
+
+  if (dibujandoPoligono) {
+    dibujandoPoligono = false;
+
+    if (entidadPoligono) {
+      viewer.entities.remove(entidadPoligono);
+      entidadPoligono = null;
+    }
+
+    if (lineaTemporal) {
+      viewer.entities.remove(lineaTemporal);
+      lineaTemporal = null;
+    }
+
+      puntosVisuales.forEach(p => {
+      viewer.entities.remove(p);
+    });
+      puntosVisuales = [];
+      puntosPoligono = [];
+  }
+
+  viewer.scene.screenSpaceCameraController.enableRotate = true;
+  viewer.scene.screenSpaceCameraController.enableTranslate = true;
+  viewer.scene.screenSpaceCameraController.enableZoom = true;
+  viewer.scene.screenSpaceCameraController.enableTilt = true;
+  viewer.scene.screenSpaceCameraController.enableLook = true;
+  viewer.canvas.style.cursor = "default";
+
+  const panel = document.getElementById("resultadoOperacion");
+
+  panel.innerHTML = "";
+
+  panel.style.display = "none";
+
 });
   
 </script>
